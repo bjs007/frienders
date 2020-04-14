@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "976133331256",
+    "firebase_url": "https://frienders-a1fdb.firebaseio.com",
+    "project_id": "frienders-a1fdb",
+    "storage_bucket": "frienders-a1fdb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976133331256:android:69f1bc5970b2d04ce309cd",
+        "android_client_info": {
+          "package_name": "com.frienders.main"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "976133331256-7u93gsakc74nlv9kmt9j7598os8naj2t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.frienders.main",
+            "certificate_hash": "6ac8ccf6937c8ae699617a15fdae2c58b953f695"
+          }
+        },
+        {
+          "client_id": "976133331256-n9rppuh2o33k6v07vv59ungbho1lrqh7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD66u44X9HrmSwmzk1ruY-B2NLMDlvk37s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "976133331256-n9rppuh2o33k6v07vv59ungbho1lrqh7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
