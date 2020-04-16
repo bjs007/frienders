@@ -3,8 +3,10 @@ package com.frienders.main;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.SimpleTimeZone;
 
 public class GroupActivity extends AppCompatActivity {
@@ -50,7 +53,7 @@ public class GroupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group);
 
         currentGroupName = getIntent().getExtras().getString("groupName");
-        Toast.makeText(this, "Current Name " + currentGroupName, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Current Name " + currentGroupName, Toast.LENGTH_SHORT).show();
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -66,7 +69,7 @@ public class GroupActivity extends AppCompatActivity {
 
 
 
-        SendMessageButton.setOnClickListener(new View.OnClickListener() {
+     SendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SaveMessageInfoToDataBase();
@@ -163,11 +166,12 @@ public class GroupActivity extends AppCompatActivity {
 
 
         RootRef.child(currentUserId).addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists())
                 {
-                    currentUserName = dataSnapshot.child("name").getValue().toString();
+                    currentUserName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
                 }
             }
 

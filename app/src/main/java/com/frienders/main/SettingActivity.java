@@ -18,6 +18,7 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -135,7 +136,7 @@ public class SettingActivity extends AppCompatActivity {
                 Uri resultUri = result.getUri();
 
 
-                StorageReference filePath = UserProfileImagesRef.child(currentUserId + ".jpg");
+                final StorageReference filePath = UserProfileImagesRef.child(currentUserId + ".jpg");
 
 
                 filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -146,28 +147,40 @@ public class SettingActivity extends AppCompatActivity {
                         {
                             Toast.makeText(SettingActivity.this, "Profile Image uploaded Successfully...", Toast.LENGTH_SHORT).show();
 
-//                            final String downloadUrl = task.getResult().getMetadata().getReference().getDownloadUrl().toString();
-                            final String downloadUrl = task.getResult().getStorage().getDownloadUrl().toString();
+//
+                            final Task<Uri> firebaseUri = task.getResult().getStorage().getDownloadUrl();
 
-                            RootRef.child(currentUserId).child("image")
-                                    .setValue(downloadUrl)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task)
-                                        {
-                                            if (task.isSuccessful())
-                                            {
-                                                Toast.makeText(SettingActivity.this, "Image save in Database, Successfully...", Toast.LENGTH_SHORT).show();
-                                                loadingBar.dismiss();
-                                            }
-                                            else
-                                            {
-                                                String message = task.getException().toString();
-                                                Toast.makeText(SettingActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
-                                                loadingBar.dismiss();
-                                            }
-                                        }
-                                    });
+                            firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    final String downloadUrl = uri.toString();
+                                    // complete the rest of your code
+
+                                    RootRef.child(currentUserId).child("image")
+                                            .setValue(downloadUrl)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task)
+                                                {
+                                                    if (task.isSuccessful())
+                                                    {
+                                                        Toast.makeText(SettingActivity.this, "Image save in Database, Successfully...", Toast.LENGTH_SHORT).show();
+                                                        loadingBar.dismiss();
+                                                    }
+                                                    else
+                                                    {
+                                                        String message = task.getException().toString();
+                                                        Toast.makeText(SettingActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                                                        loadingBar.dismiss();
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
+
+
+
+
                         }
                         else
                         {
