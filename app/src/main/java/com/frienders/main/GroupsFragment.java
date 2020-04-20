@@ -55,7 +55,7 @@ public class GroupsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 String currentGroupName = adapterView.getItemAtPosition(position).toString();
-                Intent groupChatIntent = new Intent(getContext(), GroupActivity.class);
+                Intent groupChatIntent = new Intent(getContext(), GroupChatActivity.class);
                 groupChatIntent.putExtra("groupName", currentGroupName);
                 startActivity(groupChatIntent);
             }

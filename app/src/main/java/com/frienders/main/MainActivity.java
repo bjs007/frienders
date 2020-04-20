@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.frienders.main.db.GroupHandler;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
@@ -179,13 +180,40 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String groupName = groupNameField.getText().toString();
+               final String groupName = groupNameField.getText().toString();
                 if(TextUtils.isEmpty(groupName)){
                     Toast.makeText(MainActivity.this, "Please enter group name", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    CreateNewGroup(groupName);
+                    try {
+                        CreateNewGroup(groupName);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+//                    try {
+//                        CreateNewGroup(groupName);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+
+//                        Thread t1 = new Thread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                try {
+//                                    CreateNewGroup(groupName);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        });
+//
+//                        t1.start();
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         });
@@ -200,19 +228,36 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void CreateNewGroup(final String groupName) {
-        GroupRef.child(groupName)
-                .setValue("")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful())
-                        {
-                            Toast.makeText(MainActivity.this,  groupName + " group created!", Toast.LENGTH_SHORT).show();
 
-                        }
-                    }
-                });
+
+    private void CreateNewGroup(final String groupName) throws InterruptedException {
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                GroupHandler groupHandler= GroupHandler.getGroupHandler();
+                try {
+                    groupHandler.createGroup(groupName);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+//        GroupRef.child(groupName)
+
+//                .setValue("")
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        if(task.isSuccessful())
+//                        {
+//                            Toast.makeText(MainActivity.this,  groupName + " group created!", Toast.LENGTH_SHORT).show();
+//
+//                        }
+//                    }
+//                });
     }
 
 

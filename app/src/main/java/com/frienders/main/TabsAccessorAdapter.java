@@ -21,7 +21,7 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
                 ChatsFragment chatsFragment = new ChatsFragment();
                 return chatsFragment;
             case 1:
-                GroupsFragment groupsFragment = new GroupsFragment();
+                GinfoxGroupsFragment groupsFragment = new GinfoxGroupsFragment();
                 return groupsFragment;
             case 2:
                 ContactsFragment contactsFragment = new ContactsFragment();

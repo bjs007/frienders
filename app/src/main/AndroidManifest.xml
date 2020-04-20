@@ -20,6 +20,7 @@
             android:parentActivityName=".MainActivity" />
         <activity android:name=".PhoneLoginActivity" />
         <activity android:name=".GroupActivity" />
+        <activity android:name=".GroupChatActivity" />
         <activity
             android:name=".SettingActivity"
             android:parentActivityName=".MainActivity" />
