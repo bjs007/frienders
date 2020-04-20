@@ -9,7 +9,7 @@ public class Group
     private String createdBy;
     private String date;
     private String time;
-    private boolean isLeave;
+    private boolean isLeaf;
     private int level = 0;
     private String parentId;
     private List<String> childrenIds;
@@ -19,14 +19,14 @@ public class Group
 
     }
 
-    public Group(String name, String id, String createdBy, String date, String time, boolean isLeave, int level,List<String> childrenIds)
+    public Group(String name, String id, String createdBy, String date, String time, boolean isLeaf, int level, List<String> childrenIds)
     {
         this.name = name;
         this.id = id;
         this.createdBy = createdBy;
         this.date = date;
         this.time = time;
-        this.isLeave = isLeave;
+        this.isLeaf = isLeaf;
         this.level = level;
         this.childrenIds = childrenIds;
     }
@@ -97,14 +97,14 @@ public class Group
         this.time = time;
     }
 
-    public boolean isLeave()
+    public boolean isLeaf()
     {
-        return isLeave;
+        return isLeaf;
     }
 
-    public void setLeave(boolean leave)
+    public void setLeaf(boolean leaf)
     {
-        isLeave = leave;
+        isLeaf = leaf;
     }
 
     public int getLevel()

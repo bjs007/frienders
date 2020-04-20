@@ -92,20 +92,7 @@ public class ParentCreation implements Runnable
 
                 groupPathWithName.get(level).setCurrentNodeDbRef(requiredNodeAtCurrentLevel.getId());
 
-
-//                final String childGroupDBRefId = leafLevel? null : groupPathWithName.get(level + 1).getChildDbRef();
-//
-//                if(requiredNodeAtCurrentLevel.getChildrenIds() == null)
-//                {
-//                    requiredNodeAtCurrentLevel.setChildrenIds(new ArrayList<String>());
-//                }
-//                else
-//                {
-//                    requiredNodeAtCurrentLevel.getChildrenIds().add(childGroupDBRefId);
-//                }
-
-
-
+                
                 Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
                 updatedNodeAtCurrentLevelDetail.put(currentLevel +"/"+ requiredNodeAtCurrentLevel.getId() + "/", requiredNodeAtCurrentLevel);
 

@@ -20,7 +20,6 @@ public class ChildCreation implements Runnable {
 
     public ChildCreation(  List<GroupHandler.ChildNodeWithDBReference> childNodeWithDBReferences)
     {
-        while (childNodeWithDBReferences.get(0).getChildDbRef() == null);
         firebaseDatabase = FirebaseDatabase.getInstance().getReference("Groups");
         this.childNodeWithDBReferences = childNodeWithDBReferences;
     }
@@ -33,45 +32,67 @@ public class ChildCreation implements Runnable {
     }
 
     public void onCallBack(List<GroupHandler.ChildNodeWithDBReference> list, final int level) {
-        final String parentId = list.get(level).getCurrentNodeDbRef();
-        final String childId = list.get(level+1).getCurrentNodeDbRef();
-        final String path = "level - " + level;
 
-        firebaseDatabase.child(path).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
+        for(int i = 0; i < list.size() - 1; i++)
+        {
+            final String parentId = list.get(i).getCurrentNodeDbRef();
+            final String childId = list.get(i + 1).getCurrentNodeDbRef();
+            final String path = "level - " + i;
+
+            firebaseDatabase.child(path).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                 {
-                    Iterator<DataSnapshot> dataSnapshotIterator = dataSnapshot.getChildren().iterator();
-                    while (dataSnapshotIterator.hasNext())
+                    if(dataSnapshot.exists())
                     {
-                        DataSnapshot ds = dataSnapshotIterator.next();
-
-                        Group group = ds.getValue(Group.class);
-                        if(group.getId().equals(parentId))
+                        Iterator<DataSnapshot> dataSnapshotIterator = dataSnapshot.getChildren().iterator();
+                        while (dataSnapshotIterator.hasNext())
                         {
-                            if(group.getChildrenIds() == null)
+                            DataSnapshot ds = dataSnapshotIterator.next();
+
+                            Group group = ds.getValue(Group.class);
+                            if(group.getId().equals(parentId))
                             {
-                                group.setChildrenIds(new ArrayList<String>());
+                                boolean childExist = false;
+                                if(group.getChildrenIds() == null)
+                                {
+                                    group.setChildrenIds(new ArrayList<String>());
+
+                                }else
+                                {
+                                    for(String child: group.getChildrenIds())
+                                    {
+                                        if(child.equals(childId))
+                                        {
+                                            childExist = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if(!childExist)
+                                {
+                                    group.getChildrenIds().add(childId);
+                                    Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
+
+                                    updatedNodeAtCurrentLevelDetail.put(path +"/"+ group.getId() + "/", group);
+
+                                    firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail);
+                                }
+
                             }
-                            group.getChildrenIds().add("TEST CHILD");
-                            Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
 
-                            updatedNodeAtCurrentLevelDetail.put(path +"/"+ group.getId() + "/", group);
-
-                            firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail);
                         }
-
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError)
+                {
 
-            }
-        });
+                }
+            });
+        }
+
     }
 }
