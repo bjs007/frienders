@@ -19,7 +19,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.model.Contacts;
 import com.frienders.main.R;
-import com.frienders.main.activity.ChatActivity;
+import com.frienders.main.activity.chat.ChatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

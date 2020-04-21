@@ -1,4 +1,4 @@
-package com.frienders.main.db;
+package com.frienders.main.model;
 
 import java.util.List;
 

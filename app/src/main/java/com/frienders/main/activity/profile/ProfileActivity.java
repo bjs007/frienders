@@ -1,4 +1,4 @@
-package com.frienders.main.activity;
+package com.frienders.main.activity.profile;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

@@ -2,6 +2,9 @@ package com.frienders.main.db;
 
 import androidx.annotation.NonNull;
 
+import com.frienders.main.handlers.GroupHandler;
+import com.frienders.main.model.ChildNodeWithDBReference;
+import com.frienders.main.model.Group;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -16,9 +19,9 @@ import java.util.Map;
 
 public class ChildCreation implements Runnable {
     private DatabaseReference firebaseDatabase;
-    List<GroupHandler.ChildNodeWithDBReference> childNodeWithDBReferences;
+    List<ChildNodeWithDBReference> childNodeWithDBReferences;
 
-    public ChildCreation(  List<GroupHandler.ChildNodeWithDBReference> childNodeWithDBReferences)
+    public ChildCreation(  List<ChildNodeWithDBReference> childNodeWithDBReferences)
     {
         firebaseDatabase = FirebaseDatabase.getInstance().getReference("Groups");
         this.childNodeWithDBReferences = childNodeWithDBReferences;
@@ -31,7 +34,7 @@ public class ChildCreation implements Runnable {
 
     }
 
-    public void onCallBack(List<GroupHandler.ChildNodeWithDBReference> list, final int level) {
+    public void onCallBack(List<ChildNodeWithDBReference> list, final int level) {
 
         for(int i = 0; i < list.size() - 1; i++)
         {

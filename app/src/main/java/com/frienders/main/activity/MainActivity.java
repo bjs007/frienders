@@ -15,8 +15,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.frienders.main.R;
+import com.frienders.main.activity.login.LoginActivity;
+import com.frienders.main.activity.menu.FindFriendsActivity;
+import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.adapter.TabsAccessorAdapter;
-import com.frienders.main.db.GroupHandler;
+import com.frienders.main.handlers.GroupHandler;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

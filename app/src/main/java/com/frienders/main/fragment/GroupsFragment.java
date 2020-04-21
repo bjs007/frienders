@@ -14,7 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.frienders.main.R;
-import com.frienders.main.activity.GroupChatActivity;
+import com.frienders.main.activity.group.GroupChatActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

@@ -1,4 +1,4 @@
-package com.frienders.main.activity;
+package com.frienders.main.activity.menu;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.frienders.main.activity.MainActivity;
 import com.frienders.main.activity.profile.ProfileActivity;
 import com.frienders.main.model.Contacts;
 import com.frienders.main.R;

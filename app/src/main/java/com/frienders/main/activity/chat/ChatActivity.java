@@ -1,4 +1,4 @@
-package com.frienders.main.activity;
+package com.frienders.main.activity.chat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

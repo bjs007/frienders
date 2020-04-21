@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EFEDED"
-    tools:context=".activity.ChatActivity">
+    tools:context=".activity.chat.ChatActivity">
 
     <include
         android:id="@+id/chat_toolbar"

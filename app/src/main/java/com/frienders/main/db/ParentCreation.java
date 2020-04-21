@@ -4,6 +4,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.frienders.main.handlers.GroupHandler;
+import com.frienders.main.model.ChildNodeWithDBReference;
+import com.frienders.main.model.Group;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,8 +28,8 @@ public class ParentCreation implements Runnable
 {
     private DatabaseReference firebaseDatabase;
     private FirebaseAuth firebaseAuth;
-    List<GroupHandler.ChildNodeWithDBReference> childNodeWithDBReferences;
-    public ParentCreation(List<GroupHandler.ChildNodeWithDBReference> childNodeWithDBReferences)
+    List<ChildNodeWithDBReference> childNodeWithDBReferences;
+    public ParentCreation(List<ChildNodeWithDBReference> childNodeWithDBReferences)
     {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance().getReference("Groups");
@@ -38,7 +41,7 @@ public class ParentCreation implements Runnable
         createGroup(childNodeWithDBReferences, 0);
     }
 
-    private void createGroup(final List<GroupHandler.ChildNodeWithDBReference> groupPathWithName, final int level)
+    private void createGroup(final List<ChildNodeWithDBReference> groupPathWithName, final int level)
     {
 
         Log.i("Frienders", "I will be executing first");
@@ -64,7 +67,7 @@ public class ParentCreation implements Runnable
                 while (iterator.hasNext())
                 {
                     Group group = iterator.next().getValue(Group.class);
-                    String newGroupName = groupPathWithName.get(level).name;
+                    String newGroupName = groupPathWithName.get(level).getName();
                     if(group != null && group.getName().equals((groupPathWithName.get(level).getName())))
                     {
                         requiredNodeAtCurrentLevel = group;

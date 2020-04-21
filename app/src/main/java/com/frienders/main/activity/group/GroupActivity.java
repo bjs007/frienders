@@ -1,5 +1,5 @@
 
-package com.frienders.main.activity;
+package com.frienders.main.activity.group;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
