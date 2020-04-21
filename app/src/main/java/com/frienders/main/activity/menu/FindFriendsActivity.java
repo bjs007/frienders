@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.frienders.main.activity.profile.ProfileActivity;
 import com.frienders.main.model.Contacts;
 import com.frienders.main.R;
 import com.google.firebase.database.DatabaseReference;
