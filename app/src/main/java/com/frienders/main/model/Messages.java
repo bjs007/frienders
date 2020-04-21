@@ -1,30 +1,36 @@
-package com.frienders.main;
+package com.frienders.main.model;
 
-public class GroupMessage
+public class Messages
 {
-    private String from, message, type, messageId, time, date, name;
+    private String from, message, type, messageID, time, date, name;
 
-    public GroupMessage()
+    public Messages(){}
+
+    public Messages(String from, String message, String type)
     {
-
-    }
-
-    public GroupMessage(String from, String message, String type, String messageId, String time, String date, String name) {
         this.from = from;
         this.message = message;
         this.type = type;
-        this.messageId = messageId;
+    }
+
+    public Messages(String from, String message, String type, String messageID, String time, String date, String name) {
+        this.from = from;
+        this.message = message;
+        this.type = type;
+        this.messageID = messageID;
         this.time = time;
         this.date = date;
         this.name = name;
     }
 
-    public GroupMessage(String messageId, String time, String date, String name) {
-        this.messageId = messageId;
-        this.time = time;
-        this.date = date;
-        this.name = name;
+    public Messages(String messageID, String from, String message, String type)
+    {
+        this.from = from;
+        this.message = message;
+        this.type = type;
+        this.messageID = messageID;
     }
+
 
     public String getFrom() {
         return from;
@@ -50,12 +56,12 @@ public class GroupMessage
         this.type = type;
     }
 
-    public String getMessageId() {
-        return messageId;
+    public String getMessageID() {
+        return messageID;
     }
 
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
     }
 
     public String getTime() {

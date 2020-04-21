@@ -1,4 +1,4 @@
-package com.frienders.main;
+package com.frienders.main.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.frienders.main.R;
+import com.frienders.main.activity.NestedGroupDisplayActivity;
 import com.frienders.main.db.Group;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;

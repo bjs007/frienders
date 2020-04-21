@@ -1,4 +1,4 @@
-package com.frienders.main;
+package com.frienders.main.model;
 
 public class Contacts
 {

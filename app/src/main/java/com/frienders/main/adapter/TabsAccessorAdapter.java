@@ -1,10 +1,15 @@
-package com.frienders.main;
+package com.frienders.main.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
+import com.frienders.main.fragment.ChatsFragment;
+import com.frienders.main.fragment.ContactsFragment;
+import com.frienders.main.fragment.GinfoxGroupsFragment;
+import com.frienders.main.fragment.RequestsFragment;
 
 public class TabsAccessorAdapter extends FragmentPagerAdapter {
     public TabsAccessorAdapter(@NonNull FragmentManager fm) {
