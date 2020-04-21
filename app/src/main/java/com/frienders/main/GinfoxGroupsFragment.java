@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -51,7 +52,7 @@ private String currentUserId;
         userSubscribedGroupsList = (RecyclerView) groupChatView.findViewById(R.id.groups_list);
         userSubscribedGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        groupDatabaseReference = FirebaseDatabase.getInstance().getReference("Groups");
+        groupDatabaseReference = FirebaseDatabase.getInstance().getReference("Groups").child("level - 0");
 
         userDatabaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
@@ -80,19 +81,27 @@ private String currentUserId;
             FirebaseRecyclerAdapter<Group, GroupViewHolder> adapter =
                     new FirebaseRecyclerAdapter<Group, GroupViewHolder>(options) {
                         @Override
-                        protected void onBindViewHolder(@NonNull final GroupViewHolder holder, int position, @NonNull Group model)
+                        protected void onBindViewHolder(@NonNull final GroupViewHolder holder, int position, @NonNull final Group model)
                         {
                             final String groupName = getRef(position).getKey();
-                            holder.groupName.setText(groupName);
+
+                            holder.groupName.setText(model.getName());
+                            holder.groupViewImage.setVisibility(View.GONE);
+                            if(!model.isLeaf())
+                            {
+                                holder.enterIntoButton.setVisibility(View.GONE);
+                                holder.subScribeButton.setVisibility(View.GONE);
+                            }
                             holder.itemView.setOnClickListener(new View.OnClickListener()
                             {
 
                                 @Override
                                 public void onClick(View v)
                                 {
-                                    Intent groupChatIntent = new Intent(getContext(), GroupChatActivity.class);
-                                    groupChatIntent.putExtra("groupName", groupName);
-                                    startActivity(groupChatIntent);
+                                    Intent nestedGroupIntent = new Intent(getContext(), NestedGroupDisplayActivity.class);
+                                    nestedGroupIntent.putExtra("level", 1);
+                                    nestedGroupIntent.putExtra("parentId", model.getId());
+                                    startActivity(nestedGroupIntent);
                                 }
                             });
                         }
@@ -126,6 +135,7 @@ private String currentUserId;
 
         CircleImageView groupViewImage;
         TextView groupName, groupDescription;
+        Button subScribeButton, enterIntoButton;
 
         public GroupViewHolder(@NonNull View itemView)
         {
@@ -133,6 +143,8 @@ private String currentUserId;
             groupViewImage = itemView.findViewById(R.id.group_profile_image);
             groupName = itemView.findViewById(R.id.group_name);
             groupDescription = itemView.findViewById(R.id.group_description);
+            subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);
+            enterIntoButton = itemView.findViewById(R.id.enter_into_group_button);
 
         }
     }

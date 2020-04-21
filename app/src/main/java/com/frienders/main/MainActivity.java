@@ -244,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        t1.start();
+
 
 //        GroupRef.child(groupName)
 
