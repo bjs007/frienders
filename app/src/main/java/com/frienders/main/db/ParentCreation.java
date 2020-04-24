@@ -4,9 +4,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.frienders.main.handlers.GroupHandler;
 import com.frienders.main.model.ChildNodeWithDBReference;
 import com.frienders.main.model.Group;
+import com.frienders.main.model.GroupCreationRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,8 +67,8 @@ public class ParentCreation implements Runnable
                 while (iterator.hasNext())
                 {
                     Group group = iterator.next().getValue(Group.class);
-                    String newGroupName = groupPathWithName.get(level).getName();
-                    if(group != null && group.getName().equals((groupPathWithName.get(level).getName())))
+                    String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng();
+                    if(group != null && group.getEngName().equals((groupPathWithName.get(level).getRequest().getGroupNameInEng())))
                     {
                         requiredNodeAtCurrentLevel = group;
                         break;
@@ -79,7 +79,7 @@ public class ParentCreation implements Runnable
                 {
                     DatabaseReference newGroupDBRefId = firebaseDatabase.child(currentLevel).push();
                     final String groupId = newGroupDBRefId.getKey();
-                    requiredNodeAtCurrentLevel = createGroup(groupPathWithName.get(level).getName(), groupId, level, leafLevel);
+                    requiredNodeAtCurrentLevel = createGroup(groupPathWithName.get(level).getRequest(), groupId, level, leafLevel);
 
 
                     if(level == 0)
@@ -96,8 +96,9 @@ public class ParentCreation implements Runnable
                 groupPathWithName.get(level).setCurrentNodeDbRef(requiredNodeAtCurrentLevel.getId());
 
                 
-                Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
+                final Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
                 updatedNodeAtCurrentLevelDetail.put(currentLevel +"/"+ requiredNodeAtCurrentLevel.getId() + "/", requiredNodeAtCurrentLevel);
+                final Group finalNodeHere = requiredNodeAtCurrentLevel;
 
                 firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail).addOnCompleteListener(new OnCompleteListener()
                 {
@@ -113,7 +114,9 @@ public class ParentCreation implements Runnable
                             }
                             else
                             {
-
+                                Map<String, Object> updateLeafNodes = new HashMap<>();
+                                updateLeafNodes.put("leafs" + "/" + finalNodeHere.getId() + "/",finalNodeHere);
+                                firebaseDatabase.updateChildren(updateLeafNodes);
                             }
                         }
                         else
@@ -135,11 +138,15 @@ public class ParentCreation implements Runnable
 
     }
 
-    private Group createGroup(String name, String id, int level, boolean isLeaf)
+    private Group createGroup(GroupCreationRequest request, String id, int level, boolean isLeaf)
     {
         firebaseAuth = FirebaseAuth.getInstance();
         String currentUser = firebaseAuth.getCurrentUser().getUid();
-        return new Group(name, id, currentUser, getCurrentDate(), getCurrentTime(),isLeaf, level, new ArrayList<String>());
+        Group grp = new Group(request.getGroupNameInEng(), id, currentUser, getCurrentDate(), getCurrentTime(), isLeaf, level, new ArrayList<String>());
+        grp.setEngDesc(request.getGroupDescInEng());
+        grp.setHinName(request.getGroupNameInHin());
+        grp.setHinDesc(request.getGroupDescInHin());
+        return grp ;
     }
 
 

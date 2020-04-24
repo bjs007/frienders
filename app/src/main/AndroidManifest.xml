@@ -13,7 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.group.NestedGroupDisplayActivity"></activity>
+        <activity android:name=".activity.login.CodeVerificationCodeActivity"></activity>
+        <activity android:name=".activity.login.NewLoginActivity" />
+        <activity android:name=".activity.group.GroupCreationActivity" />
+        <activity android:name=".activity.group.NestedGroupDisplayActivity" />
         <activity android:name=".activity.chat.ChatActivity" />
         <activity android:name=".activity.profile.ProfileActivity" />
         <activity

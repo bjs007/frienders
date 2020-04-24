@@ -1,7 +1,7 @@
 package com.frienders.main.model;
 
 public class ChildNodeWithDBReference {
-    String name;
+    GroupCreationRequest request;
     String childDbRef;
     String currentNodeDbRef;
 
@@ -10,20 +10,20 @@ public class ChildNodeWithDBReference {
     {
 
     }
-    public ChildNodeWithDBReference(String name
+    public ChildNodeWithDBReference(GroupCreationRequest request
             , String dbRef, String currentNodeDbRef)
     {
-        this.name = name;
+        this.request = request;
         this.childDbRef = dbRef;
         this.currentNodeDbRef = currentNodeDbRef;
     }
 
-    public String getName() {
-        return name;
+    public GroupCreationRequest getRequest() {
+        return request;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRequest(GroupCreationRequest request) {
+        this.request = request;
     }
 
     public String getChildDbRef() {

@@ -10,6 +10,7 @@ import com.frienders.main.fragment.ChatsFragment;
 import com.frienders.main.fragment.ContactsFragment;
 import com.frienders.main.fragment.GinfoxGroupsFragment;
 import com.frienders.main.fragment.RequestsFragment;
+import com.frienders.main.fragment.SubscribedGroupsFragment;
 
 public class TabsAccessorAdapter extends FragmentPagerAdapter {
     public TabsAccessorAdapter(@NonNull FragmentManager fm) {
@@ -24,7 +25,7 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
         {
             case 0:
                 ChatsFragment chatsFragment = new ChatsFragment();
-                return chatsFragment;
+                return new SubscribedGroupsFragment();
             case 1:
                 GinfoxGroupsFragment groupsFragment = new GinfoxGroupsFragment();
                 return groupsFragment;
@@ -46,15 +47,10 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
         switch (i)
         {
             case 0:
-                return "Chats";
+                return "Your Groups";
             case 1:
 
-                return "Groups";
-            case 2:
-
-                return "Contacts";
-            case 3:
-                return "Requests";
+                return "All Groups";
 
             default:
                 return null;
@@ -63,6 +59,6 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 4;
+        return 2;
     }
 }

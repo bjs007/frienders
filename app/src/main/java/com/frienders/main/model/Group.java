@@ -4,7 +4,10 @@ import java.util.List;
 
 public class Group
 {
-    private String name;
+    private String engName;
+    private String hinName;
+    private String engDesc;
+    private String hinDesc;
     private String id;
     private String createdBy;
     private String date;
@@ -14,14 +17,15 @@ public class Group
     private String parentId;
     private List<String> childrenIds;
 
+
     public Group()
     {
 
     }
 
-    public Group(String name, String id, String createdBy, String date, String time, boolean isLeaf, int level, List<String> childrenIds)
+    public Group(String engName, String id, String createdBy, String date, String time, boolean isLeaf, int level, List<String> childrenIds)
     {
-        this.name = name;
+        this.engName = engName;
         this.id = id;
         this.createdBy = createdBy;
         this.date = date;
@@ -47,14 +51,14 @@ public class Group
         this.childrenIds = childrenIds;
     }
 
-    public String getName()
+    public String getEngName()
     {
-        return name;
+        return engName;
     }
 
-    public void setName(String name)
+    public void setEngName(String engName)
     {
-        this.name = name;
+        this.engName = engName;
     }
 
     public String getId()
@@ -115,5 +119,29 @@ public class Group
     public void setLevel(int level)
     {
         this.level = level;
+    }
+
+    public String getHinName() {
+        return hinName;
+    }
+
+    public void setHinName(String hinName) {
+        this.hinName = hinName;
+    }
+
+    public String getEngDesc() {
+        return engDesc;
+    }
+
+    public void setEngDesc(String engDesc) {
+        this.engDesc = engDesc;
+    }
+
+    public String getHinDesc() {
+        return hinDesc;
+    }
+
+    public void setHinDesc(String hinDesc) {
+        this.hinDesc = hinDesc;
     }
 }

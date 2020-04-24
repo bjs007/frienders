@@ -12,6 +12,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.frienders.main.R;
@@ -47,6 +49,8 @@ public class SettingActivity extends AppCompatActivity {
     private StorageReference UserProfileImagesRef;
     private ProgressDialog loadingBar;
     private androidx.appcompat.widget.Toolbar SettingsToolBar;
+    RadioButton languageRadioButton;
+    RadioGroup languaeRadioGroup;
 
     private static final int GalleryPick = 1;
 
@@ -59,6 +63,8 @@ public class SettingActivity extends AppCompatActivity {
         currentUserId = mAuth.getCurrentUser().getUid();
         RootRef = FirebaseDatabase.getInstance().getReference("Users");
         UserProfileImagesRef = FirebaseStorage.getInstance().getReference("ProfileImages");
+        languaeRadioGroup = findViewById(R.id.radioGroup);
+
 
 
         InitializeFields();
@@ -207,17 +213,37 @@ public class SettingActivity extends AppCompatActivity {
             Toast.makeText(this, "Please write your user name first..", Toast.LENGTH_SHORT).show();
         }
 
-        if(TextUtils.isEmpty(setUserStatus))
+        else if(TextUtils.isEmpty(setUserStatus))
         {
             Toast.makeText(this, "Please write your status..", Toast.LENGTH_SHORT).show();
         }
 
+        else if(languaeRadioGroup.getCheckedRadioButtonId() == -1)
+        {
+            Toast.makeText(this, "Please select preferred language..", Toast.LENGTH_SHORT).show();
+        }
+
         else
         {
+            int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
+
+            languageRadioButton = (RadioButton) findViewById(languageKey);
+
+            String language = "hin";
+
+            String inputLang = languageRadioButton.getText().toString().trim().toLowerCase();
+
+            if(inputLang.equals("english"))
+            {
+                language = "eng";
+            }
+
             HashMap<String, Object> profileMap = new HashMap<>();
                 profileMap.put("uid", currentUserId);
                 profileMap.put("name", setUserName);
                 profileMap.put("status", setUserStatus);
+                profileMap.put("lang", language);
+
 
             RootRef.child(currentUserId).updateChildren(profileMap)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -235,6 +261,10 @@ public class SettingActivity extends AppCompatActivity {
                             }
                         }
                     });
+
+            Toast.makeText(SettingActivity.this, "User Language code " + profileMap.get("lang"), Toast.LENGTH_SHORT).show();
+
+
         }
     }
 

@@ -37,7 +37,8 @@ public class GroupsFragment extends Fragment {
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> list_of_groups = new ArrayList<>();
     private DatabaseReference RootRef;
-    public GroupsFragment() {
+    public GroupsFragment()
+    {
         // Required empty public constructor
     }
 
@@ -67,15 +68,18 @@ public class GroupsFragment extends Fragment {
 
     }
 
-    private void RetrieveAndDisplayGroups() {
-        RootRef.addValueEventListener(new ValueEventListener() {
+    private void RetrieveAndDisplayGroups()
+    {
+        RootRef.addValueEventListener(new ValueEventListener()
+        {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
                 Set<String> set = new HashSet<>();
                 Iterator iterator = dataSnapshot.getChildren().iterator();
 
-                while (iterator.hasNext()){
+                while (iterator.hasNext())
+                {
                     set.add(((DataSnapshot)iterator.next()).getKey());
                 }
                 list_of_groups.clear();
@@ -84,7 +88,8 @@ public class GroupsFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError)
+            {
 
             }
         });

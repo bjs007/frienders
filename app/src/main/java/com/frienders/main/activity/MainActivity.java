@@ -15,7 +15,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.frienders.main.R;
+import com.frienders.main.activity.group.GroupCreationActivity;
 import com.frienders.main.activity.login.LoginActivity;
+import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.activity.menu.FindFriendsActivity;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.adapter.TabsAccessorAdapter;
@@ -107,13 +109,8 @@ public class MainActivity extends AppCompatActivity {
         RootRef.child(currentUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if((dataSnapshot.child("name").exists())){
-                    Toast.makeText(MainActivity.this, "Welcome", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+                if(!(dataSnapshot.child("name").exists())){
                     sendUserToSettingActivity();
-
                 }
             }
 
@@ -126,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void sendUserToLoginActivity() {
-        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this, NewLoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
         finish();
@@ -157,14 +154,15 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        if(item.getItemId() == R.id.main_find_friends_option)
-        {
-            sendUserToFindFriendsActivity();
-        }
+//        if(item.getItemId() == R.id.main_find_friends_option)
+//        {
+//            sendUserToFindFriendsActivity();
+//        }
 
         if(item.getItemId() == R.id.main_create_group_option)
         {
-          RequestNewGroup();   
+            Intent intent = new Intent(MainActivity.this, GroupCreationActivity.class);
+            startActivity(intent);
         }
 
         return true;
@@ -187,12 +185,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    try {
-                        CreateNewGroup(groupName);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-//                    try {
+                    Intent intent = new Intent(MainActivity.this, GroupCreationActivity.class);
+                    startActivity(intent);
+                    //                    try {
 //                        CreateNewGroup(groupName);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
@@ -227,40 +222,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         builder.show();
-    }
-
-
-
-    private void CreateNewGroup(final String groupName) throws InterruptedException {
-
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                GroupHandler groupHandler= GroupHandler.getGroupHandler();
-                try {
-                    groupHandler.createGroup(groupName);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        t1.start();
-
-
-//        GroupRef.child(groupName)
-
-//                .setValue("")
-//                .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        if(task.isSuccessful())
-//                        {
-//                            Toast.makeText(MainActivity.this,  groupName + " group created!", Toast.LENGTH_SHORT).show();
-//
-//                        }
-//                    }
-//                });
     }
 
 

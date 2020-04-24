@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bcg"
+    tools:context=".activity.login.LoginActivity">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+          >
+
+            <EditText
+                android:id="@+id/phone_number_input_new_login"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="17dp"
+                android:layout_marginEnd="17dp"
+                android:layout_marginTop="180dp"
+                android:background="#FFFFFF"
+                android:layout_marginLeft="17dp"
+                android:padding="8dp"
+                android:hint="Enter phone number"
+                android:textAllCaps="false"
+                android:textSize="15sp"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/send_verification_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Send verification code"
+                android:layout_below="@+id/phone_number_input_new_login"
+                android:textAllCaps="false"
+                android:layout_marginStart="17dp"
+                android:layout_marginEnd="17dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/buttons"
+                android:textColor="@android:color/background_light"
+                >
+
+            </Button>
+
+        </RelativeLayout>
+
+
+</RelativeLayout>

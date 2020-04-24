@@ -26,10 +26,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NestedGroupDisplayActivity extends AppCompatActivity
 {
-    private DatabaseReference groupDatabaseReference;
+    private DatabaseReference groupDatabaseReference, userDatabaseReference;
     private RecyclerView groupList;
     private int level;
     private String parentId = "root";
+    private String userLang;
+    private String currentUser;
+    private FirebaseAuth firebaseAuth;
+    private String language = "eng";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -49,13 +54,41 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
         groupDatabaseReference = FirebaseDatabase.getInstance().getReference("Groups").child("level - " + level);
         groupList = (RecyclerView)findViewById(R.id.nested_group_recycler_list);
         groupList.setLayoutManager(new LinearLayoutManager(this));
+        firebaseAuth = FirebaseAuth.getInstance();
+        userDatabaseReference = FirebaseDatabase.getInstance().getReference("Users");
     }
 
     @Override
     protected void onStart()
     {
         super.onStart();
+
         final String currentUserId  = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userDatabaseReference.child(currentUserId).child("lang").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.exists())
+                {
+                    language = dataSnapshot.getValue().toString();
+                }
+
+                createGroupList();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError)
+            {
+
+            }
+        });
+
+    }
+
+    private void createGroupList()
+    {
+        final String currentUserId  = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         FirebaseRecyclerOptions<Group> options =
                 new FirebaseRecyclerOptions.Builder<Group>()
                         .setQuery(groupDatabaseReference, Group.class)
@@ -64,87 +97,99 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
         try
         {
             FirebaseRecyclerAdapter<Group, GroupViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Group, GroupViewHolder>(options)
-                {
-                    @Override
-                    protected void onBindViewHolder(@NonNull final GroupViewHolder holder, int position, @NonNull final Group model)
+                    new FirebaseRecyclerAdapter<Group, GroupViewHolder>(options)
                     {
-                        holder.enterIntoButton.setVisibility(View.GONE);
-                        holder.subScribeButton.setVisibility(View.GONE);
-
-                        if(model.getParentId().equals(parentId))
+                        @Override
+                        protected void onBindViewHolder(@NonNull final GroupViewHolder holder, int position, @NonNull final Group model)
                         {
-                            holder.groupViewImage.setVisibility(View.GONE);
-                            holder.groupName.setText(model.getName());
+                            holder.enterIntoButton.setVisibility(View.GONE);
+                            holder.subScribeButton.setVisibility(View.GONE);
 
-                            if(model.isLeaf())
+                            if(model.getParentId().equals(parentId))
                             {
-                                holder.enterIntoButton.setVisibility(View.VISIBLE);
-                                holder.subScribeButton.setVisibility(View.VISIBLE);
-                                setInitialStatusForEachButton(holder, model.getId());
-                                holder.subScribeButton.setOnClickListener(new View.OnClickListener()
+                                holder.groupViewImage.setVisibility(View.GONE);
+                                holder.groupName.setText(model.getEngName());
+
+                                if(language.equals("eng"))
                                 {
-                                    @Override
-                                    public void onClick(View v)
+                                    holder.groupName.setText(model.getEngName());
+                                    holder.groupDescription.setText(model.getEngDesc());
+                                }
+                                else
+                                {
+                                    holder.groupName.setText(model.getHinName());
+                                    holder.groupDescription.setText(model.getHinDesc());
+                                }
+
+
+                                if(model.isLeaf())
+                                {
+                                    holder.enterIntoButton.setVisibility(View.VISIBLE);
+                                    holder.subScribeButton.setVisibility(View.VISIBLE);
+                                    setInitialStatusForEachButton(holder, model.getId());
+                                    holder.subScribeButton.setOnClickListener(new View.OnClickListener()
                                     {
-                                        final DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId).child("subscribed").child(model.getId());
-                                        firebaseRef.addListenerForSingleValueEvent(new ValueEventListener()
+                                        @Override
+                                        public void onClick(View v)
                                         {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                            final DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId).child("subscribed").child(model.getId());
+                                            firebaseRef.addListenerForSingleValueEvent(new ValueEventListener()
                                             {
-                                                if(dataSnapshot.exists())
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                                                 {
-                                                    holder.subScribeButton.setText("Subscribe");
-                                                    firebaseRef.removeValue();
+                                                    if(dataSnapshot.exists())
+                                                    {
+                                                        holder.subScribeButton.setText("Subscribe");
+                                                        firebaseRef.removeValue();
+                                                    }
+                                                    else
+                                                    {
+                                                        holder.subScribeButton.setText("Unsubscribe");
+                                                        firebaseRef.setValue(model);
+                                                    }
                                                 }
-                                                else
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError)
                                                 {
-                                                    holder.subScribeButton.setText("Unsubscribe");
-                                                    firebaseRef.setValue("subscribed");
+
                                                 }
-                                            }
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError)
-                                            {
+                                            });
+                                        }
+                                    });
 
-                                            }
-                                        });
-                                    }
-                                });
+                                }
 
-                            }
-
-                            if(!model.isLeaf())
-                            {
-                                holder.itemView.setOnClickListener(new View.OnClickListener()
+                                if(!model.isLeaf())
                                 {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent nestedGroupIntent = new Intent(NestedGroupDisplayActivity.this, NestedGroupDisplayActivity.class);
-                                        nestedGroupIntent.putExtra("level", level + 1);
-                                        nestedGroupIntent.putExtra("parentId", model.getId());
-                                        startActivity(nestedGroupIntent);
-                                    }
-                                });
+                                    holder.itemView.setOnClickListener(new View.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent nestedGroupIntent = new Intent(NestedGroupDisplayActivity.this, NestedGroupDisplayActivity.class);
+                                            nestedGroupIntent.putExtra("level", level + 1);
+                                            nestedGroupIntent.putExtra("parentId", model.getId());
+                                            startActivity(nestedGroupIntent);
+                                        }
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                holder.groupViewImage.setVisibility(View.GONE);
+                                holder.groupName.setVisibility(View.GONE);
+                                holder.groupDescription.setVisibility(View.GONE);
                             }
                         }
-                        else
-                        {
-                            holder.groupViewImage.setVisibility(View.GONE);
-                            holder.groupName.setVisibility(View.GONE);
-                            holder.groupDescription.setVisibility(View.GONE);
-                        }
-                    }
 
-                    @NonNull
-                    @Override
-                    public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
-                    {
-                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout, parent, false);
-                        return new GroupViewHolder(view);
-                    }
-                };
+                        @NonNull
+                        @Override
+                        public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+                        {
+                            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout, parent, false);
+                            return new GroupViewHolder(view);
+                        }
+                    };
 
             groupList.setAdapter(adapter);
             adapter.startListening();
@@ -223,7 +268,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                             if(model.getParentId().equals(parentId))
                             {
                                 holder.groupViewImage.setVisibility(View.GONE);
-                                holder.groupName.setText(model.getName());
+                                holder.groupName.setText(model.getEngName());
 
                                 if(model.isLeaf())
                                 {
@@ -243,13 +288,13 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                                 {
                                                     if(dataSnapshot.exists())
                                                     {
-                                                        holder.subScribeButton.setText("Subscribe");
+                                                        holder.subScribeButton.setText(R.string.subscribed);
                                                         firebaseRef.removeValue();
                                                     }
                                                     else
                                                     {
-                                                        holder.subScribeButton.setText("Unsubscribe");
-                                                        firebaseRef.setValue("subscribed");
+                                                        holder.subScribeButton.setText(R.string.unsubscribed);
+                                                        firebaseRef.setValue(model);
                                                     }
                                                 }
                                                 @Override

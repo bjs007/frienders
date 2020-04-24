@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.frienders.main.model.Group;
 import com.frienders.main.model.GroupMessage;
 import com.frienders.main.adapter.GroupMessageAdapter;
 import com.frienders.main.R;
@@ -30,6 +31,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,9 +57,11 @@ public class GroupChatActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private GroupMessageAdapter groupMessageAdapter;
     private RecyclerView groupMessagesListView;
-    private String groupName;
+    private String groupId;
     private ProgressDialog loadingBar;
     private DatabaseReference rootRef;
+    private String language = "eng";
+
     private String saveCurrentTime, saveCurrentDate;
 
 
@@ -69,12 +73,11 @@ public class GroupChatActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         messageSenderUserId = mAuth.getCurrentUser().getUid();
-        groupName = getIntent().getExtras().get("groupName").toString();
-        Toast.makeText(this, "Group Name" + groupName,Toast.LENGTH_SHORT).show();
+        groupId = getIntent().getExtras().get("parentId").toString();
+
         InitializeControllers();
 
-        groupDisplayName.setText(groupName);
-        groupDescription.setText("demo description");
+
         groupSendMessageButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -83,12 +86,66 @@ public class GroupChatActivity extends AppCompatActivity {
                 sendMessageInGroup();
             }
         });
+        populateGroupName();
+    }
+
+    private void populateGroupName()
+    {
+         final DatabaseReference getGroupDetail = FirebaseDatabase.getInstance().getReference().child("Groups").child("leafs");
+         DatabaseReference userLangugae = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser()
+        .getUid()).child("lang");
+
+        userLangugae.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.exists())
+                {
+                    language = dataSnapshot.getValue().toString();
+                }
+
+                getGroupDetail.child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists())
+                        {
+                            Group grp = dataSnapshot.getValue(Group.class);
+                            if(grp != null)
+                            {
+                                if(language.equals("eng"))
+                                {
+                                    groupDisplayName.setText(grp.getEngName());
+                                    groupDescription.setText(grp.getEngDesc());
+                                }
+                                else
+                                {
+                                    groupDisplayName.setText(grp.getHinName());
+                                    groupDescription.setText(grp.getHinDesc());
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError)
+            {
+
+            }
+        });
+
     }
 
     private void sendMessageInGroup()
     {
         String messageText = groupMessageInputText.getText().toString();
-        Toast.makeText(this, "Message" + messageText , Toast.LENGTH_SHORT).show();
+
 
         if (TextUtils.isEmpty(messageText))
         {
@@ -98,8 +155,8 @@ public class GroupChatActivity extends AppCompatActivity {
         {
             String messageSenderRef = "Messages/";
 
-            DatabaseReference userMessageKeyRef = rootRef.child("Groups")
-                    .child(groupName).push();
+            DatabaseReference userMessageKeyRef = rootRef.child("Messages")
+                    .child(groupId).push();
 
             String messagePushID = userMessageKeyRef.getKey();
 
@@ -113,20 +170,17 @@ public class GroupChatActivity extends AppCompatActivity {
 
 
             Map messageBodyDetails = new HashMap();
-            messageBodyDetails.put(messageSenderRef + "/" + messagePushID, messageTextBody);
+            messageBodyDetails.put(groupId + "/" + messagePushID, messageTextBody);
 
-            rootRef.child("Groups").child(groupName).updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+            rootRef.child("Messages").updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task)
                 {
-                    if (task.isSuccessful())
-                    {
-                        Toast.makeText(GroupChatActivity.this, "Message Sent Successfully...", Toast.LENGTH_SHORT).show();
-                    }
-                    else
+                    if (!task.isSuccessful())
                     {
                         Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
                     }
+
                     groupMessageInputText.setText("");
                 }
             });
@@ -176,7 +230,7 @@ public class GroupChatActivity extends AppCompatActivity {
         rootRef = FirebaseDatabase.getInstance().getReference();
         messageSenderUserId = mAuth.getCurrentUser().getUid();
 
-        rootRef.child("Groups").child(groupName).child("Messages").addChildEventListener(new ChildEventListener() {
+        rootRef.child("Messages").child(groupId).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s)
             {
@@ -184,7 +238,7 @@ public class GroupChatActivity extends AppCompatActivity {
              {
                  GroupMessage message = dataSnapshot.getValue(GroupMessage.class);
                  groupMessageList.add(message);
-                 Toast.makeText(GroupChatActivity.this, "Message" + message.getFrom(), Toast.LENGTH_SHORT).show();
+//                 Toast.makeText(GroupChatActivity.this, "Message" + message.getFrom(), Toast.LENGTH_SHORT).show();
 
                  groupMessageAdapter.notifyDataSetChanged();
                  groupMessagesListView.smoothScrollToPosition(groupMessagesListView.getAdapter().getItemCount());
