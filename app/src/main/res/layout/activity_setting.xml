@@ -12,8 +12,8 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/set_profile_image"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="45dp"
@@ -21,17 +21,49 @@
         app:civ_border_width="5dp"
         app:civ_border_color="@color/colorPrimary"/>
 
+    <TextView
+        android:id="@+id/name_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/set_profile_image"
+        android:gravity="start"
+        android:background="@color/colorGray"
+        android:text="Name"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:padding="3dp"
+
+        android:layout_marginTop="10dp"
+        />
+
     <EditText
         android:id="@+id/set_user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/set_profile_image"
-        android:inputType="textMultiLine"
-        android:gravity="center_horizontal"
-        android:hint="Name"
+        android:layout_below="@id/name_bar"
+        android:inputType="textPersonName"
+        android:hint="John"
+        android:gravity="center"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
         android:padding="3dp"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="10dp"
+        />
+
+
+    <TextView
+        android:id="@+id/status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/set_user_name"
+        android:gravity="start"
+        android:background="@color/colorGray"
+        android:text="Status"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:padding="3dp"
+
         android:layout_marginTop="10dp"
         />
 
@@ -39,13 +71,31 @@
         android:id="@+id/set_profile_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/set_user_name"
-        android:inputType="textMultiLine"
-        android:gravity="center_horizontal"
+        android:layout_below="@id/status_bar"
+        android:inputType="text"
+        android:gravity="center"
         android:hint="I am rockstar"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
         android:padding="3dp"
+        android:background="@android:color/transparent"
+
+        android:layout_marginTop="10dp"
+
+        />
+
+    <TextView
+        android:id="@+id/language_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/set_profile_status"
+        android:gravity="start"
+        android:background="@color/colorGray"
+        android:text="Language"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:padding="3dp"
+
         android:layout_marginTop="10dp"
         />
 
@@ -54,10 +104,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:id="@+id/language_linearlayout"
-        android:layout_below="@+id/set_profile_status">
+        android:layout_below="@+id/language_selection">
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:id="@+id/radioGroup">
 
             <RadioButton
@@ -65,8 +116,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="  English"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:checked="false"
+                android:buttonTint="@color/colorBlack"
                 android:textSize="20dp" />
 
             <RadioButton
@@ -76,6 +128,7 @@
                 android:text="   Hindi"
                 android:layout_marginTop="20dp"
                 android:checked="false"
+                android:buttonTint="@color/colorBlack"
 
                 android:textSize="20dp" />
         </RadioGroup>
@@ -83,14 +136,14 @@
 
         <Button
             android:id="@+id/update_settings_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/language_linearlayout"
             android:inputType="textMultiLine"
             android:textAlignment="center"
             android:gravity="center_horizontal"
             android:background="@drawable/buttons"
-            android:text="Update"
+            android:text="Save"
             android:textColor="@android:color/background_light"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"

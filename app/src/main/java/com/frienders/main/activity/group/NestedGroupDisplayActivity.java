@@ -104,11 +104,15 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                         {
                             holder.enterIntoButton.setVisibility(View.GONE);
                             holder.subScribeButton.setVisibility(View.GONE);
+                            holder.groupName.setVisibility(View.GONE);
+                            holder.groupDescription.setVisibility(View.GONE);
 
                             if(model.getParentId().equals(parentId))
                             {
                                 holder.groupViewImage.setVisibility(View.GONE);
                                 holder.groupName.setText(model.getEngName());
+                                holder.groupName.setVisibility(View.VISIBLE);
+                                holder.groupDescription.setVisibility(View.VISIBLE);
 
                                 if(language.equals("eng"))
                                 {

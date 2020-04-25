@@ -70,7 +70,8 @@ public class NewLoginActivity extends AppCompatActivity {
                 else
                 {
                     phoneNumber = "+91" + phoneNumber;
-                    progressDialog.setTitle("Phone verification");
+//                    progressDialog.setTitle("Phone verification");
+                    progressDialog.setMessage("We are sending verification code. Please wait!");
                     progressDialog.setCanceledOnTouchOutside(false);
                     progressDialog.show();
 

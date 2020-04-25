@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void sendUserToLoginActivity() {
-        Intent loginIntent = new Intent(MainActivity.this, NewLoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
         finish();
@@ -187,29 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 {
                     Intent intent = new Intent(MainActivity.this, GroupCreationActivity.class);
                     startActivity(intent);
-                    //                    try {
-//                        CreateNewGroup(groupName);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    try {
-
-//                        Thread t1 = new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                try {
-//                                    CreateNewGroup(groupName);
-//                                } catch (InterruptedException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//                        });
-//
-//                        t1.start();
-//
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
                 }
             }
         });

@@ -49,8 +49,9 @@ public class SettingActivity extends AppCompatActivity {
     private StorageReference UserProfileImagesRef;
     private ProgressDialog loadingBar;
     private androidx.appcompat.widget.Toolbar SettingsToolBar;
-    RadioButton languageRadioButton;
+    RadioButton languageRadioButton, engLanguageRadioButton, hinLanuguageRadioButton;
     RadioGroup languaeRadioGroup;
+    private String userLanguage = "eng";
 
     private static final int GalleryPick = 1;
 
@@ -63,8 +64,6 @@ public class SettingActivity extends AppCompatActivity {
         currentUserId = mAuth.getCurrentUser().getUid();
         RootRef = FirebaseDatabase.getInstance().getReference("Users");
         UserProfileImagesRef = FirebaseStorage.getInstance().getReference("ProfileImages");
-        languaeRadioGroup = findViewById(R.id.radioGroup);
-
 
 
         InitializeFields();
@@ -95,6 +94,7 @@ public class SettingActivity extends AppCompatActivity {
     private void InitializeFields() {
         UpdateAccountSettings = (Button) findViewById(R.id.update_settings_button);
         userName = (EditText) findViewById(R.id.set_user_name);
+
         userStatus = (EditText) findViewById(R.id.set_profile_status);
         userProfileImage = (CircleImageView) findViewById(R.id.set_profile_image);
         loadingBar = new ProgressDialog(this);
@@ -105,6 +105,38 @@ public class SettingActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setTitle("Account Settings");
+        languaeRadioGroup = findViewById(R.id.radioGroup);
+        engLanguageRadioButton = findViewById(R.id.english);
+        hinLanuguageRadioButton = findViewById(R.id.hindi);
+
+        RootRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists())
+                {
+                    if(dataSnapshot.hasChild("lang"))
+                    {
+                        userLanguage = dataSnapshot.child("lang").getValue().toString();
+                    }
+
+                    if(userLanguage.equals("eng"))
+                    {
+                       int id = engLanguageRadioButton.getId();
+                       languaeRadioGroup.check(id);
+                    }
+                    else
+                    {
+                        int id = hinLanuguageRadioButton.getId();
+                        languaeRadioGroup.check(id);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         SettingsToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,13 +157,13 @@ public class SettingActivity extends AppCompatActivity {
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(1, 1)
                     .start(this);
-        }
 
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        }
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
+        {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if(resultCode  == RESULT_OK)
-            {
+            if (resultCode == RESULT_OK) {
                 loadingBar.setTitle("Set profile Image");
                 loadingBar.setMessage("Please wait while image is uploading");
                 loadingBar.setCanceledOnTouchOutside(false);
@@ -142,33 +174,30 @@ public class SettingActivity extends AppCompatActivity {
 
                 final StorageReference filePath = UserProfileImagesRef.child(currentUserId + ".jpg");
 
-
-                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
+                {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
                     {
-                        if (task.isSuccessful())
-                        {
-                            Toast.makeText(SettingActivity.this, "Profile Image uploaded Successfully...", Toast.LENGTH_SHORT).show();
+                        if (task.isSuccessful()) {
 
-//
                             final Task<Uri> firebaseUri = task.getResult().getStorage().getDownloadUrl();
-
                             firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
-                                public void onSuccess(Uri uri) {
+                                public void onSuccess(Uri uri)
+                                {
                                     final String downloadUrl = uri.toString();
                                     // complete the rest of your code
 
                                     RootRef.child(currentUserId).child("image")
                                             .setValue(downloadUrl)
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                                            {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task)
                                                 {
                                                     if (task.isSuccessful())
                                                     {
-                                                        Toast.makeText(SettingActivity.this, "Image save in Database, Successfully...", Toast.LENGTH_SHORT).show();
                                                         loadingBar.dismiss();
                                                     }
                                                     else
@@ -181,12 +210,10 @@ public class SettingActivity extends AppCompatActivity {
                                             });
                                 }
                             });
-
-
-
-
                         }
+
                         else
+
                         {
                             String message = task.getException().toString();
                             Toast.makeText(SettingActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
@@ -194,14 +221,8 @@ public class SettingActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-
-
-
             }
-
         }
-
     }
 
     private void UpdateSettings() {
@@ -251,7 +272,6 @@ public class SettingActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful())
                             {
-                                Toast.makeText(SettingActivity.this, "Profile Updated Successfully", Toast.LENGTH_SHORT).show();
                                 SendUserToMainActivity();
                             }
                             else
@@ -261,8 +281,6 @@ public class SettingActivity extends AppCompatActivity {
                             }
                         }
                     });
-
-            Toast.makeText(SettingActivity.this, "User Language code " + profileMap.get("lang"), Toast.LENGTH_SHORT).show();
 
 
         }
@@ -307,7 +325,6 @@ public class SettingActivity extends AppCompatActivity {
                         }
                         else
                         {
-                            Toast.makeText(SettingActivity.this, "Please set up your profile", Toast.LENGTH_SHORT).show();
 
                         }
                     }
