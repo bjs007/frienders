@@ -47,6 +47,8 @@
             android:hint="type message here..."
             android:padding="15dp"
             android:maxLines="5"
+            android:textSize="18sp"
+            android:textCursorDrawable="@drawable/color_cursor"
             android:layout_toEndOf="@+id/group_send_file_btn"
             android:layout_toStartOf="@+id/group_send_message_btn"
             android:layout_toRightOf="@+id/group_send_file_btn"

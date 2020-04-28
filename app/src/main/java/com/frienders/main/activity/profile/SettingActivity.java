@@ -225,6 +225,15 @@ public class SettingActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+
     private void UpdateSettings() {
         String setUserName = userName.getText().toString();
         String setUserStatus = userStatus.getText().toString();

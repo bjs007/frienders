@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorAccent"
             app:tabTextColor="@color/colorBlack"
+            app:tabIndicatorColor="@color/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
 
