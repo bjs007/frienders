@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,6 +20,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.model.Group;
 import com.frienders.main.model.GroupMessage;
 import com.frienders.main.adapter.GroupMessageAdapter;
@@ -74,6 +77,7 @@ public class GroupChatActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         messageSenderUserId = mAuth.getCurrentUser().getUid();
         groupId = getIntent().getExtras().get("parentId").toString();
+        groupChatToolBar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.setting_toolbar);
 
         InitializeControllers();
 
@@ -87,6 +91,13 @@ public class GroupChatActivity extends AppCompatActivity {
             }
         });
         populateGroupName();
+
+        groupChatToolBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendUserToMainActivity();
+            }
+        });
     }
 
     private void populateGroupName()
@@ -268,4 +279,12 @@ public class GroupChatActivity extends AppCompatActivity {
 
 //        Toast.makeText(this, "Mesages size " + groupMessageList.get(0).getFrom(), Toast.LENGTH_SHORT).show();
     }
+
+    private void SendUserToMainActivity(){
+        Intent mainIntent = new Intent(GroupChatActivity.this, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(mainIntent);
+        finish();
+    }
+
 }

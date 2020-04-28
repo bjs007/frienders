@@ -34,6 +34,7 @@ public class SubscribedGroupsFragment extends Fragment
 
     private View groupChatView;
     private DatabaseReference groupDatabaseReference, userDatabaseReference;
+
     private RecyclerView userSubscribedGroupsList;
     private FirebaseAuth mAuth;
     private String currentUserId;

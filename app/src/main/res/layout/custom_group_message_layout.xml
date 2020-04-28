@@ -3,13 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-<!--    <de.hdodenhof.circleimageview.CircleImageView-->
-<!--        android:id="@+id/group_profile_image"-->
-<!--        android:layout_width="50dp"-->
-<!--        android:layout_height="50dp"-->
-<!--        android:layout_marginTop="10dp"-->
-<!--        android:src="@drawable/profile_image"-->
-<!--        />-->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/group_sender_message_profile_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/profile_image"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/group_receiver_message_profile_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/profile_image"
+        />
 
     <ImageView
         android:id="@+id/group_message_sender_image_view"
@@ -34,26 +43,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_toEndOf="@id/group_sender_message_profile_image"
         android:background="@drawable/receiver_messages_layout"
-        android:text="receiver message here"
         android:padding="10dp"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        />
+        android:text="receiver message here"
+        android:textSize="16sp"
+        android:layout_toRightOf="@id/group_sender_message_profile_image" />
 
     <TextView
         android:id="@+id/group_sender_message_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
         android:layout_alignParentTop="@+id/group_receiver_message_text"
-        android:background="@drawable/sender_message_layout"
-        android:text="sender message here"
-        android:padding="10dp"
-        android:textSize="14sp"
-        android:textStyle="bold"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        />
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="38dp"
+        android:layout_marginRight="38dp"
+        android:layout_toStartOf="@id/group_message_sender_image_view"
+        android:layout_toLeftOf="@id/group_message_sender_image_view"
+        android:background="@drawable/sender_message_layout"
+        android:padding="10dp"
+        android:text="sender message here"
+        android:textSize="16sp"
+       />
 
 </RelativeLayout>

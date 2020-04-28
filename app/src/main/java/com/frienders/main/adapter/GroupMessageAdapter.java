@@ -10,12 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.frienders.main.model.Group;
 import com.frienders.main.model.GroupMessage;
 import com.frienders.main.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapter.GroupMessageViewHolder>
 {
@@ -52,6 +56,21 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         groupMessageViewHolder.imageSentBySender.setVisibility(View.GONE);
 
 
+
+        if(message.getFrom().equals(messageSenderId))
+        {
+            groupMessageViewHolder.senderProfileImage.setVisibility(View.GONE);
+            Picasso.get().load(message.getMessage()).placeholder(R.drawable.profile_image)
+                    .into(groupMessageViewHolder.receiverProfileImage);
+        }
+        else
+        {
+            groupMessageViewHolder.receiverProfileImage.setVisibility(View.GONE);
+            Picasso.get().load(message.getMessage()).placeholder(R.drawable.profile_image)
+                    .into(groupMessageViewHolder.senderProfileImage);
+
+        }
+
         if(message.getType().equals("text"))
         {
             if(message.getFrom().equals(messageSenderId))
@@ -59,16 +78,19 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                 groupMessageViewHolder.senderMessageTextInGroup.setVisibility(View.VISIBLE);
                 groupMessageViewHolder.senderMessageTextInGroup.setBackgroundResource(R.drawable.sender_message_layout);
                 groupMessageViewHolder.senderMessageTextInGroup.setTextColor(Color.BLACK);
-                groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() +"\n"+ message.getTime()
-                        +"-" + message.getDate());
+//                groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() +"\n"+ message.getTime()
+//                        +"-" + message.getDate());
+                groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage());
             }
             else
             {
                 groupMessageViewHolder.reciverMessageTextInGroup.setVisibility(View.VISIBLE);
                 groupMessageViewHolder.reciverMessageTextInGroup.setBackgroundResource(R.drawable.sender_message_layout);
                 groupMessageViewHolder.reciverMessageTextInGroup.setTextColor(Color.BLACK);
-                groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage() +"\n"+ message.getTime()
-                        +"-" + message.getDate());
+//                groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage() +"\n"+ message.getTime()
+//                        +"-" + message.getDate());
+
+                groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage());
 
             }
         }
@@ -86,6 +108,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
     public class GroupMessageViewHolder extends RecyclerView.ViewHolder
     {
         public TextView senderMessageTextInGroup, reciverMessageTextInGroup;
+        public CircleImageView receiverProfileImage, senderProfileImage;
         public ImageView imageSentBySender, imageSentByReceiver;
 
 
@@ -94,7 +117,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
             super(itemView);
             senderMessageTextInGroup = (TextView) itemView.findViewById(R.id.group_sender_message_text);
             reciverMessageTextInGroup = (TextView) itemView.findViewById(R.id.group_receiver_message_text);
-//            receiverProfileImage = (CircleImageView) itemView.findViewById(R.id.message_profile_image);
+            receiverProfileImage = (CircleImageView) itemView.findViewById(R.id.group_receiver_message_profile_image);
+            senderProfileImage = (CircleImageView) itemView.findViewById(R.id.group_sender_message_profile_image);
             imageSentBySender = itemView.findViewById(R.id.group_message_sender_image_view);
             imageSentByReceiver = itemView.findViewById(R.id.group_message_receiver_image_view);
         }

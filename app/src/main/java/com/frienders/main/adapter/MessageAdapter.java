@@ -52,7 +52,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull final MessageViewHolder messageViewHolder, int position)
     {
         String messageSenderId = mAuth.getCurrentUser().getUid();
-        Messages messages = userMessagesList.get(position);
+        final Messages messages = userMessagesList.get(position);
 
         String fromUserId = messages.getFrom();
         String fromMessageType = messages.getType();
@@ -69,6 +69,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                             messageViewHolder.receiverProfileImage
                     );
                 }
+
+
             }
 
             @Override
@@ -78,11 +80,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         });
 
+        Picasso.get().load(messages.getMessage()).placeholder(R.drawable.profile_image)
+                .into(messageViewHolder.senderProfileImage);
+        Picasso.get().load(messages.getMessage()).placeholder(R.drawable.profile_image)
+                .into(messageViewHolder.receiverProfileImage);
+        messageViewHolder.senderProfileImage.setVisibility(View.VISIBLE);
+        messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
+
         messageViewHolder.reciverMessageText.setVisibility(View.GONE);
-        messageViewHolder.receiverProfileImage.setVisibility(View.GONE);
         messageViewHolder.senderMessageText.setVisibility(View.GONE);
         messageViewHolder.messageSenderPicture.setVisibility(View.GONE);
         messageViewHolder.messageReceiverPicture.setVisibility(View.GONE);
+
 
 
         if(fromMessageType.equals("text"))
@@ -143,16 +152,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public class MessageViewHolder extends RecyclerView.ViewHolder
     {
         public TextView senderMessageText, reciverMessageText;
-        public CircleImageView receiverProfileImage;
+        public CircleImageView receiverProfileImage, senderProfileImage;
         public ImageView messageSenderPicture, messageReceiverPicture;
 
 
         public MessageViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            senderMessageText = (TextView) itemView.findViewById(R.id.sender_message_text);
+            senderMessageText = (TextView) itemView.findViewById(R.id.sender_messsage_text);
             reciverMessageText = (TextView) itemView.findViewById(R.id.receiver_message_text);
-            receiverProfileImage = (CircleImageView) itemView.findViewById(R.id.message_profile_image);
+            senderProfileImage = (CircleImageView) itemView.findViewById(R.id.sender_message_profile_image);
+            receiverProfileImage = (CircleImageView) itemView.findViewById(R.id.receiver_message_profile_image);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
         }

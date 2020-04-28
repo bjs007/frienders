@@ -104,7 +104,7 @@ public class SettingActivity extends AppCompatActivity {
         setSupportActionBar(SettingsToolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setTitle("Account Settings");
+        getSupportActionBar().setTitle("");
         languaeRadioGroup = findViewById(R.id.radioGroup);
         engLanguageRadioButton = findViewById(R.id.english);
         hinLanuguageRadioButton = findViewById(R.id.hindi);

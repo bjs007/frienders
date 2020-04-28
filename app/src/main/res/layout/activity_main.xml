@@ -24,6 +24,8 @@
             android:id="@+id/main_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            app:tabTextColor="@color/colorBlack"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
 
