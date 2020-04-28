@@ -8,10 +8,13 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -52,6 +55,7 @@ public class SettingActivity extends AppCompatActivity {
     RadioButton languageRadioButton, engLanguageRadioButton, hinLanuguageRadioButton;
     RadioGroup languaeRadioGroup;
     private String userLanguage = "eng";
+    private ProgressDialog progressDialog;
 
     private static final int GalleryPick = 1;
 
@@ -94,6 +98,7 @@ public class SettingActivity extends AppCompatActivity {
     private void InitializeFields() {
         UpdateAccountSettings = (Button) findViewById(R.id.update_settings_button);
         userName = (EditText) findViewById(R.id.set_user_name);
+        progressDialog = new ProgressDialog(this);
 
         userStatus = (EditText) findViewById(R.id.set_profile_status);
         userProfileImage = (CircleImageView) findViewById(R.id.set_profile_image);
@@ -144,6 +149,7 @@ public class SettingActivity extends AppCompatActivity {
                 SendUserToMainActivity();
             }
         });
+
     }
 
     @Override
@@ -255,6 +261,9 @@ public class SettingActivity extends AppCompatActivity {
 
         else
         {
+            progressDialog.setMessage("Saving your data");
+            progressDialog.setCanceledOnTouchOutside(true);
+            progressDialog.show();
             int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
 
             languageRadioButton = (RadioButton) findViewById(languageKey);
@@ -288,6 +297,8 @@ public class SettingActivity extends AppCompatActivity {
                                 String message = task.getException().toString();
                                 Toast.makeText(SettingActivity.this, "Error" + message, Toast.LENGTH_SHORT).show();
                             }
+
+                            progressDialog.dismiss();
                         }
                     });
 
@@ -315,6 +326,7 @@ public class SettingActivity extends AppCompatActivity {
                         if((dataSnapshot.exists()) && (dataSnapshot.hasChild("name") && (dataSnapshot.hasChild("image"))))
                         {
                            String retrieveUserName = dataSnapshot.child("name").getValue().toString();
+//                           name = dataSnapshot.child("name").getValue().toString();;
                            String retrieveStatus = dataSnapshot.child("status").getValue().toString();
                            String retrieveProfileImage = dataSnapshot.child("image").getValue().toString();
                            userName.setText(retrieveUserName);

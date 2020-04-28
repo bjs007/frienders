@@ -55,84 +55,172 @@ public class ParentCreation implements Runnable
 
         final boolean leafLevel = isFunctionCallAtLeafNode;
 
-        firebaseDatabase.child(currentLevel).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        if(level == 0)
+        {
+            firebaseDatabase.child(currentLevel).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
 
 
-                Iterator<DataSnapshot> iterator  = dataSnapshot.getChildren().iterator();
-                Group requiredNodeAtCurrentLevel = null;
+                    Iterator<DataSnapshot> iterator  = dataSnapshot.getChildren().iterator();
+                    Group requiredNodeAtCurrentLevel = null;
 
-                while (iterator.hasNext())
-                {
-                    Group group = iterator.next().getValue(Group.class);
-                    String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng();
-                    if(group != null && group.getEngName().equals((groupPathWithName.get(level).getRequest().getGroupNameInEng())))
+                    while (iterator.hasNext())
                     {
-                        requiredNodeAtCurrentLevel = group;
-                        break;
-                    }
-                }
-
-                if(requiredNodeAtCurrentLevel == null)
-                {
-                    DatabaseReference newGroupDBRefId = firebaseDatabase.child(currentLevel).push();
-                    final String groupId = newGroupDBRefId.getKey();
-                    requiredNodeAtCurrentLevel = createGroup(groupPathWithName.get(level).getRequest(), groupId, level, leafLevel);
-
-
-                    if(level == 0)
-                    {
-                        requiredNodeAtCurrentLevel.setParentId("root");
-                    }
-                    else
-                    {
-                        requiredNodeAtCurrentLevel.setParentId(groupPathWithName.get(level - 1).getCurrentNodeDbRef());
-                    }
-                }
-
-
-                groupPathWithName.get(level).setCurrentNodeDbRef(requiredNodeAtCurrentLevel.getId());
-
-                
-                final Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
-                updatedNodeAtCurrentLevelDetail.put(currentLevel +"/"+ requiredNodeAtCurrentLevel.getId() + "/", requiredNodeAtCurrentLevel);
-                final Group finalNodeHere = requiredNodeAtCurrentLevel;
-
-                firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail).addOnCompleteListener(new OnCompleteListener()
-                {
-                    @Override
-                    public void onComplete(@NonNull Task task)
-                    {
-                        if (task.isSuccessful())
+                        Group group = iterator.next().getValue(Group.class);
+                        String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng();
+                        if(group != null && group.getEngName().equals((groupPathWithName.get(level).getRequest().getGroupNameInEng())))
                         {
-                            if(!leafLevel)
-                            {
-                                createGroup(groupPathWithName, level + 1);
+                            requiredNodeAtCurrentLevel = group;
+                            break;
+                        }
+                    }
 
-                            }
-                            else
-                            {
-                                Map<String, Object> updateLeafNodes = new HashMap<>();
-                                updateLeafNodes.put("leafs" + "/" + finalNodeHere.getId() + "/",finalNodeHere);
-                                firebaseDatabase.updateChildren(updateLeafNodes);
-                            }
+                    if(requiredNodeAtCurrentLevel == null)
+                    {
+                        DatabaseReference newGroupDBRefId = firebaseDatabase.child(currentLevel).push();
+                        final String groupId = newGroupDBRefId.getKey();
+                        requiredNodeAtCurrentLevel = createGroup(groupPathWithName.get(level).getRequest(), groupId, level, leafLevel);
+
+
+                        if(level == 0)
+                        {
+                            requiredNodeAtCurrentLevel.setParentId("root");
                         }
                         else
                         {
-
+                            requiredNodeAtCurrentLevel.setParentId(groupPathWithName.get(level - 1).getCurrentNodeDbRef());
                         }
                     }
-                });
 
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                    groupPathWithName.get(level).setCurrentNodeDbRef(requiredNodeAtCurrentLevel.getId());
 
-            }
-        });
+
+                    final Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
+                    updatedNodeAtCurrentLevelDetail.put(currentLevel +"/"+ requiredNodeAtCurrentLevel.getId() + "/", requiredNodeAtCurrentLevel);
+                    final Group finalNodeHere = requiredNodeAtCurrentLevel;
+
+                    firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail).addOnCompleteListener(new OnCompleteListener()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                if(!leafLevel)
+                                {
+                                    createGroup(groupPathWithName, level + 1);
+
+                                }
+                                else
+                                {
+                                    Map<String, Object> updateLeafNodes = new HashMap<>();
+                                    updateLeafNodes.put("leafs" + "/" + finalNodeHere.getId() + "/",finalNodeHere);
+                                    firebaseDatabase.updateChildren(updateLeafNodes);
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        else
+        {
+            DatabaseReference databaseReference = firebaseDatabase.child(currentLevel).child(groupPathWithName.get(level -1).getCurrentNodeDbRef());
+
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
+
+                    Iterator<DataSnapshot> iterator  = dataSnapshot.getChildren().iterator();
+                    Group requiredNodeAtCurrentLevel = null;
+
+                    while (iterator.hasNext())
+                    {
+                        Group group = iterator.next().getValue(Group.class);
+                        String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng();
+                        if(group != null && group.getEngName().equals((groupPathWithName.get(level).getRequest().getGroupNameInEng())))
+                        {
+                            requiredNodeAtCurrentLevel = group;
+                            break;
+                        }
+                    }
+
+                    if(requiredNodeAtCurrentLevel == null)
+                    {
+                        DatabaseReference newGroupDBRefId = firebaseDatabase.child(currentLevel).child(groupPathWithName.get(level-1).getCurrentNodeDbRef()).push();
+                        final String groupId = newGroupDBRefId.getKey();
+                        requiredNodeAtCurrentLevel = createGroup(groupPathWithName.get(level).getRequest(), groupId, level, leafLevel);
+
+
+                        if(level == 0)
+                        {
+                            requiredNodeAtCurrentLevel.setParentId("root");
+                        }
+                        else
+                        {
+                            requiredNodeAtCurrentLevel.setParentId(groupPathWithName.get(level - 1).getCurrentNodeDbRef());
+                        }
+                    }
+
+
+                    groupPathWithName.get(level).setCurrentNodeDbRef(requiredNodeAtCurrentLevel.getId());
+
+
+                    final Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
+                    updatedNodeAtCurrentLevelDetail.put(currentLevel +"/"+ groupPathWithName.get(level-1).getCurrentNodeDbRef() +"/"
+                            +requiredNodeAtCurrentLevel.getId() + "/", requiredNodeAtCurrentLevel);
+                    final Group finalNodeHere = requiredNodeAtCurrentLevel;
+
+                    firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail).addOnCompleteListener(new OnCompleteListener()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                if(!leafLevel)
+                                {
+                                    createGroup(groupPathWithName, level + 1);
+
+                                }
+                                else
+                                {
+                                    Map<String, Object> updateLeafNodes = new HashMap<>();
+                                    updateLeafNodes.put("leafs" + "/" + finalNodeHere.getId() + "/",finalNodeHere);
+                                    firebaseDatabase.updateChildren(updateLeafNodes);
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
 
 
 

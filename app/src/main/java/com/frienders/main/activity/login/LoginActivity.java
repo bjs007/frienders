@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
         {
             progressDialog.setTitle("Please wait");
             progressDialog.setCanceledOnTouchOutside(true);
-           mAuth.signInWithEmailAndPassword(email, password)
+            mAuth.signInWithEmailAndPassword(email, password)
                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                        @Override
                        public void onComplete(@NonNull Task<AuthResult> task) {

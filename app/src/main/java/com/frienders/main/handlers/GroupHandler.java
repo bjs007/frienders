@@ -134,9 +134,9 @@ public class GroupHandler
 
 //        t1.join();
 
-        Thread.sleep(9000);
-        Thread t2 = new Thread(new ChildCreation(list));
-        t2.start();
+//        Thread.sleep(9000);
+//        Thread t2 = new Thread(new ChildCreation(list));
+//        t2.start();
     }
 
 

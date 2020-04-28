@@ -5,14 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.handlers.GroupHandler;
@@ -26,8 +25,9 @@ public class GroupCreationActivity extends AppCompatActivity {
     LinearLayout innerlayout, innerlayout1, innerlayout2, innerlayout3;
     final List<EditText> groupDetail = new ArrayList<>();
     final List<GroupCreationRequest> levelOneRequest = new ArrayList<>();
-    Button button, submit;
+    Button addLevel, submit, removelevel;
     EditText levelNameEng, levelNameHin, levelNameEngDec, levelNameHinDec;
+    final List<LinearLayout> linearLayoutList = new ArrayList<>();
 
 
 
@@ -55,16 +55,18 @@ public class GroupCreationActivity extends AppCompatActivity {
         final LinearLayout.LayoutParams viewLayout = new LinearLayout.LayoutParams(
                 400, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-
-
-
-
+        final LinearLayout.LayoutParams viewLayout1 = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
 
         //FirstButton at the top
-        button = new Button(this);
-        button.setText("Add level");
-        button.setLayoutParams(viewLayout);
+        addLevel = new Button(this);
+        addLevel.setText("Add level");
+        addLevel.setLayoutParams(viewLayout1);
+
+        removelevel = new Button(this);
+        removelevel.setText("Remove level");
+        removelevel.setLayoutParams(viewLayout1);
 
         //Level number
         TextView textView = new TextView(this);
@@ -99,12 +101,13 @@ public class GroupCreationActivity extends AppCompatActivity {
 
         submit = new Button(this);
         submit.setText("submit");
-        submit.setLayoutParams(viewLayout);
+        submit.setLayoutParams(viewLayout1);
 
 
 
-        innerlayout.addView(button);
+        innerlayout.addView(addLevel);
         innerlayout.addView(submit);
+        innerlayout.addView(removelevel);
 
 
         innerlayout1.addView(levelNameEng);
@@ -123,13 +126,14 @@ public class GroupCreationActivity extends AppCompatActivity {
 
 
         final String[] moreLevel = new String[]{"No"};
-        button.setOnClickListener(new View.OnClickListener()
+        addLevel.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v) {
                 size[0]++;
                 LinearLayout linearLayout = new LinearLayout(GroupCreationActivity.this);
                 linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
 
                 LinearLayout linearLayout1= new LinearLayout(GroupCreationActivity.this);
                 linearLayout1.setOrientation(LinearLayout.HORIZONTAL);
@@ -173,6 +177,11 @@ public class GroupCreationActivity extends AppCompatActivity {
                 layout.addView(linearLayout);
                 layout.addView(linearLayout1);
 
+                linearLayoutList.add(linearLayout);
+                linearLayoutList.add(linearLayout1);
+                linearLayoutList.add(linearLayoutLevelIndex);
+
+
                 groupDetail.add(editText);
                 groupDetail.add(editText1);
                 groupDetail.add(editTextEngDesc);
@@ -185,19 +194,12 @@ public class GroupCreationActivity extends AppCompatActivity {
         {
             @Override
             public void onClick(View v) {
+                Toast.makeText(GroupCreationActivity.this, "Data saved", Toast.LENGTH_SHORT);
                 final List<GroupCreationRequest> requests = new ArrayList<>();
                 GroupCreationRequest groupCreationRequest = new GroupCreationRequest();
 
+
                 GroupHandler groupHandler = GroupHandler.getGroupHandler();
-
-
-//                groupCreationRequest.setGroupNameInEng(levelNameEng.getText().toString());
-//                groupCreationRequest.setGroupDescInEng(levelNameEngDec.getText().toString());
-//
-//                groupCreationRequest.setGroupNameInHin(levelNameHin.getText().toString());
-//                groupCreationRequest.setGroupDescInHin(levelNameHinDec.getText().toString());
-
-//                requests.add(groupCreationRequest);
 
                 for (int i = 0; i < groupDetail.size(); i = i + 4) {
                     groupCreationRequest = new GroupCreationRequest();
@@ -223,9 +225,40 @@ public class GroupCreationActivity extends AppCompatActivity {
 
                 t1.start();
 
+
             }
         });
 
+        removelevel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                Toast.makeText(GroupCreationActivity.this, "size " + groupDetail.size(),Toast.LENGTH_SHORT).show();
+                if(linearLayoutList.size() > 0)
+                {
+                    int lastIndex = linearLayoutList.size() - 1;
+
+                    layout.removeView(linearLayoutList.get(lastIndex));
+                    layout.removeView(linearLayoutList.get(lastIndex - 1));
+                    layout.removeView(linearLayoutList.get(lastIndex - 2));
+                    linearLayoutList.remove(lastIndex);
+                    linearLayoutList.remove(lastIndex-1);
+                    linearLayoutList.remove(lastIndex-2);
+
+                    int sizeHere = groupDetail.size();
+                    groupDetail.remove(sizeHere-1);
+                    groupDetail.remove(sizeHere-2);
+                    groupDetail.remove(sizeHere-3);
+                    groupDetail.remove(sizeHere-4);
+                    size[0]--;
+
+                }
+                else
+                {
+                    Toast.makeText(GroupCreationActivity.this, "All levels can not be removed",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
     }
 
