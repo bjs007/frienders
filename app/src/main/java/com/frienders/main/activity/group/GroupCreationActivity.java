@@ -22,11 +22,12 @@ import java.util.List;
 
 public class GroupCreationActivity extends AppCompatActivity {
 
-    LinearLayout innerlayout, innerlayout1, innerlayout2, innerlayout3;
+    LinearLayout innerlayout0, innerlayout, innerlayout1, innerlayout2, innerlayout3;
     final List<EditText> groupDetail = new ArrayList<>();
     final List<GroupCreationRequest> levelOneRequest = new ArrayList<>();
-    Button addLevel, submit, removelevel;
+    Button addLevel, submit, removelevel, addDescription;
     EditText levelNameEng, levelNameHin, levelNameEngDec, levelNameHinDec;
+
     final List<LinearLayout> linearLayoutList = new ArrayList<>();
 
 
@@ -41,12 +42,14 @@ public class GroupCreationActivity extends AppCompatActivity {
 
         final LinearLayout layout = findViewById(R.id.group_create);
         layout.setOrientation(LinearLayout.VERTICAL);
+         innerlayout0 = new LinearLayout(this);
          innerlayout = new LinearLayout(this);
          innerlayout1 = new LinearLayout(this);
          innerlayout2 = new LinearLayout(this);
          innerlayout3 = new LinearLayout(this);
 
 
+        innerlayout0.setOrientation(LinearLayout.HORIZONTAL);
         innerlayout1.setOrientation(LinearLayout.HORIZONTAL);
         innerlayout.setOrientation(LinearLayout.HORIZONTAL);
         innerlayout2.setOrientation(LinearLayout.HORIZONTAL);
@@ -58,6 +61,11 @@ public class GroupCreationActivity extends AppCompatActivity {
         final LinearLayout.LayoutParams viewLayout1 = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
+
+
+        addDescription = new Button(this);
+        addDescription.setText("Add Description");
+        addDescription.setLayoutParams(viewLayout1);
 
         //FirstButton at the top
         addLevel = new Button(this);
@@ -78,25 +86,28 @@ public class GroupCreationActivity extends AppCompatActivity {
         levelNameEng = new EditText(this);
         groupDetail.add(levelNameEng);
         levelNameEng.setHint("level name");
-
+        levelNameEng.setTextCursorDrawable(R.drawable.color_cursor);
         levelNameEng.setLayoutParams(viewLayout);
 
         levelNameHin = new EditText(this);
         groupDetail.add(levelNameHin);
         levelNameHin.setHint("स्तर का नाम");
         levelNameHin.setLayoutParams(viewLayout);
+        levelNameHin.setTextCursorDrawable(R.drawable.color_cursor);
 
 
         levelNameEngDec = new EditText(this);
         groupDetail.add(levelNameEngDec);
         levelNameEngDec.setHint("level description");
         levelNameEngDec.setLayoutParams(viewLayout);
+        levelNameEngDec.setTextCursorDrawable(R.drawable.color_cursor);
 
         levelNameHinDec = new EditText(this);
         groupDetail.add(levelNameHinDec);
         levelNameHinDec.setHint(
                " स्तर का विवरण");
         levelNameHinDec.setLayoutParams(viewLayout);
+        levelNameHinDec.setTextCursorDrawable(R.drawable.color_cursor);
 
 
         submit = new Button(this);
@@ -105,6 +116,7 @@ public class GroupCreationActivity extends AppCompatActivity {
 
 
 
+        innerlayout0.addView(addDescription);
         innerlayout.addView(addLevel);
         innerlayout.addView(submit);
         innerlayout.addView(removelevel);
@@ -117,6 +129,7 @@ public class GroupCreationActivity extends AppCompatActivity {
 
 
 
+        layout.addView(innerlayout0);
         layout.addView(innerlayout);
         layout.addView(innerlayout2);
         layout.addView(innerlayout1);
@@ -152,24 +165,29 @@ public class GroupCreationActivity extends AppCompatActivity {
                 editText.setHint("level name");
                 editText.setLayoutParams(viewLayout);
                 linearLayout.addView(editText);
+                editText.setTextCursorDrawable(R.drawable.color_cursor);
+
 
 
                 final EditText editText1 = getEditText();
                 editText1.setHint("स्तर का नाम");
                 editText1.setLayoutParams(viewLayout);
                 linearLayout.addView(editText1);
+                editText1.setTextCursorDrawable(R.drawable.color_cursor);
 
 
                 final EditText editTextEngDesc = getEditText();
                 editTextEngDesc.setHint("level description");
                 editTextEngDesc.setLayoutParams(viewLayout);
                 linearLayout1.addView(editTextEngDesc);
+                editTextEngDesc.setTextCursorDrawable(R.drawable.color_cursor);
 
 
                 final EditText editText1HindDesc = getEditText();
                 editText1HindDesc.setHint("स्तर का विवरण");
                 editText1HindDesc.setLayoutParams(viewLayout);
                 linearLayout1.addView(editText1HindDesc);
+                editText1HindDesc.setTextCursorDrawable(R.drawable.color_cursor);
 
 
                 layout.addView(linearLayoutLevelIndex);
@@ -260,6 +278,15 @@ public class GroupCreationActivity extends AppCompatActivity {
             }
         });
 
+        addDescription.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Toast.makeText(GroupCreationActivity.this, "Under prgoress",Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     private EditText getEditText()

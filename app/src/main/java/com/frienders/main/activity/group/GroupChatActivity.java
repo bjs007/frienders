@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.frienders.main.GroupDetailDisplayActivity;
 import com.frienders.main.activity.MainActivity;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.model.Group;
@@ -233,6 +234,17 @@ public class GroupChatActivity extends AppCompatActivity {
 
         SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
         saveCurrentTime = currentTime.format(calendar.getTime());
+
+        groupChatToolBar.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent groupDetailDisplayActivity = new Intent(GroupChatActivity.this, GroupDetailDisplayActivity.class);
+                groupDetailDisplayActivity.putExtra("groupId", groupId);
+                startActivity(groupDetailDisplayActivity);
+            }
+        });
     }
 
     @Override

@@ -1,12 +1,15 @@
 package com.frienders.main.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,6 +37,7 @@ public class SubscribedGroupsFragment extends Fragment
 
     private View groupChatView;
     private DatabaseReference groupDatabaseReference, userDatabaseReference;
+    private ProgressDialog progressDialog;
 
     private RecyclerView userSubscribedGroupsList;
     private FirebaseAuth mAuth;
@@ -54,6 +58,14 @@ public class SubscribedGroupsFragment extends Fragment
 
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please wait! Loading...");
+        Window window = progressDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        progressDialog.show();
+
+
 
         groupChatView = inflater.inflate(R.layout.fragment_ginfox_groups, container,false);
         userSubscribedGroupsList = (RecyclerView) groupChatView.findViewById(R.id.groups_list);
@@ -111,11 +123,10 @@ public class SubscribedGroupsFragment extends Fragment
                         @Override
                         protected void onBindViewHolder(@NonNull final SubscribedGroupsFragment.GroupViewHolder holder, int position, @NonNull final Group model)
                         {
-//                        final String groupNameId = getRef(position).toString();
-
                             holder.enterIntoButton.setVisibility(View.GONE);
                             holder.subScribeButton.setVisibility(View.GONE);
                             holder.groupViewImage.setVisibility(View.VISIBLE);
+
 
                             if(language.equals("eng"))
                             {
@@ -152,6 +163,9 @@ public class SubscribedGroupsFragment extends Fragment
                         }
 
                     };
+
+
+            progressDialog.dismiss();
 
             userSubscribedGroupsList.setAdapter(adapter);
             adapter.startListening();
