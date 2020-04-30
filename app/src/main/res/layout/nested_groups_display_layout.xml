@@ -80,11 +80,11 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"
                     android:textSize="14sp"
-
-
-
                     android:layout_toRightOf="@id/nested_subscribe_group_button" />
+
+
             </RelativeLayout>
+
 
         </LinearLayout>
 

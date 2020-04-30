@@ -2,11 +2,13 @@ package com.frienders.main.activity.profile;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -17,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frienders.main.R;
@@ -56,6 +59,7 @@ public class SettingActivity extends AppCompatActivity {
     RadioGroup languaeRadioGroup;
     private String userLanguage = "eng";
     private ProgressDialog progressDialog;
+    private TextView deleteProfileImage;
 
     private static final int GalleryPick = 1;
 
@@ -92,6 +96,37 @@ public class SettingActivity extends AppCompatActivity {
                 startActivityForResult(galleryIntent, GalleryPick);
             }
         });
+
+        deleteProfileImage.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                RootRef.child(currentUserId).child("image").addListenerForSingleValueEvent(
+                        new ValueEventListener()
+                        {
+                            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                            {
+                                if(dataSnapshot.exists())
+                                {
+                                    userProfileImage.setImageDrawable(getDrawable(R.drawable.profile_image));
+                                    RootRef.child(currentUserId).child("image").removeValue();
+                                    deleteProfileImage.setVisibility(View.GONE);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError)
+                            {
+
+                            }
+                        }
+                );
+
+            }
+        });
     }
 
 
@@ -113,6 +148,7 @@ public class SettingActivity extends AppCompatActivity {
         languaeRadioGroup = findViewById(R.id.radioGroup);
         engLanguageRadioButton = findViewById(R.id.english);
         hinLanuguageRadioButton = findViewById(R.id.hindi);
+        deleteProfileImage = findViewById(R.id.delete_profile_image);
 
         RootRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -159,7 +195,7 @@ public class SettingActivity extends AppCompatActivity {
         if(requestCode == GalleryPick && resultCode ==  RESULT_OK && data != null)
         {
             Uri ImageUri = data.getData();
-            CropImage.activity()
+            CropImage.activity(ImageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(1, 1)
                     .start(this);
@@ -170,8 +206,8 @@ public class SettingActivity extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
             if (resultCode == RESULT_OK) {
-                loadingBar.setTitle("Set profile Image");
-                loadingBar.setMessage("Please wait while image is uploading");
+
+                loadingBar.setMessage("Uploading image");
                 loadingBar.setCanceledOnTouchOutside(false);
                 loadingBar.show();
 
@@ -205,6 +241,7 @@ public class SettingActivity extends AppCompatActivity {
                                                     if (task.isSuccessful())
                                                     {
                                                         loadingBar.dismiss();
+                                                        deleteProfileImage.setVisibility(View.VISIBLE);
                                                     }
                                                     else
                                                     {
@@ -328,7 +365,11 @@ public class SettingActivity extends AppCompatActivity {
                            String retrieveUserName = dataSnapshot.child("name").getValue().toString();
 //                           name = dataSnapshot.child("name").getValue().toString();;
                            String retrieveStatus = dataSnapshot.child("status").getValue().toString();
+
+
                            String retrieveProfileImage = dataSnapshot.child("image").getValue().toString();
+
+
                            userName.setText(retrieveUserName);
                            userStatus.setText(retrieveStatus);
 
@@ -342,6 +383,7 @@ public class SettingActivity extends AppCompatActivity {
                             String retrieveStatus = dataSnapshot.child("status").getValue().toString();
                             userName.setText(retrieveUserName);
                             userStatus.setText(retrieveStatus);
+                            deleteProfileImage.setVisibility(View.GONE);
 
                         }
                         else
@@ -356,4 +398,5 @@ public class SettingActivity extends AppCompatActivity {
                     }
                 });
     }
+
 }

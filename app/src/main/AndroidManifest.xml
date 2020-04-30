@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".GroupDetailDisplayActivity"></activity>
+        <activity android:name=".activity.group.GroupDetailDisplayActivity"></activity>
         <activity android:name=".activity.login.CodeVerificationCodeActivity" />
         <activity android:name=".activity.login.NewLoginActivity" />
         <activity android:name=".activity.group.GroupCreationActivity" />

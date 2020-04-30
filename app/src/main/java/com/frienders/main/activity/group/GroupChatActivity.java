@@ -20,9 +20,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frienders.main.GroupDetailDisplayActivity;
 import com.frienders.main.activity.MainActivity;
-import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.model.Group;
 import com.frienders.main.model.GroupMessage;
 import com.frienders.main.adapter.GroupMessageAdapter;

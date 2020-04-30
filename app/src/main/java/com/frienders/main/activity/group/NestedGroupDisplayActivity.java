@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.frienders.main.GroupDetailDisplayActivity;
 import com.frienders.main.R;
 import com.frienders.main.model.Group;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,7 +22,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NestedGroupDisplayActivity extends AppCompatActivity
 {
@@ -271,6 +269,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
             enterIntoButton = itemView.findViewById(R.id.nested_enter_into_group_button);
         }
     }
+    
 }
 
 

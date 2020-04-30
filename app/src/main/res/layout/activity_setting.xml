@@ -13,7 +13,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="620dp"
+            android:layout_height="match_parent"
             android:gravity="center|start"
             android:orientation="vertical">
 
@@ -23,20 +23,34 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/set_profile_image"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="20dp"
                 android:src="@drawable/profile_image"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:civ_border_color="@color/colorPrimary"
              />
+
+            <TextView
+                android:id="@+id/delete_profile_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="Delete"
+                android:textColor="@color/colorBlue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/set_profile_image"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/status_bar"
@@ -49,21 +63,21 @@
                 android:text="Status"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/set_profile_image"
+                app:layout_constraintTop_toBottomOf="@+id/delete_profile_image"
                 app:layout_constraintVertical_bias="0.0" />
 
             <EditText
                 android:id="@+id/set_profile_status"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:ems="10"
                 android:inputType="textCapSentences"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -76,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:text="Name"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/set_profile_status" />
@@ -85,15 +99,15 @@
             <EditText
                 android:id="@+id/set_user_name"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:ems="10"
                 android:inputType="textCapSentences"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintLeft_toLeftOf="parent"

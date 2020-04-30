@@ -41,7 +41,7 @@ public class GroupCreationActivity extends AppCompatActivity {
         final List<GroupCreationRequest> list = new ArrayList<>();
 
         final LinearLayout layout = findViewById(R.id.group_create);
-        layout.setOrientation(LinearLayout.VERTICAL);
+         layout.setOrientation(LinearLayout.VERTICAL);
          innerlayout0 = new LinearLayout(this);
          innerlayout = new LinearLayout(this);
          innerlayout1 = new LinearLayout(this);
@@ -212,7 +212,13 @@ public class GroupCreationActivity extends AppCompatActivity {
         {
             @Override
             public void onClick(View v) {
-                Toast.makeText(GroupCreationActivity.this, "Data saved", Toast.LENGTH_SHORT);
+                ProgressDialog progressDialog = new ProgressDialog(GroupCreationActivity.this);
+                progressDialog.setMessage("Group created! Please click outside to restart");
+                progressDialog.show();
+                progressDialog.setCanceledOnTouchOutside(true);
+
+
+
                 final List<GroupCreationRequest> requests = new ArrayList<>();
                 GroupCreationRequest groupCreationRequest = new GroupCreationRequest();
 
