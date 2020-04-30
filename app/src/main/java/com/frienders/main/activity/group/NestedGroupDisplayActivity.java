@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.frienders.main.GroupDetailDisplayActivity;
 import com.frienders.main.R;
 import com.frienders.main.model.Group;
 import com.google.firebase.auth.FirebaseAuth;
@@ -161,6 +162,16 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                         }
                                     });
 
+                                    holder.enterIntoButton.setOnClickListener(new View.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(View v)
+                                        {
+                                            Intent groupDetailDisplayActivity = new Intent(NestedGroupDisplayActivity.this, GroupDetailDisplayActivity.class);
+                                            groupDetailDisplayActivity.putExtra("groupId", model.getId());
+                                            startActivity(groupDetailDisplayActivity);
+                                        }
+                                    });
                                 }
 
                                 if(!model.isLeaf())

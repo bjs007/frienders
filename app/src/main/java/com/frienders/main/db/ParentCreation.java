@@ -69,8 +69,9 @@ public class ParentCreation implements Runnable
                     while (iterator.hasNext())
                     {
                         Group group = iterator.next().getValue(Group.class);
-                        String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng();
-                        if(group != null && group.getEngName().equals((groupPathWithName.get(level).getRequest().getGroupNameInEng())))
+                        String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng().trim();
+
+                        if(group != null && group.getEngName().equalsIgnoreCase(newGroupName))
                         {
                             requiredNodeAtCurrentLevel = group;
                             break;
@@ -153,7 +154,8 @@ public class ParentCreation implements Runnable
                     {
                         Group group = iterator.next().getValue(Group.class);
                         String newGroupName = groupPathWithName.get(level).getRequest().getGroupNameInEng();
-                        if(group != null && group.getEngName().equals((groupPathWithName.get(level).getRequest().getGroupNameInEng())))
+
+                        if(group != null && group.getEngName().equalsIgnoreCase(newGroupName))
                         {
                             requiredNodeAtCurrentLevel = group;
                             break;
@@ -184,6 +186,7 @@ public class ParentCreation implements Runnable
                     final Map<String, Object> updatedNodeAtCurrentLevelDetail = new HashMap<>();
                     updatedNodeAtCurrentLevelDetail.put(currentLevel +"/"+ groupPathWithName.get(level-1).getCurrentNodeDbRef() +"/"
                             +requiredNodeAtCurrentLevel.getId() + "/", requiredNodeAtCurrentLevel);
+
                     final Group finalNodeHere = requiredNodeAtCurrentLevel;
 
                     firebaseDatabase.updateChildren(updatedNodeAtCurrentLevelDetail).addOnCompleteListener(new OnCompleteListener()
