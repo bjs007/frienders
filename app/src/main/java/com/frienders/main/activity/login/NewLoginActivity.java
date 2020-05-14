@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +14,8 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -27,56 +28,51 @@ import java.util.concurrent.TimeUnit;
 
 public class NewLoginActivity extends AppCompatActivity {
 
-    private Button SendVerificationCodeButton, VerifyButton;
-    private EditText InputPhoneNumber, InputVerificationCode;
+    private Button sendVerificationCodeButton;
+    private EditText inputPhoneNumber;
 
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks;
 
-    private String mVerificationId;
-    private PhoneAuthProvider.ForceResendingToken mResendToken;
-    private FirebaseAuth mAuth;
+    private String verificationId;
     private ProgressDialog progressDialog;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_login);
+        initializeUiAndCallBacks();
+    }
 
-        mAuth = FirebaseAuth.getInstance();
-
-
-        SendVerificationCodeButton = (Button) findViewById(R.id.send_verification_code);
-        InputPhoneNumber = (EditText) findViewById(R.id.phone_number_input_new_login);
-        SendVerificationCodeButton.setVisibility(View.VISIBLE);
-
+    private void initializeUiAndCallBacks()
+    {
+        sendVerificationCodeButton = findViewById(R.id.send_verification_code);
+        inputPhoneNumber = findViewById(R.id.phone_number_input_new_login);
+        sendVerificationCodeButton.setVisibility(View.VISIBLE);
         progressDialog = new ProgressDialog(this);
 
-
-        SendVerificationCodeButton.setOnClickListener(new View.OnClickListener() {
+        sendVerificationCodeButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
-                String phoneNumber = InputPhoneNumber.getText().toString().trim();
+            public void onClick(View v)
+            {
+                String phoneNumber = inputPhoneNumber.getText().toString().trim();
 
-
-                if (TextUtils.isEmpty(phoneNumber)) {
-                    Toast.makeText(NewLoginActivity.this, "Phone number is required", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(phoneNumber))
+                {
+                    Toast.makeText(NewLoginActivity.this, getString(R.string.phonenumberrequired), Toast.LENGTH_SHORT).show();
                 }
 
-                else if(InputPhoneNumber.length() != 10)
+                else if(inputPhoneNumber.length() != 10)
                 {
-                    Toast.makeText(NewLoginActivity.this, "Please enter 10 digits indian mobile number e.g. 9876543210", Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(NewLoginActivity.this, getString(R.string.pleaseenterphonenumber), Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     phoneNumber = "+91" + phoneNumber;
-//                    progressDialog.setTitle("Phone verification");
-                    progressDialog.setMessage("We are sending verification code. Please wait!");
+                    progressDialog.setMessage(getString(R.string.sendingverificationcode));
                     progressDialog.setCanceledOnTouchOutside(false);
                     progressDialog.show();
-
-
-
                     PhoneAuthProvider.getInstance().verifyPhoneNumber(
                             phoneNumber,        // Phone number to verify
                             60,                 // Timeout duration
@@ -84,9 +80,9 @@ public class NewLoginActivity extends AppCompatActivity {
                             NewLoginActivity.this,               // Activity (for callback binding)
                             callbacks);        // OnVerificationStateChangedCallbacks
                 }
-
             }
         });
+
 
         callbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks()
         {
@@ -101,70 +97,60 @@ public class NewLoginActivity extends AppCompatActivity {
             public void onVerificationFailed(@NonNull FirebaseException e)
             {
                 progressDialog.dismiss();
-                Toast.makeText(NewLoginActivity.this, "Invalid Phone number, please enter 10 digits indian mobile number e.g. 9876543210", Toast.LENGTH_SHORT).show();
-
-                SendVerificationCodeButton.setVisibility(View.VISIBLE);
-                InputPhoneNumber.setVisibility(View.VISIBLE);
-
-//                VerifyButton.setVisibility(View.INVISIBLE);
-//                InputVerificationCode.setVisibility(View.INVISIBLE);
-
+                Toast.makeText(NewLoginActivity.this, getString(R.string.entervalidphonenumber), Toast.LENGTH_SHORT).show();
+                sendVerificationCodeButton.setVisibility(View.VISIBLE);
+                inputPhoneNumber.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onCodeSent(@NonNull String verificationId,
                                    @NonNull PhoneAuthProvider.ForceResendingToken token)
             {
-
                 // Save verification ID and resending token so we can use them later
 
-                mVerificationId = verificationId;
-                mResendToken = token;
+                NewLoginActivity.this.verificationId = verificationId;
                 progressDialog.dismiss();
 
-                Toast.makeText(NewLoginActivity.this, "Code has been sent", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NewLoginActivity.this, getString(R.string.codesent), Toast.LENGTH_SHORT).show();
                 Intent codeVerificationIntent = new Intent(NewLoginActivity.this, CodeVerificationCodeActivity.class);
-                codeVerificationIntent.putExtra("verificationcode", mVerificationId);
+                codeVerificationIntent.putExtra(ActivityParameters.verificationcode, NewLoginActivity.this.verificationId);
+                codeVerificationIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(codeVerificationIntent);
-
-
             }
         };
     }
-        private void signInWithPhoneAuthCredential (PhoneAuthCredential credential)
-        {
-            mAuth.signInWithCredential(credential)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+
+    private void signInWithPhoneAuthCredential (PhoneAuthCredential credential)
+    {
+        FirebaseAuthProvider.getFirebaseAuth().signInWithCredential(credential)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task)
+                {
+                    if (task.isSuccessful())
                     {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task)
-                        {
-                            if (task.isSuccessful())
-                            {
-                                // Sign in success, update UI with the signed-in user's information
-                                progressDialog.dismiss();
-                                Toast.makeText(NewLoginActivity.this, "Congratulations", Toast.LENGTH_SHORT).show();
-                                SendUserToMainActivity();
-                            }
-                            else
-                            {
-                                // Sign in failed, display a message and update the UI
-                                String message = task.getException().toString();
-                                progressDialog.dismiss();
-                                Toast.makeText(NewLoginActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                        // Sign in success, update UI with the signed-in user's information
+                        progressDialog.dismiss();
+                        SendUserToMainActivity();
+                    }
+                    else
+                    {
+                        // Sign in failed, display a message and update the UI
+                        String message = task.getException().toString();
+                        progressDialog.dismiss();
+                        Toast.makeText(NewLoginActivity.this, getString(R.string.loginerror) + message, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+    }
 
-
-                            }
-                        }
-                    });
-        }
-
-        private void SendUserToMainActivity ()
-        {
-            progressDialog.dismiss();
-            Intent mainIntent = new Intent(NewLoginActivity.this, MainActivity.class);
-            startActivity(mainIntent);
-            finish();
-
-        }
+    private void SendUserToMainActivity ()
+    {
+        progressDialog.dismiss();
+        Intent mainIntent = new Intent(NewLoginActivity.this, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(mainIntent);
+        finish();
+    }
 }

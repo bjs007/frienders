@@ -10,71 +10,70 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 public class CodeVerificationCodeActivity extends AppCompatActivity {
 
-    private Button VerifyButton;
-    private EditText InputVerificationCode;
+    private Button verifyButton;
+    private EditText inputVerificationCode;
     private ProgressDialog progressDialog;
-    private String mVerificationId;
-    private FirebaseAuth mAuth;
+    private String verificationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_code_verification_code);
-        VerifyButton = findViewById(R.id.verification_code_button);
-        InputVerificationCode = findViewById(R.id.verification_code);
-        mAuth = FirebaseAuth.getInstance();
-        if(getIntent().getExtras().get("verificationcode") != null)
+        initializeUi();
+
+        if(getIntent().getExtras().get(ActivityParameters.verificationcode) != null)
         {
-            mVerificationId  = getIntent().getExtras().get("verificationcode").toString();
+            verificationId = getIntent().getExtras().get(ActivityParameters.verificationcode).toString();
         }
 
+    }
+
+    private void initializeUi()
+    {
+        verifyButton = findViewById(R.id.verification_code_button);
+        inputVerificationCode = findViewById(R.id.verification_code);
         progressDialog  = new ProgressDialog(this);
-
-
-
-        VerifyButton.setOnClickListener(new View.OnClickListener()
+        verifyButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-
-
-                String verificationCode = InputVerificationCode.getText().toString();
+                final String verificationCode = inputVerificationCode.getText().toString();
                 if (TextUtils.isEmpty(verificationCode))
                 {
-                    Toast.makeText(CodeVerificationCodeActivity.this, "Please write verification code first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.writeverificationcodehere), Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    progressDialog.setTitle("Verification Code");
-                    progressDialog.setMessage("Please wait, while we are verifying verification code");
+                    progressDialog.setTitle(getString(R.string.verificationcodepopoptitle));
+                    progressDialog.setMessage(getString(R.string.verificationcodepleasewaitmessage));
                     progressDialog.setCanceledOnTouchOutside(false);
                     progressDialog.show();
 
-                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, verificationCode);
+                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, verificationCode);
                     signInWithPhoneAuthCredential(credential);
-                }
+            }
             }
         });
     }
 
     private void signInWithPhoneAuthCredential (PhoneAuthCredential credential)
     {
-        mAuth.signInWithCredential(credential)
+        FirebaseAuthProvider.getFirebaseAuth().signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
                 {
                     @Override
@@ -84,16 +83,17 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
                         {
                             // Sign in success, update UI with the signed-in user's information
                             progressDialog.dismiss();
-                            Toast.makeText(CodeVerificationCodeActivity.this, "Code verified", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.codeverified), Toast.LENGTH_SHORT).show();
                             SendUserToMainActivity();
                         }
                         else
                         {
                             // Sign in failed, display a message and update the UI
                             String message = task.getException().toString();
-                            Toast.makeText(CodeVerificationCodeActivity.this, "Wrong code! Try again!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.wrongcode), Toast.LENGTH_SHORT).show();
 
                             Intent newLoginActivity = new Intent(CodeVerificationCodeActivity.this, NewLoginActivity.class);
+                            newLoginActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                             startActivity(newLoginActivity);
                         }
                     }
@@ -103,6 +103,7 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
     private void SendUserToMainActivity ()
     {
         Intent mainIntent = new Intent(CodeVerificationCodeActivity.this, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(mainIntent);
         finish();
     }

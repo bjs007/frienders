@@ -12,13 +12,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
 import com.frienders.main.activity.group.NestedGroupDisplayActivity;
-import com.frienders.main.model.Group;
+import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.config.UsersFirebaseFields;
+import com.frienders.main.db.model.Group;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
+import com.frienders.main.db.refs.FirebasePaths;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,10 +40,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class GinfoxGroupsFragment extends Fragment
 {
     private View groupChatView;
-    private DatabaseReference groupDatabaseReference, userDatabaseReference;
     private RecyclerView userSubscribedGroupsList;
-    private FirebaseAuth mAuth;
-    private String currentUserId;
     private String language = "eng";
 
     public GinfoxGroupsFragment()
@@ -51,19 +53,16 @@ public class GinfoxGroupsFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mAuth = FirebaseAuth.getInstance();
-        currentUserId = mAuth.getCurrentUser().getUid();
+        initializeUi(inflater, container);
 
+        return groupChatView;
+    }
+
+    private void initializeUi(LayoutInflater inflater, ViewGroup container)
+    {
         groupChatView = inflater.inflate(R.layout.fragment_ginfox_groups, container,false);
         userSubscribedGroupsList = (RecyclerView) groupChatView.findViewById(R.id.groups_list);
         userSubscribedGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        groupDatabaseReference = FirebaseDatabase.getInstance().getReference("Groups").child("level - 0");
-
-        userDatabaseReference = FirebaseDatabase.getInstance().getReference("Users");
-
-
-        return groupChatView;
     }
 
     @Override
@@ -71,7 +70,9 @@ public class GinfoxGroupsFragment extends Fragment
     {
         super.onStart();
 
-        userDatabaseReference.child(currentUserId).child("lang").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
+                .child(UsersFirebaseFields.profileImageLink)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
@@ -98,7 +99,7 @@ public class GinfoxGroupsFragment extends Fragment
 
         FirebaseRecyclerOptions<Group> options =
                 new FirebaseRecyclerOptions.Builder<Group>()
-                        .setQuery(groupDatabaseReference, Group.class)
+                        .setQuery(FirebasePaths.firebaseGroupsAtLevelDBRef(0), Group.class)
                         .build();
 
 
@@ -111,8 +112,6 @@ public class GinfoxGroupsFragment extends Fragment
                         {
                             final String groupName = getRef(position).getKey();
 
-//                            holder.groupName.setText(model.getEngName());
-
                             if(language.equals("eng"))
                             {
                                 holder.groupName.setText(model.getEngName());
@@ -124,14 +123,13 @@ public class GinfoxGroupsFragment extends Fragment
                                 holder.groupDescription.setText(model.getHinDesc());
                             }
 
-
-
                             holder.groupViewImage.setVisibility(View.GONE);
                             if(!model.isLeaf())
                             {
                                 holder.enterIntoButton.setVisibility(View.GONE);
                                 holder.subScribeButton.setVisibility(View.GONE);
                             }
+
                             holder.itemView.setOnClickListener(new View.OnClickListener()
                             {
 
@@ -139,8 +137,8 @@ public class GinfoxGroupsFragment extends Fragment
                                 public void onClick(View v)
                                 {
                                     Intent nestedGroupIntent = new Intent(getContext(), NestedGroupDisplayActivity.class);
-                                    nestedGroupIntent.putExtra("level", 1);
-                                    nestedGroupIntent.putExtra("parentId", model.getId());
+                                    nestedGroupIntent.putExtra(ActivityParameters.level, 1);
+                                    nestedGroupIntent.putExtra(ActivityParameters.parentId, model.getId());
                                     startActivity(nestedGroupIntent);
                                 }
                             });
@@ -183,7 +181,6 @@ public class GinfoxGroupsFragment extends Fragment
             groupDescription = itemView.findViewById(R.id.group_description);
             subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);
             enterIntoButton = itemView.findViewById(R.id.enter_into_group_button);
-
         }
     }
 }

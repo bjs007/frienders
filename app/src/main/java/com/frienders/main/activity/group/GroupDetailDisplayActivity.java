@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.frienders.main.R;
-import com.frienders.main.model.Group;
+import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.db.model.Group;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
+import com.frienders.main.db.refs.FirebasePaths;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,10 +23,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     private TextView groupName;
     private TextView groupDescription;
     private TextView groupDetail;
-    private DatabaseReference databaseReference;
     private String groupId;
-    private FirebaseAuth mAuth;
-    private String userId;
     private String language = "eng";
 
     @Override
@@ -31,23 +31,20 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_detail_display);
-        databaseReference = FirebaseDatabase.getInstance().getReference("Groups");
 
-        if(getIntent().getExtras().get("groupId") != null)
+        if(getIntent().getExtras().get(ActivityParameters.groupId) != null)
         {
-            groupId = getIntent().getExtras().get("groupId").toString();
+            groupId = getIntent().getExtras().get(ActivityParameters.groupId).toString();
         }
 
-        InitializeFields();
-        PopulateFields();
+        initializeUi();
+        populateFields();
     }
 
-    private void PopulateFields()
+    private void populateFields()
     {
 
-        final DatabaseReference getGroupDetail = FirebaseDatabase.getInstance().getReference().child("Groups").child("leafs");
-        DatabaseReference userLangugae = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser()
-                .getUid()).child("lang");
+        DatabaseReference userLangugae = FirebasePaths.firebaseUsersDbRef().child(FirebaseAuthProvider.getCurrentUserId()).child("lang");
 
         userLangugae.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -58,7 +55,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                     language = dataSnapshot.getValue().toString();
                 }
 
-                databaseReference.child("leafs").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                FirebasePaths.firebaseGroupDbRef().child("leafs").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                     {
@@ -83,7 +80,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                             }
 
 
-                            databaseReference.child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            FirebasePaths.firebaseGroupDbRef().child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                                 {
@@ -120,12 +117,10 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
         });
     }
 
-    private void InitializeFields()
+    private void initializeUi()
     {
         groupName = findViewById(R.id.groupName_groupDetail_layout);
         groupDescription = findViewById(R.id.groupDescription_groupDetail_layout);
         groupDetail = findViewById(R.id.groupName_groupDetail_layout);
-        mAuth = FirebaseAuth.getInstance();
-        userId = mAuth.getCurrentUser().getUid();
     }
 }

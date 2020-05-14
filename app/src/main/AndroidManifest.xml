@@ -13,18 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.group.GroupDetailDisplayActivity"></activity>
+        <activity android:name=".notification.NotificaitonActivity" />
+        <activity android:name=".SearchGroupActivity" />
+        <activity android:name=".activity.group.GroupDetailDisplayActivity" />
         <activity android:name=".activity.login.CodeVerificationCodeActivity" />
         <activity android:name=".activity.login.NewLoginActivity" />
-        <activity android:name=".activity.group.GroupCreationActivity" />
         <activity android:name=".activity.group.NestedGroupDisplayActivity" />
-        <activity android:name=".activity.chat.ChatActivity" />
-        <activity android:name=".activity.profile.ProfileActivity" />
-        <activity
-            android:name=".activity.menu.FindFriendsActivity"
-            android:parentActivityName=".activity.MainActivity" />
         <activity android:name=".activity.login.PhoneLoginActivity" />
-        <activity android:name=".activity.group.GroupActivity" />
         <activity android:name=".activity.group.GroupChatActivity" />
         <activity
             android:name=".activity.profile.SettingActivity"
@@ -41,6 +36,21 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
+
+        <service android:name=".LocalFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <activity android:name=".SplashActivity" android:screenOrientation="fullSensor"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
     </application>
 
 </manifest>

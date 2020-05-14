@@ -56,11 +56,10 @@
 
                 <Button
                     android:id="@+id/nested_subscribe_group_button"
-                    android:layout_width="183dp"
+                    android:layout_width="240dp"
                     android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
-                    android:background="@color/colorGray"
-                    android:text="subscribe"
+                    android:text="Remove from your groups"
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"
                     android:textSize="14sp"
@@ -69,13 +68,12 @@
 
                 <Button
                     android:id="@+id/nested_enter_into_group_button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_toEndOf="@id/nested_subscribe_group_button"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
                     android:layout_alignParentRight="true"
-                    android:background="@color/colorGray"
                     android:text="View"
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"

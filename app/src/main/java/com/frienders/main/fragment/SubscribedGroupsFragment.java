@@ -21,8 +21,12 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
 import com.frienders.main.activity.group.GroupChatActivity;
-import com.frienders.main.activity.group.GroupCreationActivity;
-import com.frienders.main.model.Group;
+import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.config.Configuration;
+import com.frienders.main.config.UsersFirebaseFields;
+import com.frienders.main.db.model.Group;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
+import com.frienders.main.db.refs.FirebasePaths;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,12 +40,8 @@ public class SubscribedGroupsFragment extends Fragment
 {
 
     private View groupChatView;
-    private DatabaseReference groupDatabaseReference, userDatabaseReference;
     private ProgressDialog progressDialog;
-
     private RecyclerView userSubscribedGroupsList;
-    private FirebaseAuth mAuth;
-    private String currentUserId;
     private String language = "eng";
 
     public SubscribedGroupsFragment()
@@ -56,28 +56,16 @@ public class SubscribedGroupsFragment extends Fragment
     {
         // Inflate the layout for this fragment
 
-        mAuth = FirebaseAuth.getInstance();
-        currentUserId = mAuth.getCurrentUser().getUid();
         progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Please wait! Loading...");
+        progressDialog.setMessage(getString(R.string.loadingmessage));
         Window window = progressDialog.getWindow();
         window.setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
         progressDialog.show();
-
-
-
         groupChatView = inflater.inflate(R.layout.fragment_ginfox_groups, container,false);
-        userSubscribedGroupsList = (RecyclerView) groupChatView.findViewById(R.id.groups_list);
+        userSubscribedGroupsList = groupChatView.findViewById(R.id.groups_list);
         userSubscribedGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        userDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId);
-
-        groupDatabaseReference = FirebaseDatabase.getInstance().getReference("Groups").child("leafs");
-
-
         return groupChatView;
-
     }
 
     @Override
@@ -85,8 +73,10 @@ public class SubscribedGroupsFragment extends Fragment
     {
         super.onStart();
 
-        final String currentUserId  = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userDatabaseReference.child("lang").addListenerForSingleValueEvent(new ValueEventListener() {
+        final String currentUserId  = FirebaseAuthProvider.getCurrentUserId();
+        FirebasePaths.firebaseUserRef(currentUserId)
+                .child(UsersFirebaseFields.language)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
@@ -112,9 +102,8 @@ public class SubscribedGroupsFragment extends Fragment
     {
         FirebaseRecyclerOptions<Group> options =
                 new FirebaseRecyclerOptions.Builder<Group>()
-                        .setQuery(userDatabaseReference.child("subscribed"), Group.class)
+                        .setQuery(FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).child("subscribed"), Group.class)
                         .build();
-
 
         try{
             FirebaseRecyclerAdapter<Group, SubscribedGroupsFragment.GroupViewHolder> adapter =
@@ -126,7 +115,6 @@ public class SubscribedGroupsFragment extends Fragment
                             holder.enterIntoButton.setVisibility(View.GONE);
                             holder.subScribeButton.setVisibility(View.GONE);
                             holder.groupViewImage.setVisibility(View.VISIBLE);
-
 
                             if(language.equals("eng"))
                             {
@@ -145,13 +133,13 @@ public class SubscribedGroupsFragment extends Fragment
                                 public void onClick(View v)
                                 {
                                     Intent nestedGroupIntent = new Intent(getContext(), GroupChatActivity.class);
-                                    nestedGroupIntent.putExtra("level", 1);
-                                    nestedGroupIntent.putExtra("parentId", model.getId());
+                                    nestedGroupIntent.putExtra(ActivityParameters.level, 1);
+                                    nestedGroupIntent.putExtra(ActivityParameters.groupId, model.getId());
+                                    nestedGroupIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                                     startActivity(nestedGroupIntent);
                                 }
                             });
-
                         }
 
                         @NonNull
@@ -161,31 +149,25 @@ public class SubscribedGroupsFragment extends Fragment
                             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout, parent, false);
                             return new SubscribedGroupsFragment.GroupViewHolder(view);
                         }
-
                     };
 
-
             progressDialog.dismiss();
-
             userSubscribedGroupsList.setAdapter(adapter);
             adapter.startListening();
         }
         catch (Exception ex)
         {
-
-            Log.wtf("My app", ex.getMessage());
+            Log.wtf(Configuration.firebaseappname, ex.getMessage());
         }
-
-
     }
 
 
     public static class GroupViewHolder extends RecyclerView.ViewHolder
     {
 
-        CircleImageView groupViewImage;
-        TextView groupName, groupDescription;
-        Button subScribeButton, enterIntoButton;
+        private CircleImageView groupViewImage;
+        private TextView groupName, groupDescription;
+        private Button subScribeButton, enterIntoButton;
 
         public GroupViewHolder(@NonNull View itemView)
         {
@@ -195,7 +177,6 @@ public class SubscribedGroupsFragment extends Fragment
             groupDescription = itemView.findViewById(R.id.group_description);
             subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);
             enterIntoButton = itemView.findViewById(R.id.enter_into_group_button);
-
         }
     }
 

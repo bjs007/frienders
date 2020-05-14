@@ -15,7 +15,14 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
-import com.frienders.main.model.Group;
+import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.config.Firebasedatabasefields;
+import com.frienders.main.config.UsersFirebaseFields;
+import com.frienders.main.db.model.Group;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
+import com.frienders.main.db.refs.FirebasePaths;
+import com.frienders.main.db.refs.FirestorePath;
+import com.frienders.main.utility.Utility;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,13 +32,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class NestedGroupDisplayActivity extends AppCompatActivity
 {
-    private DatabaseReference groupDatabaseReference, userDatabaseReference;
     private RecyclerView groupList;
     private int level;
-    private String parentId = "root";
-    private String userLang;
-    private String currentUser;
-    private FirebaseAuth firebaseAuth;
+    private String parentId = Firebasedatabasefields.rootParent;
     private String language = "eng";
 
 
@@ -40,30 +43,35 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nested_group_display);
-        if(getIntent().getExtras().get("level")!= null)
+
+        if(getIntent().getExtras().get(ActivityParameters.level)!= null)
         {
-            level = Integer.parseInt(getIntent().getExtras().get("level").toString());
+            level = Integer.parseInt(getIntent().getExtras().get(ActivityParameters.level).toString());
         }
 
-        if(getIntent().getExtras().get("parentId") != null)
+        if(getIntent().getExtras().get(ActivityParameters.parentId) != null)
         {
-            parentId = getIntent().getExtras().get("parentId").toString();
+            parentId = getIntent().getExtras().get(ActivityParameters.parentId).toString();
         }
-
-        groupDatabaseReference = FirebaseDatabase.getInstance().getReference("Groups").child("level - " + level).child(parentId);
-        groupList = (RecyclerView)findViewById(R.id.nested_group_recycler_list);
-        groupList.setLayoutManager(new LinearLayoutManager(this));
-        firebaseAuth = FirebaseAuth.getInstance();
-        userDatabaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        initializeUi();
     }
+
+    private void initializeUi()
+    {
+        groupList = findViewById(R.id.nested_group_recycler_list);
+        groupList.setLayoutManager(new LinearLayoutManager(this));
+    }
+
 
     @Override
     protected void onStart()
     {
         super.onStart();
 
-        final String currentUserId  = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userDatabaseReference.child(currentUserId).child("lang").addListenerForSingleValueEvent(new ValueEventListener() {
+        final String currentUserId  = FirebaseAuthProvider.getCurrentUserId();
+
+        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.language)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
@@ -90,7 +98,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
         FirebaseRecyclerOptions<Group> options =
                 new FirebaseRecyclerOptions.Builder<Group>()
-                        .setQuery(groupDatabaseReference, Group.class)
+                        .setQuery(FirebasePaths.firebaseGroupsAtLevelDBRef(level).child(parentId), Group.class)
                         .build();
 
         try
@@ -134,7 +142,9 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                         @Override
                                         public void onClick(View v)
                                         {
-                                            final DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId).child("subscribed").child(model.getId());
+                                            final DatabaseReference firebaseRef = FirebasePaths.firebaseUsersDbRef()
+                                                    .child(currentUserId)
+                                                    .child("subscribed").child(model.getId());
                                             firebaseRef.addListenerForSingleValueEvent(new ValueEventListener()
                                             {
                                                 @Override
@@ -147,6 +157,29 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                                     }
                                                     else
                                                     {
+                                                        FirebasePaths.firebaseUserRef(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                if(dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                                                                {
+
+                                                                    String token = dataSnapshot.child(UsersFirebaseFields.device_token).getValue().toString();
+                                                                    final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
+                                                                            .child(model.getId())
+                                                                            .child(currentUserId)
+                                                                            .child(UsersFirebaseFields.device_token);
+
+                                                                    leaveRef.setValue(token);
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+
                                                         holder.subScribeButton.setText(R.string.unsubscribe);
                                                         firebaseRef.setValue(model);
                                                     }
@@ -166,7 +199,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                         public void onClick(View v)
                                         {
                                             Intent groupDetailDisplayActivity = new Intent(NestedGroupDisplayActivity.this, GroupDetailDisplayActivity.class);
-                                            groupDetailDisplayActivity.putExtra("groupId", model.getId());
+                                            groupDetailDisplayActivity.putExtra(ActivityParameters.groupId, model.getId());
                                             startActivity(groupDetailDisplayActivity);
                                         }
                                     });
@@ -179,8 +212,8 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                         @Override
                                         public void onClick(View v) {
                                             Intent nestedGroupIntent = new Intent(NestedGroupDisplayActivity.this, NestedGroupDisplayActivity.class);
-                                            nestedGroupIntent.putExtra("level", level + 1);
-                                            nestedGroupIntent.putExtra("parentId", model.getId());
+                                            nestedGroupIntent.putExtra(ActivityParameters.level, level + 1);
+                                            nestedGroupIntent.putExtra(ActivityParameters.parentId, model.getId());
                                             startActivity(nestedGroupIntent);
                                         }
                                     });
@@ -214,14 +247,14 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
     private void setInitialStatusForEachButton(final GroupViewHolder holder, final String id)
     {
-        final String path = "level - " +level+ "/" + id;
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final String currentUserId = FirebaseAuthProvider.getCurrentUserId();
+
         final CharSequence[] status = new CharSequence[]
             {
                 getText(R.string.subscribe)
-        };
+            };
 
-        final DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId).child("subscribed");
+        final DatabaseReference firebaseRef = FirebasePaths.firebaseUserRef(currentUserId).child("subscribed");
 
         firebaseRef.addListenerForSingleValueEvent(new ValueEventListener()
         {

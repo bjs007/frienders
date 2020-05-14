@@ -38,6 +38,25 @@
                 app:civ_border_color="@color/colorPrimary"
              />
 
+
+
+            <ProgressBar
+                android:id="@+id/progressbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:indeterminate="false"
+                android:progress="2"
+                android:max="100"
+                android:visibility="gone"
+                style="@android:style/Widget.Holo.Light.ProgressBar.Horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/set_profile_image"
+                app:layout_constraintVertical_bias="0.0"
+                />
+
             <TextView
                 android:id="@+id/delete_profile_image"
                 android:layout_width="match_parent"
@@ -49,7 +68,7 @@
                 android:textColor="@color/colorBlue"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/set_profile_image"
+                app:layout_constraintTop_toBottomOf="@+id/progressbar"
                 app:layout_constraintVertical_bias="0.0" />
 
             <TextView
