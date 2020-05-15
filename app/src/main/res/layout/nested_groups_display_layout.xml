@@ -4,12 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#FFFFFF"
+    android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
     >
     <LinearLayout
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
         android:orientation="horizontal"
         >
 
@@ -43,7 +46,7 @@
                 android:text="Description"
                 android:textAlignment="textStart"
                 android:textSize="16sp"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 android:gravity="start"
 
 
@@ -57,19 +60,22 @@
                 <Button
                     android:id="@+id/nested_subscribe_group_button"
                     android:layout_width="240dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:text="Remove from your groups"
+                    android:text="Remove from my groups"
+                    android:background="@color/colorGray"
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"
                     android:textSize="14sp"
+                    android:visibility="gone"
+
 
                     />
 
                 <Button
                     android:id="@+id/nested_enter_into_group_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/nested_subscribe_group_button"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
@@ -78,13 +84,21 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"
                     android:textSize="14sp"
+                    android:visibility="gone"
+                    android:background="@color/colorGray"
                     android:layout_toRightOf="@id/nested_subscribe_group_button" />
 
 
             </RelativeLayout>
-
+            <View
+                android:layout_width="fill_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="1dp"
+                android:background="@color/colorGray" />
 
         </LinearLayout>
+
+
 
     </LinearLayout>
 

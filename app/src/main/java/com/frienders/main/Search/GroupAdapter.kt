@@ -5,13 +5,20 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.frienders.main.R
+import com.frienders.main.config.UsersFirebaseFields
+import com.frienders.main.db.refs.FirebaseAuthProvider
+import com.frienders.main.db.refs.FirebasePaths
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 class GroupAdapter : PagedListAdapter<GroupModel, GroupViewHolder>(GroupAdapter) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.group_item, parent, false)
 
-        return GroupViewHolder(view)
+
+        return GroupViewHolder(view);
     }
 
     override fun onBindViewHolder(holder: GroupViewHolder, position: Int) {

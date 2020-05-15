@@ -5,11 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
 import com.frienders.main.activity.group.GroupChatActivity;
 import com.frienders.main.config.ActivityParameters;
+
+import javax.xml.transform.ErrorListener;
 
 public class SplashActivity extends Activity implements MediaPlayer.OnCompletionListener {
 
@@ -37,7 +40,16 @@ public class SplashActivity extends Activity implements MediaPlayer.OnCompletion
                 loading.dismiss();
             }
         });
+
+
         video.setOnCompletionListener(this);
+        video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                finish();
+                return false;
+            }
+        });
     }
 
     @Override

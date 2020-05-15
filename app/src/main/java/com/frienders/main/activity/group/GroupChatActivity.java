@@ -12,10 +12,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,6 +40,8 @@ import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.adapter.GroupMessageAdapter;
 import com.frienders.main.R;
 import com.frienders.main.db.refs.FirestorePath;
+import com.frienders.main.utility.FileCompressor;
+import com.frienders.main.utility.FileUtil;
 import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,6 +60,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +69,11 @@ import java.util.Properties;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
+import id.zelory.compressor.constraint.Compression;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.GlobalScope;
+import okhttp3.Dispatcher;
 
 import static com.frienders.main.activity.profile.SettingActivity.calculateInSampleSize;
 import static com.frienders.main.config.Configuration.RequestCodeForDocPick;
@@ -152,21 +162,24 @@ public class GroupChatActivity extends AppCompatActivity
                         }
                         if(which == 1)
                         {
+
                             checker = Configuration.VIDEOFILE;
-                            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI);
+                            Intent intent = new Intent(Intent.ACTION_PICK);
                             intent.setType("video/*");
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
                             startActivityForResult(intent, RequestCodeForVideoPick);
 
 //                            startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForVideoPick);
                         }
                         if(which == 2)
                         {
+
                             checker = Configuration.DOCFILE;
                             Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setAction(Intent.ACTION_PICK);
                             intent.setType("Application/msword");
-                            startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForDocPick);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            startActivityForResult(Intent.createChooser(intent, "select doc"), RequestCodeForDocPick);
                         }
 
                         if(which == 3)
@@ -175,7 +188,8 @@ public class GroupChatActivity extends AppCompatActivity
                             Intent intent = new Intent();
                             intent.setAction(Intent.ACTION_GET_CONTENT);
                             intent.setType("Application/pdf");
-                            startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForDocPick);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            startActivityForResult(Intent.createChooser(intent, "select pdf"), RequestCodeForDocPick);
                         }
                     }
                 });
@@ -225,6 +239,7 @@ public class GroupChatActivity extends AppCompatActivity
         groupMessagesListView.setLayoutManager(linearLayoutManager);
         groupMessagesListView.setAdapter(groupMessageAdapter);
         loadingBar = new ProgressDialog(GroupChatActivity.this);
+        loadingBar.setCanceledOnTouchOutside(false);
 
         FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -248,9 +263,11 @@ public class GroupChatActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-//        loadingBar.setMessage("Uploading " + (requestCode == RequestCodeForImagePick ? "Image" : "Video"));
+        loadingBar.setMessage("Uploading " + (requestCode == RequestCodeForImagePick ? "Image" : "Video"));
         loadingBar.setCanceledOnTouchOutside(false);
         loadingBar.show();
+
+
 
         if(requestCode == RequestCodeForImagePick && resultCode ==  RESULT_OK && data != null)
         {
@@ -272,6 +289,8 @@ public class GroupChatActivity extends AppCompatActivity
 
                 final Uri resultUri = result.getUri();
 
+
+
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Image file").child(groupId);
                 final String messageSenderRef = FirebasePaths.MessagesPath + "/";
 
@@ -283,6 +302,14 @@ public class GroupChatActivity extends AppCompatActivity
 
                 Bitmap bitmap = Utility.decodeFile(resultUri.getPath());
                 Uri bitMapuri = bitmapToUriConverter(bitmap);
+
+//                try {
+//                    File file = FileUtil.from(this, resultUri);
+//                    Compressor.INSTANCE.compress(this, file , Dispatchers.getIO(), null);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
 
                 uploadTask = filePath.putFile(bitMapuri);
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -368,6 +395,9 @@ public class GroupChatActivity extends AppCompatActivity
 
             uploadTask = filePath.putFile(resultUri);
 
+
+
+
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
@@ -438,7 +468,7 @@ public class GroupChatActivity extends AppCompatActivity
         });
 
         }
-        else if(requestCode == RequestCodeForDocPick && data != null && data.getData() != null)
+        else if(requestCode == RequestCodeForDocPick)
         {
             final Uri resultUri = data.getData();
 

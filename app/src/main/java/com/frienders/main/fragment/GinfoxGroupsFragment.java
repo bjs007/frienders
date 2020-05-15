@@ -71,7 +71,7 @@ public class GinfoxGroupsFragment extends Fragment
         super.onStart();
 
         FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                .child(UsersFirebaseFields.profileImageLink)
+                .child(UsersFirebaseFields.language)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
@@ -87,7 +87,7 @@ public class GinfoxGroupsFragment extends Fragment
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError)
             {
-
+                createGroupList();
             }
         });
 
@@ -123,7 +123,7 @@ public class GinfoxGroupsFragment extends Fragment
                                 holder.groupDescription.setText(model.getHinDesc());
                             }
 
-                            holder.groupViewImage.setVisibility(View.GONE);
+//                            holder.groupViewImage.setVisibility(View.GONE);
                             if(!model.isLeaf())
                             {
                                 holder.enterIntoButton.setVisibility(View.GONE);
@@ -176,7 +176,7 @@ public class GinfoxGroupsFragment extends Fragment
         public GroupViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            groupViewImage = itemView.findViewById(R.id.group_profile_image);
+//            groupViewImage = itemView.findViewById(R.id.group_profile_image);
             groupName = itemView.findViewById(R.id.group_name);
             groupDescription = itemView.findViewById(R.id.group_description);
             subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);

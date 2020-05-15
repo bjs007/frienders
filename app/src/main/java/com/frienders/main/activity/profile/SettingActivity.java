@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,6 +34,7 @@ import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.refs.FirestorePath;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -64,6 +66,7 @@ public class SettingActivity extends AppCompatActivity {
     private String userLanguage = "eng";
     private TextView deleteProfileImage;
     private ProgressBar progressBar;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +77,7 @@ public class SettingActivity extends AppCompatActivity {
 
 
     private void initializeUi() {
+        progressDialog = new ProgressDialog(this);
         updateAccountSettings = findViewById(R.id.update_settings_button);
         userName = findViewById(R.id.set_user_name);
         progressBar = findViewById(R.id.progressbar);
@@ -479,9 +483,9 @@ public class SettingActivity extends AppCompatActivity {
 
         else
         {
-//            progressDialog.setMessage("Updating profile...");
-//            progressDialog.setCanceledOnTouchOutside(true);
-//            progressDialog.show();
+            progressDialog.setMessage("Updating profile...");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
             int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
 
             languageRadioButton = (RadioButton) findViewById(languageKey);
@@ -509,8 +513,8 @@ public class SettingActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful())
                             {
-//                                progressDialog.setMessage("Profile updated...");
-//                                SendUserToMainActivity();
+                                progressDialog.setMessage("Profile updated...");
+                                SendUserToMainActivity();
                             }
                             else
                             {
@@ -518,9 +522,15 @@ public class SettingActivity extends AppCompatActivity {
                                 Toast.makeText(SettingActivity.this, "Error" + message, Toast.LENGTH_SHORT).show();
                             }
 
-//                            progressDialog.dismiss();
+                            progressDialog.dismiss();
                         }
-                    });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    progressDialog.setMessage("Profile failed...");
+                    progressDialog.dismiss();
+                }
+            });
 
 
         }
