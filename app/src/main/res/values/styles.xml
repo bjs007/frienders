@@ -10,6 +10,8 @@
         <item name="colorPrimary">#00BCD4</item>
         <item name="colorPrimaryDark">#00BCD4</item>
         <item name="colorAccent">#FFFFFF</item>
+        <item name="android:itemBackground">@color/colorGray</item>
+        <item name="android:textColor">@color/colorBlack</item>
     </style>
 
 <!--    <style name="AlertDialog" parent="Base.Theme.AppCompat.Light.Dialog"></style>-->

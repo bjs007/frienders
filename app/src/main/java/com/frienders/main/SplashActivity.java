@@ -29,17 +29,18 @@ public class SplashActivity extends Activity implements MediaPlayer.OnCompletion
         {
             videoLink = getIntent().getExtras().get(ActivityParameters.videoLink).toString();
         }
-        loading = new ProgressDialog(this);
-        loading.setMessage("Loading.");
-        loading.show();
+//        loading = new ProgressDialog(this);
+//        loading.setMessage("Loading.");
+//        loading.show();
         video.setVideoPath(videoLink);
         video.start();
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                loading.dismiss();
+//                loading.dismiss();
             }
         });
+
 
 
         video.setOnCompletionListener(this);

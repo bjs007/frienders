@@ -10,8 +10,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +29,8 @@ import com.frienders.main.adapter.TabsAccessorAdapter;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void verifyUserExistence()
     {
-        String currentUserId = FirebaseAuthProvider.getCurrentUserId();
+        final String currentUserId = FirebaseAuthProvider.getCurrentUserId();
+
         FirebasePaths.firebaseUserRef(currentUserId).addValueEventListener(new ValueEventListener()
         {
             @Override
@@ -88,16 +95,102 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(!(dataSnapshot.child(UsersFirebaseFields.name).exists()))
                 {
-                    sendUserToSettingActivity();
+                    FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                        {
+                            if(dataSnapshot.exists() && !dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                            {
+                                FirebaseInstanceId.getInstance().getInstanceId()
+                                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                        {
+                                            @Override
+                                            public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                            {
+                                                if(task.isSuccessful())
+                                                {
+                                                    final String deviceToken = task.getResult().getToken();
+                                                    FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                            .setValue(deviceToken)
+                                                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                            {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task)
+                                                                {
+                                                                    if(task.isSuccessful())
+                                                                    {
+                                                                        sendUserToSettingActivity();
+                                                                    }
+                                                                }
+                                                            });
+                                                }
+                                            }
+                                        });
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError)
+                        {
+
+                        }
+                    });
+                }
+
+                else
+                {
+                    FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                        {
+                            if(dataSnapshot.exists() && !dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                            {
+                                FirebaseInstanceId.getInstance().getInstanceId()
+                                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                        {
+                                            @Override
+                                            public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                            {
+                                                if(task.isSuccessful())
+                                                {
+                                                    final String deviceToken = task.getResult().getToken();
+                                                    FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                            .setValue(deviceToken)
+                                                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                            {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task)
+                                                                {
+                                                                    if(task.isSuccessful())
+                                                                    {
+
+                                                                    }
+                                                                }
+                                                            });
+                                                }
+                                            }
+                                        });
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError)
+                        {
+
+                        }
+                    });
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError)
             {
-
             }
         });
+
+
     }
 
     @Override
@@ -108,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendUserToLoginActivity()
     {
-        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this, NewLoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(loginIntent);
@@ -150,4 +243,5 @@ public class MainActivity extends AppCompatActivity {
         startActivity(settingIntent);
         finish();
     }
+
 }

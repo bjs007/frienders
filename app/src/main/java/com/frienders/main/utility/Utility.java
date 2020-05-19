@@ -8,7 +8,19 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.frienders.main.config.GroupFirebaseFields;
+import com.frienders.main.config.UsersFirebaseFields;
+import com.frienders.main.db.refs.FirebaseAuthProvider;
+import com.frienders.main.db.refs.FirebasePaths;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -109,5 +121,53 @@ public class Utility
     {
         SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
         return currentTime.format(calendar.getTime());
+    }
+
+    public static void createDeviceToken()
+    {
+        final String currentUserId =  FirebaseAuthProvider.getCurrentUserId();
+
+        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.exists() && !dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                {
+                    FirebaseInstanceId.getInstance().getInstanceId()
+                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                            {
+                                @Override
+                                public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                {
+                                    if(task.isSuccessful())
+                                    {
+                                        final String deviceToken = task.getResult().getToken();
+                                        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                .setValue(deviceToken)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task)
+                                                    {
+                                                        if(task.isSuccessful())
+                                                        {
+
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }
+                            });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError)
+            {
+
+            }
+        });
+
     }
 }

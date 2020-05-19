@@ -15,12 +15,17 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
+import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
@@ -85,6 +90,15 @@ public class LoginActivity extends AppCompatActivity
         finish();
     }
 
+    private void sendUserSettingActivity()
+    {
+        Intent mainIntent = new Intent(LoginActivity.this, SettingActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(mainIntent);
+        finish();
+    }
+
     private void sendUserToRegisterActivity()
     {
         Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -118,33 +132,27 @@ public class LoginActivity extends AppCompatActivity
                    {
                        if(task.isSuccessful()){
 
-                           final String currentUserId =  FirebaseAuthProvider.getCurrentUserId();
-                           FirebaseInstanceId.getInstance().getInstanceId()
-                               .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                           FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addValueEventListener(new ValueEventListener()
+                           {
+                               @Override
+                               public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                                {
-                                   @Override
-                                   public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                   if(!(dataSnapshot.child(UsersFirebaseFields.name).exists()))
                                    {
-                                       if(task.isSuccessful())
-                                       {
-                                           final String deviceToken = task.getResult().getToken();
-                                           FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
-                                               .setValue(deviceToken)
-                                               .addOnCompleteListener(new OnCompleteListener<Void>()
-                                               {
-                                                   @Override
-                                                   public void onComplete(@NonNull Task<Void> task)
-                                                   {
-                                                       if(task.isSuccessful())
-                                                       {
-                                                           sendUserToMainActivity();
-                                                           Toast.makeText(LoginActivity.this, getString(R.string.loginsuccess), Toast.LENGTH_SHORT).show();
-                                                       }
-                                                   }
-                                               });
-                                       }
+                                       sendUserSettingActivity();
                                    }
-                               });
+                                   else
+                                   {
+                                       sendUserToMainActivity();
+                                   }
+                               }
+
+                               @Override
+                               public void onCancelled(@NonNull DatabaseError databaseError)
+                               {
+
+                               }
+                           });
                        }
                        else
                        {

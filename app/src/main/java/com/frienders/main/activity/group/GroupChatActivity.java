@@ -12,13 +12,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,8 +38,6 @@ import com.frienders.main.db.model.Group;
 import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.adapter.GroupMessageAdapter;
 import com.frienders.main.R;
-import com.frienders.main.db.refs.FirestorePath;
-import com.frienders.main.utility.FileCompressor;
 import com.frienders.main.utility.FileUtil;
 import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.Continuation;
@@ -65,20 +62,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import droidninja.filepicker.FilePickerActivity;
+import droidninja.filepicker.FilePickerBuilder;
+import droidninja.filepicker.FilePickerConst;
 import id.zelory.compressor.Compressor;
-import id.zelory.compressor.constraint.Compression;
-import kotlinx.coroutines.Dispatchers;
-import kotlinx.coroutines.GlobalScope;
-import okhttp3.Dispatcher;
+import io.ktor.client.engine.android.Android;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 import static com.frienders.main.activity.profile.SettingActivity.calculateInSampleSize;
 import static com.frienders.main.config.Configuration.RequestCodeForDocPick;
 import static com.frienders.main.config.Configuration.RequestCodeForImagePick;
 import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
+import static com.frienders.main.config.Configuration.imageMaxHeight;
+import static com.frienders.main.config.Configuration.imageMaxWidth;
 
 public class GroupChatActivity extends AppCompatActivity
 {
@@ -100,6 +100,8 @@ public class GroupChatActivity extends AppCompatActivity
     private String checker = "", myUrl = "";
     private UploadTask uploadTask;
     private String currentUserDisplayName = "Unknown";
+    private static final int RC_PHOTO_PICKER_PERM = 555;
+    public static int imageCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -155,21 +157,29 @@ public class GroupChatActivity extends AppCompatActivity
                         if(which == 0)
                         {
                             checker = Configuration.IMAGEFILE;
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_GET_CONTENT);
-                            intent.setType("image/*");
-                            startActivityForResult(Intent.createChooser(intent, "select image"), RequestCodeForImagePick);
+                             pickPhotoClicked();
+//                            Intent intent = new Intent();
+//                            intent.setAction(Intent.ACTION_GET_CONTENT);
+//                            intent.setType("image/*");
+//                            intent.putExtra("crop", true);
+//                            startActivityForResult(Intent.createChooser(intent, "select image"), RequestCodeForImagePick);
                         }
                         if(which == 1)
                         {
-
                             checker = Configuration.VIDEOFILE;
-                            Intent intent = new Intent(Intent.ACTION_PICK);
-                            intent.setType("video/*");
-                            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                            startActivityForResult(intent, RequestCodeForVideoPick);
 
-//                            startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForVideoPick);
+                            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M)
+                            {
+                                pickVideoClicked();
+                            }
+                            else
+                            {
+                                Intent intent = new Intent(Intent.ACTION_PICK);
+                                intent.setType("video/*");
+                                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+//                                startActivityForResult(intent, RequestCodeForVideoPick);
+                                startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForVideoPick);
+                            }
                         }
                         if(which == 2)
                         {
@@ -210,6 +220,53 @@ public class GroupChatActivity extends AppCompatActivity
         });
     }
 
+    @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
+    public void pickPhotoClicked() {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER))
+        {
+            FilePickerBuilder.getInstance()
+                    .setActivityTitle("Please select photos")
+                    .enableVideoPicker(false)
+                    .enableCameraSupport(true)
+                    .showGifs(true)
+                    .enableSelectAll(true)
+                    .showFolderView(true)
+                    .enableImagePicker(true)
+                    .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                    .pickPhoto(this, RequestCodeForImagePick);
+
+        } else
+        {
+            // Ask for one permission
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
+                    RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
+        }
+    }
+
+    @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
+    public void pickVideoClicked()
+    {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER))
+        {
+            FilePickerBuilder.getInstance()
+                    .setActivityTitle("Please select video")
+                    .enableVideoPicker(true)
+                    .enableCameraSupport(false)
+                    .enableSelectAll(true)
+                    .showFolderView(true)
+                    .enableImagePicker(false)
+                    .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                    .pickPhoto(this, RequestCodeForVideoPick);
+
+        }
+        else
+        {
+            // Ask for one permission
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
+                    RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
+        }
+    }
+
     private void initializeUi()
     {
         groupChatToolBar = findViewById(R.id.setting_toolbar);
@@ -242,82 +299,206 @@ public class GroupChatActivity extends AppCompatActivity
         loadingBar.setCanceledOnTouchOutside(false);
 
         FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists())
-                        {
-                            currentUserDisplayName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
-                            messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
-                        }
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists())
+                    {
+                        currentUserDisplayName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
+                        messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
+                }
+            });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        loadingBar.setMessage("Uploading " + (requestCode == RequestCodeForImagePick ? "Image" : "Video"));
-        loadingBar.setCanceledOnTouchOutside(false);
-        loadingBar.show();
 
-
-
-        if(requestCode == RequestCodeForImagePick && resultCode ==  RESULT_OK && data != null)
+        if(data == null)
         {
-            Uri ImageUri = data.getData();
-            CropImage.activity(ImageUri)
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1, 1)
-                    .start(this);
+            loadingBar.setMessage("Nothing selected");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+            loadingBar.dismiss();
         }
 
-       if (checker.equals(Configuration.IMAGEFILE))
+        loadingBar.setMessage("Uploading " + (requestCode == RequestCodeForImagePick || requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE? "Image" : "Video"));
+        loadingBar.setCanceledOnTouchOutside(false);
+//        loadingBar.show();
+
+        final int[] totalFiles1 = new int[] {0};
+        ArrayList<Uri> dataList = null;
+        if(requestCode == RequestCodeForImagePick && resultCode ==  RESULT_OK && data != null && requestCode != CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
+        {
+            dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA);
+            if (dataList != null)
+            {
+                if(dataList.size() > 0)
+                {
+                    totalFiles1[0] = dataList.size();
+                }
+                for(Uri ImageUri : dataList)
+                {
+                    CropImage.activity(ImageUri)
+                           .setGuidelines(CropImageView.Guidelines.ON)
+                           .start(this);
+                }
+            }
+        }
+
+        if (checker.equals(Configuration.IMAGEFILE) && requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
         {
             if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
             {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if (resultCode == RESULT_OK)
+                if (resultCode == RESULT_OK)
+                {
+                    final Uri resultUri = result.getUri();
+                    loadingBar.show();
+
+
+                    final int[] uploadedFiles = new int[] {0};
+
+                    StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Image file").child(groupId);
+                    final String messageSenderRef = FirebasePaths.MessagesPath + "/";
+                    DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
+                            .child(groupId).push();
+
+                    final String messagePushID = userMessageKeyRef.getKey();
+                    final StorageReference filePath = storageReference.child(messagePushID + "." + "png");
+                    Bitmap image = Utility.decodeFile(resultUri.getPath());
+
+                    File actualImage = null;
+                    File compressedFile = null;
+
+                    try
+                    {
+                        actualImage = FileUtil.from(GroupChatActivity.this, resultUri);
+                         compressedFile = new Compressor(this)
+                                  .setMaxHeight(Math.min(image.getHeight(), imageMaxHeight))
+                                  .setMaxWidth(Math.min(image.getWidth(), imageMaxWidth))
+                                  .setQuality(75)
+                                  .setCompressFormat(Bitmap.CompressFormat.JPEG)
+                                  .compressToFile(actualImage);
+
+                         uploadTask = filePath.putFile(Uri.fromFile(compressedFile));
+                         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
+                            {
+//                                double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
+//                                loadingBar.setMessage("Uploading " + (int)p + "% complete.");
+                            }
+                         }).continueWithTask(new Continuation() {
+
+                            @Override
+                            public Object then(@NonNull Task task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+                                return filePath.getDownloadUrl();
+                             }
+                         }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task)
+                            {
+                                if (task.isSuccessful()) {
+                                    uploadedFiles[0]++;
+                                    loadingBar.setMessage("Uploading " +uploadedFiles[0] +" of "+ totalFiles1[0] + " is complete.");
+
+                                    Uri downloadUrl = task.getResult();
+                                    myUrl = downloadUrl.toString();
+
+                                    GroupMessage messages = new GroupMessage();
+                                    messages.setMessage(myUrl);
+                                    messages.setFileName(resultUri.getLastPathSegment());
+                                    messages.setType(MsgType.IMAGE.getMsgTypeId());
+                                    messages.setFrom(messageSenderUserId);
+                                    messages.setGroupId(groupId);
+                                    messages.setTime(Utility.getCurrentTime());
+                                    messages.setTime(Utility.getCurrentDate());
+                                    messages.setMessageId(messagePushID);
+                                    messages.setSenderDisplayName(currentUserDisplayName);
+
+                                    Map messageBodyDetails = new HashMap();
+                                    messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
+
+                                    FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+                                        @Override
+                                        public void onComplete(@NonNull Task task) {
+                                            if (!task.isSuccessful()) {
+                                                Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                            }
+                                            loadingBar.dismiss();
+                                        }
+                                    });
+                                }
+                            }
+
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e)
+                            {
+                                loadingBar.setMessage("Upload failed");
+                                loadingBar.dismiss();
+                            }
+                        });
+
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                        loadingBar.dismiss();
+                    }
+                }
+            }
+
+        }
+
+        else if(requestCode == RequestCodeForVideoPick && data !=null )
+        {
+            loadingBar.show();
+
+            if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M)
             {
+                if(data.getData() == null)
+                    return;
+                dataList = new ArrayList<>();
+                dataList.add(data.getData());
+            }
+            else
+            {
+                dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA);
+            }
 
-                final Uri resultUri = result.getUri();
+            final int[] totalFiles2 = new int[] { android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M
+                    ? dataList.size(): 1};
+            final int[] uploadedFiles = new int[] {0};
 
-
-
-                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Image file").child(groupId);
+            for(final Uri resultUri : dataList)
+            {
+                final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Video file").child(groupId);
                 final String messageSenderRef = FirebasePaths.MessagesPath + "/";
-
-                DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
+                final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
                         .child(groupId).push();
-
                 final String messagePushID = userMessageKeyRef.getKey();
-                final StorageReference filePath = storageReference.child(messagePushID + "." + "jpg");
+                final StorageReference filePath = storageReference.child(messagePushID + "." + "3gp");
 
-                Bitmap bitmap = Utility.decodeFile(resultUri.getPath());
-                Uri bitMapuri = bitmapToUriConverter(bitmap);
+                uploadTask = filePath.putFile(resultUri);
 
-//                try {
-//                    File file = FileUtil.from(this, resultUri);
-//                    Compressor.INSTANCE.compress(this, file , Dispatchers.getIO(), null);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
-
-                uploadTask = filePath.putFile(bitMapuri);
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
-                    {
-                        double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                        loadingBar.setMessage("Uploading " + (int)p + "% complete.");
+                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                        double p = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+//                        loadingBar.setMessage("Uploading " + (int)p + "% complete.");
                     }
                 }).continueWithTask(new Continuation() {
 
@@ -329,19 +510,19 @@ public class GroupChatActivity extends AppCompatActivity
 
                         return filePath.getDownloadUrl();
                     }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>()
-                {
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                     @Override
-                    public void onComplete(@NonNull Task<Uri> task)
-                    {
+                    public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
-                            Uri downloadUrl = task.getResult();
+                            uploadedFiles[0]++;
+                            final Uri downloadUrl = task.getResult();
+
                             myUrl = downloadUrl.toString();
 
                             GroupMessage messages = new GroupMessage();
                             messages.setMessage(myUrl);
                             messages.setFileName(resultUri.getLastPathSegment());
-                            messages.setType(MsgType.IMAGE.getMsgTypeId());
+                            messages.setType(MsgType.VIDEO.getMsgTypeId());
                             messages.setFrom(messageSenderUserId);
                             messages.setGroupId(groupId);
                             messages.setTime(Utility.getCurrentTime());
@@ -349,124 +530,36 @@ public class GroupChatActivity extends AppCompatActivity
                             messages.setMessageId(messagePushID);
                             messages.setSenderDisplayName(currentUserDisplayName);
 
-                            Map messageBodyDetails = new HashMap();
+                            loadingBar.setMessage("Uploading " + uploadedFiles[0] + " of " + totalFiles2[0] + " is complete.");
+
+                            if (totalFiles2[0] == uploadedFiles[0])
+                            {
+                                loadingBar.dismiss();
+                            }
+
+                            final Map messageBodyDetails = new HashMap();
                             messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
 
                             FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
-                                    if (!task.isSuccessful()) {
-                                        Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                                    }
-                                    loadingBar.dismiss();
-                                    groupMessageInputText.setText("");
+                                if (!task.isSuccessful())
+                                {
+                                    Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                }
                                 }
                             });
                         }
-                    }
 
+                    }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onFailure(@NonNull Exception e)
-                    {
+                    public void onFailure(@NonNull Exception e) {
                         loadingBar.setMessage("Upload failed");
                         loadingBar.dismiss();
                     }
                 });
-
             }
-            }
-
-       }
-
-        else if(requestCode == RequestCodeForVideoPick && data !=null && data.getData() !=null)
-        {
-
-            final Uri resultUri = data.getData();
-
-            final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Video file").child(groupId);
-            final String messageSenderRef = FirebasePaths.MessagesPath + "/";
-
-            DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
-                    .child(groupId).push();
-
-            final String messagePushID = userMessageKeyRef.getKey();
-            final StorageReference filePath = storageReference.child(messagePushID + "." + "3gp");
-
-            uploadTask = filePath.putFile(resultUri);
-
-
-
-
-            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
-                {
-                    double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                    loadingBar.setMessage("Uploading " + (int)p + "% complete.");
-                }
-            }).continueWithTask(new Continuation()
-            {
-
-                @Override
-                public Object then(@NonNull Task task) throws Exception
-                {
-                    if (!task.isSuccessful())
-                    {
-                        throw task.getException();
-                    }
-
-                    return filePath.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>()
-            {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task)
-                {
-                    if (task.isSuccessful())
-                    {
-                        Uri downloadUrl = task.getResult();
-
-                        myUrl = downloadUrl.toString();
-
-                        GroupMessage messages = new GroupMessage();
-                        messages.setMessage(myUrl);
-                        messages.setFileName(resultUri.getLastPathSegment());
-                        messages.setType(MsgType.VIDEO.getMsgTypeId());
-                        messages.setFrom(messageSenderUserId);
-                        messages.setGroupId(groupId);
-                        messages.setTime(Utility.getCurrentTime());
-                        messages.setTime(Utility.getCurrentDate());
-                        messages.setMessageId(messagePushID);
-                        messages.setSenderDisplayName(currentUserDisplayName);
-
-
-                        final Map messageBodyDetails = new HashMap();
-                        messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
-
-                        FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
-                            @Override
-                            public void onComplete(@NonNull Task task) {
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                                }
-
-                                groupMessageInputText.setText("");
-                            }
-                        });
-                    }
-
-                    loadingBar.dismiss();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e)
-            {
-                loadingBar.setMessage("Upload failed");
-                loadingBar.dismiss();
-            }
-        });
-
         }
         else if(requestCode == RequestCodeForDocPick)
         {
@@ -474,16 +567,13 @@ public class GroupChatActivity extends AppCompatActivity
 
             final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Doc file").child(groupId);
             final String messageSenderRef = FirebasePaths.MessagesPath + "/";
-
-            DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
+            final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
                     .child(groupId).push();
-
             final String messagePushID = userMessageKeyRef.getKey();
             final StorageReference filePath = storageReference.child(messagePushID + "." + checker == Configuration.DOCFILE ?
                     "docx" : "pdf");
 
             uploadTask = filePath.putFile(resultUri);
-
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
@@ -615,6 +705,7 @@ public class GroupChatActivity extends AppCompatActivity
     private void sendMessageInGroup()
     {
         String messageText = groupMessageInputText.getText().toString();
+        groupMessageInputText.setText("");
 
 
         if (TextUtils.isEmpty(messageText))
@@ -625,7 +716,7 @@ public class GroupChatActivity extends AppCompatActivity
         {
             final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
                     .child(groupId).push();
-            String messagePushID = userMessageKeyRef.getKey();
+            final String messagePushID = userMessageKeyRef.getKey();
 
             GroupMessage messages = new GroupMessage();
             messages.setMessage(messageText);
@@ -637,7 +728,6 @@ public class GroupChatActivity extends AppCompatActivity
             messages.setMessageId(messagePushID);
             messages.setSenderDisplayName(currentUserDisplayName);
 
-
             final Map messageBodyDetails = new HashMap();
             messageBodyDetails.put(groupId + "/" + messagePushID, messages);
 
@@ -647,9 +737,8 @@ public class GroupChatActivity extends AppCompatActivity
                 {
                     if (!task.isSuccessful())
                     {
-                        Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GroupChatActivity.this, "Could not send the last message", Toast.LENGTH_SHORT).show();
                     }
-
                     loadingBar.dismiss();
                     groupMessageInputText.setText("");
                 }
@@ -687,7 +776,7 @@ public class GroupChatActivity extends AppCompatActivity
                     + new Random().nextInt() + ".jpeg");
             FileOutputStream out = openFileOutput(file.getName(),
                     Context.MODE_PRIVATE);
-            newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            newBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.flush();
             out.close();
             //get absolute path

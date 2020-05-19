@@ -29,4 +29,8 @@ public class Configuration
     public static String IMAGEFILE = "IMAGE";
     public static String PDFFILE = "PDF";
     public static String DOCFILE = "MSDOCX";
+    public static int imageMaxWidth = 1920;
+    public static int imageMaxHeight = 2560;
+
+    public static long maxVieoFileUploadableSizeInBytes = 16000000;
 }

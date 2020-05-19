@@ -3,6 +3,8 @@ package com.frienders.main.notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.text.format.DateUtils;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -19,11 +21,17 @@ public class NotificaitonHandler {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 100, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 
+        RemoteViews contentView = new RemoteViews(context.getPackageName(), R.layout.custom_notification);
+        contentView.setTextViewText(R.id.timestamp, DateUtils.formatDateTime(context, System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME));
+
+        contentView.setImageViewResource(R.id.big_icon, R.drawable.group);
+        contentView.setTextViewText(R.id.title, title);
+        contentView.setTextViewText(R.id.text, body);
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, Configuration.default_channel_id)
                         .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                        .setContentTitle(title)
-                        .setContentText(body)
+                        .setContent(contentView)
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);

@@ -14,13 +14,22 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
+import com.frienders.main.db.refs.FirebasePaths;
+import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class CodeVerificationCodeActivity extends AppCompatActivity {
 
@@ -84,7 +93,80 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             progressDialog.dismiss();
                             Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.codeverified), Toast.LENGTH_SHORT).show();
-                            SendUserToMainActivity();
+
+                            final String currentUserId =  FirebaseAuthProvider.getCurrentUserId();
+
+                            FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                {
+                                    if(dataSnapshot.exists() && !dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                                    {
+                                        FirebaseInstanceId.getInstance().getInstanceId()
+                                                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                                {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                                    {
+                                                        if(task.isSuccessful())
+                                                        {
+                                                            final String deviceToken = task.getResult().getToken();
+                                                            FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                                    .setValue(deviceToken)
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                                    {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task)
+                                                                        {
+                                                                            if(task.isSuccessful())
+                                                                            {
+                                                                                SendUserToMainActivity();
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                    else
+                                    {
+                                        FirebaseInstanceId.getInstance().getInstanceId()
+                                                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                                {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                                    {
+                                                        if(task.isSuccessful())
+                                                        {
+                                                            final String deviceToken = task.getResult().getToken();
+                                                            FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                                    .setValue(deviceToken)
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                                    {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task)
+                                                                        {
+                                                                            if(task.isSuccessful())
+                                                                            {
+                                                                                sendUserToSettingActivity();
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError)
+                                {
+
+                                }
+                            });
+
+
                         }
                         else
                         {
@@ -105,6 +187,15 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
         Intent mainIntent = new Intent(CodeVerificationCodeActivity.this, MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(mainIntent);
+        finish();
+    }
+
+    private void sendUserToSettingActivity()
+    {
+        Intent settingIntent = new Intent(CodeVerificationCodeActivity.this, SettingActivity.class);
+        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(settingIntent);
         finish();
     }
 }

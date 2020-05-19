@@ -1,6 +1,7 @@
 package com.frienders.main.activity.group;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +16,8 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
+import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.Firebasedatabasefields;
 import com.frienders.main.config.UsersFirebaseFields;
@@ -23,12 +26,16 @@ import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.refs.FirestorePath;
 import com.frienders.main.utility.Utility;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class NestedGroupDisplayActivity extends AppCompatActivity
 {
@@ -145,15 +152,49 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                             final DatabaseReference firebaseRef = FirebasePaths.firebaseUsersDbRef()
                                                     .child(currentUserId)
                                                     .child("subscribed").child(model.getId());
+
                                             firebaseRef.addListenerForSingleValueEvent(new ValueEventListener()
                                             {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                                                 {
+                                                    //if datasnapshot exists it means users has subcribed to the group and buttton is now showing "Remove from my groups"
                                                     if(dataSnapshot.exists())
                                                     {
-                                                        holder.subScribeButton.setText(getText(R.string.subscribe));
-                                                        firebaseRef.removeValue();
+                                                        //Check if the user has device_token, take that token and remove from the "Subscribed database"
+                                                        FirebasePaths.firebaseUserRef(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                //get the user device_token if exists
+                                                                if(dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                                                                {
+                                                                    //remove the user device toke from the Subscribed database to stop notification
+                                                                    FirebasePaths.firebaseSubscribedRef()
+                                                                            .child(model.getId())
+                                                                            .child(currentUserId)
+                                                                            .child(UsersFirebaseFields.device_token).removeValue(new DatabaseReference.CompletionListener() {
+                                                                        @Override
+                                                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference)
+                                                                        {
+                                                                            holder.subScribeButton.setText(getText(R.string.subscribe));
+                                                                            firebaseRef.removeValue();
+                                                                        }
+                                                                    });
+
+
+                                                                }
+                                                                else//if the user does not have device token
+                                                                {
+                                                                    holder.subScribeButton.setText(getText(R.string.subscribe));
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
                                                     }
                                                     else
                                                     {
@@ -170,6 +211,41 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                                                             .child(UsersFirebaseFields.device_token);
 
                                                                     leaveRef.setValue(token);
+                                                                }
+                                                                else
+                                                                {
+
+                                                                    FirebaseInstanceId.getInstance().getInstanceId()
+                                                                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                                                            {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                                                                {
+                                                                                    if(task.isSuccessful())
+                                                                                    {
+                                                                                        final String deviceToken = task.getResult().getToken();
+                                                                                        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                                                                .setValue(deviceToken)
+                                                                                                .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                                                                {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<Void> task)
+                                                                                                    {
+                                                                                                        if(task.isSuccessful())
+                                                                                                        {
+                                                                                                            final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
+                                                                                                                    .child(model.getId())
+                                                                                                                    .child(currentUserId)
+                                                                                                                    .child(UsersFirebaseFields.device_token);
+                                                                                                            leaveRef.setValue(deviceToken);
+
+                                                                                                        }
+                                                                                                    }
+                                                                                                });
+                                                                                    }
+                                                                                }
+                                                                            });
+
                                                                 }
                                                             }
 
@@ -244,6 +320,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
             System.out.println(ex);
         }
     }
+
 
     private void setInitialStatusForEachButton(final GroupViewHolder holder, final String id)
     {

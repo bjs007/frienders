@@ -26,6 +26,7 @@
                 android:focusable="false"
                 app:queryHint="railway, salman etc."
                 app:iconifiedByDefault="false"
+                android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
