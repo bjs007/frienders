@@ -18,12 +18,14 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +54,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.jaiselrahman.filepicker.config.Configurations;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -102,6 +105,7 @@ public class GroupChatActivity extends AppCompatActivity
     private String currentUserDisplayName = "Unknown";
     private static final int RC_PHOTO_PICKER_PERM = 555;
     public static int imageCount = 0;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -143,9 +147,8 @@ public class GroupChatActivity extends AppCompatActivity
                 final CharSequence options[] = new CharSequence[]
                     {
                         getString(R.string.image),
-                        getString(R.string.video),
-                        getString(R.string.Docs),
-                            "PDF"
+                        getString(R.string.video) + " 20MB MAX",
+                        "DOCS",
                     };
                 AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
                 builder.setTitle(getString(R.string.selectfiletype));
@@ -168,7 +171,7 @@ public class GroupChatActivity extends AppCompatActivity
                         {
                             checker = Configuration.VIDEOFILE;
 
-                            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M)
+                            if (true)
                             {
                                 pickVideoClicked();
                             }
@@ -185,22 +188,28 @@ public class GroupChatActivity extends AppCompatActivity
                         {
 
                             checker = Configuration.DOCFILE;
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_PICK);
-                            intent.setType("Application/msword");
-                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            startActivityForResult(Intent.createChooser(intent, "select doc"), RequestCodeForDocPick);
+                            pickDoc();
+//                            Intent intent = new Intent();
+//                            intent.setAction(Intent.ACTION_PICK);
+//                            intent.setType("Application/msword");
+//                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                            startActivityForResult(Intent.createChooser(intent, "select doc"), RequestCodeForDocPick);
+//                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+//                            startActivityForResult(intent, RequestCodeForDocPick);
+
+
+
                         }
 
-                        if(which == 3)
-                        {
-                            checker = Configuration.PDFFILE;
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_GET_CONTENT);
-                            intent.setType("Application/pdf");
-                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            startActivityForResult(Intent.createChooser(intent, "select pdf"), RequestCodeForDocPick);
-                        }
+//                        if(which == 3)
+//                        {
+//                            checker = Configuration.PDFFILE;
+//                            Intent intent = new Intent();
+//                            intent.setAction(Intent.ACTION_GET_CONTENT);
+//                            intent.setType("Application/pdf");
+//                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                            startActivityForResult(Intent.createChooser(intent, "select pdf"), RequestCodeForDocPick);
+//                        }
                     }
                 });
                 builder.show();
@@ -229,7 +238,7 @@ public class GroupChatActivity extends AppCompatActivity
                     .enableVideoPicker(false)
                     .enableCameraSupport(true)
                     .showGifs(true)
-                    .enableSelectAll(true)
+                    .setMaxCount(3)
                     .showFolderView(true)
                     .enableImagePicker(true)
                     .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -252,7 +261,7 @@ public class GroupChatActivity extends AppCompatActivity
                     .setActivityTitle("Please select video")
                     .enableVideoPicker(true)
                     .enableCameraSupport(false)
-                    .enableSelectAll(true)
+                    .setMaxCount(1)
                     .showFolderView(true)
                     .enableImagePicker(false)
                     .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -267,11 +276,33 @@ public class GroupChatActivity extends AppCompatActivity
         }
     }
 
+    @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
+    public void pickDoc()
+    {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER))
+        {
+            FilePickerBuilder.getInstance()
+                    .setMaxCount(5)
+                    .enableDocSupport(true)//optional
+                    .setActivityTheme(R.style.LibAppTheme) //optional
+                    .pickFile(this, RequestCodeForDocPick);
+//            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+//            startActivityForResult(intent, RequestCodeForDocPick);
+        }
+        else
+        {
+            // Ask for one permission
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
+                    RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
+        }
+    }
+
     private void initializeUi()
     {
         groupChatToolBar = findViewById(R.id.setting_toolbar);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
         groupChatToolBar = findViewById(R.id.group_chat_toolbar);
+        progressBar = findViewById(R.id.progressbar_group_chat);
         setSupportActionBar(groupChatToolBar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -361,8 +392,9 @@ public class GroupChatActivity extends AppCompatActivity
 
                 if (resultCode == RESULT_OK)
                 {
+                    progressBar.setVisibility(View.VISIBLE);
                     final Uri resultUri = result.getUri();
-                    loadingBar.show();
+//                    loadingBar.show();
 
 
                     final int[] uploadedFiles = new int[] {0};
@@ -389,13 +421,66 @@ public class GroupChatActivity extends AppCompatActivity
                                   .setCompressFormat(Bitmap.CompressFormat.JPEG)
                                   .compressToFile(actualImage);
 
+//                         progressBar = new ProgressBar(this);
+                        progressBar.setProgress(20);
+
                          uploadTask = filePath.putFile(Uri.fromFile(compressedFile));
                          uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
                             {
-//                                double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
+                                double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
 //                                loadingBar.setMessage("Uploading " + (int)p + "% complete.");
+                                float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                                int currentprogress = (int) progress;
+
+                                if(currentprogress > 20 && currentprogress <= 30)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(20);
+                                }
+
+                                if(currentprogress > 40 && currentprogress <= 50)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(40);
+                                }
+
+                                if(currentprogress > 50 && currentprogress <= 60)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(50);
+                                }
+
+                                if(currentprogress > 60 && currentprogress <= 70)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(60);
+                                }
+
+                                if(currentprogress > 70 && currentprogress <= 80)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(70);
+                                }
+
+                                if(currentprogress > 80 && currentprogress <= 90)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(80);
+                                }
+
+                                if(currentprogress > 90 && currentprogress < 100)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(90);
+                                }
+
+                                if(currentprogress == 100)
+                                {
+                                    progressBar.setMax(100);
+                                    progressBar.setProgress(100);
+                                }
                             }
                          }).continueWithTask(new Continuation() {
 
@@ -412,6 +497,7 @@ public class GroupChatActivity extends AppCompatActivity
                             {
                                 if (task.isSuccessful()) {
                                     uploadedFiles[0]++;
+                                    progressBar.setVisibility(View.INVISIBLE);
                                     loadingBar.setMessage("Uploading " +uploadedFiles[0] +" of "+ totalFiles1[0] + " is complete.");
 
                                     Uri downloadUrl = task.getResult();
@@ -465,9 +551,9 @@ public class GroupChatActivity extends AppCompatActivity
 
         else if(requestCode == RequestCodeForVideoPick && data !=null )
         {
-            loadingBar.show();
+//            loadingBar.show();
 
-            if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M)
+            if (false)
             {
                 if(data.getData() == null)
                     return;
@@ -485,6 +571,7 @@ public class GroupChatActivity extends AppCompatActivity
 
             for(final Uri resultUri : dataList)
             {
+                progressBar.setVisibility(View.VISIBLE);
                 final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Video file").child(groupId);
                 final String messageSenderRef = FirebasePaths.MessagesPath + "/";
                 final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
@@ -497,8 +584,57 @@ public class GroupChatActivity extends AppCompatActivity
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-                        double p = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-//                        loadingBar.setMessage("Uploading " + (int)p + "% complete.");
+
+                        float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        int currentprogress = (int) progress;
+
+                        if(currentprogress > 20 && currentprogress <= 30)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(20);
+                        }
+
+                        if(currentprogress > 40 && currentprogress <= 50)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(40);
+                        }
+
+                        if(currentprogress > 50 && currentprogress <= 60)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(50);
+                        }
+
+                        if(currentprogress > 60 && currentprogress <= 70)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(60);
+                        }
+
+                        if(currentprogress > 70 && currentprogress <= 80)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(70);
+                        }
+
+                        if(currentprogress > 80 && currentprogress <= 90)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(80);
+                        }
+
+                        if(currentprogress > 90 && currentprogress < 100)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(90);
+                        }
+
+                        if(currentprogress == 100)
+                        {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(100);
+                        }
                     }
                 }).continueWithTask(new Continuation() {
 
@@ -514,7 +650,7 @@ public class GroupChatActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
-                            uploadedFiles[0]++;
+//                            uploadedFiles[0]++;
                             final Uri downloadUrl = task.getResult();
 
                             myUrl = downloadUrl.toString();
@@ -530,12 +666,6 @@ public class GroupChatActivity extends AppCompatActivity
                             messages.setMessageId(messagePushID);
                             messages.setSenderDisplayName(currentUserDisplayName);
 
-                            loadingBar.setMessage("Uploading " + uploadedFiles[0] + " of " + totalFiles2[0] + " is complete.");
-
-                            if (totalFiles2[0] == uploadedFiles[0])
-                            {
-                                loadingBar.dismiss();
-                            }
 
                             final Map messageBodyDetails = new HashMap();
                             messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
@@ -547,6 +677,7 @@ public class GroupChatActivity extends AppCompatActivity
                                 {
                                     Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
                                 }
+                                progressBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
@@ -555,93 +686,147 @@ public class GroupChatActivity extends AppCompatActivity
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        loadingBar.setMessage("Upload failed");
-                        loadingBar.dismiss();
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(GroupChatActivity.this, "Upload failed", Toast.LENGTH_LONG).show();
                     }
                 });
             }
         }
         else if(requestCode == RequestCodeForDocPick)
         {
-            final Uri resultUri = data.getData();
 
-            final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Doc file").child(groupId);
-            final String messageSenderRef = FirebasePaths.MessagesPath + "/";
-            final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
-                    .child(groupId).push();
-            final String messagePushID = userMessageKeyRef.getKey();
-            final StorageReference filePath = storageReference.child(messagePushID + "." + checker == Configuration.DOCFILE ?
-                    "docx" : "pdf");
 
-            uploadTask = filePath.putFile(resultUri);
-            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
-                {
-                    double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                    loadingBar.setMessage("Uploading " + (int)p + "% complete.");
-                }
-            }).continueWithTask(new Continuation()
+            if (false)
+            {
+                if(data.getData() == null)
+                    return;
+                dataList = new ArrayList<>();
+                dataList.add(data.getData());
+            }
+            else
+            {
+                dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_DOCS);
+            }
+
+            if(dataList == null || dataList.size() == 0) return;
+
+            for(final Uri resultUri : dataList)
             {
 
-                @Override
-                public Object then(@NonNull Task task) throws Exception
-                {
-                    if (!task.isSuccessful())
-                    {
-                        throw task.getException();
+                progressBar.setVisibility(View.VISIBLE);
+
+                final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Doc file").child(groupId);
+                final String messageSenderRef = FirebasePaths.MessagesPath + "/";
+                final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
+                        .child(groupId).push();
+                final String messagePushID = userMessageKeyRef.getKey();
+                final StorageReference filePath = storageReference.child(messagePushID + "." + checker == Configuration.DOCFILE ?
+                        "docx" : "pdf");
+
+                uploadTask = filePath.putFile(resultUri);
+                uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                        float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        int currentprogress = (int) progress;
+
+                        if (currentprogress > 20 && currentprogress <= 30) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(20);
+                        }
+
+                        if (currentprogress > 40 && currentprogress <= 50) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(40);
+                        }
+
+                        if (currentprogress > 50 && currentprogress <= 60) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(50);
+                        }
+
+                        if (currentprogress > 60 && currentprogress <= 70) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(60);
+                        }
+
+                        if (currentprogress > 70 && currentprogress <= 80) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(70);
+                        }
+
+                        if (currentprogress > 80 && currentprogress <= 90) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(80);
+                        }
+
+                        if (currentprogress > 90 && currentprogress < 100) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(90);
+                        }
+
+                        if (currentprogress == 100) {
+                            progressBar.setMax(100);
+                            progressBar.setProgress(100);
+                        }
+
+
                     }
+                }).continueWithTask(new Continuation() {
 
-                    return filePath.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>()
-            {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task)
-                {
-                    if (task.isSuccessful())
-                    {
-                        Uri downloadUrl = task.getResult();
+                    @Override
+                    public Object then(@NonNull Task task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
 
-                        myUrl = downloadUrl.toString();
+                        return filePath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUrl = task.getResult();
 
-                        GroupMessage messages = new GroupMessage();
-                        messages.setMessage(myUrl);
-                        messages.setFileName(resultUri.getLastPathSegment());
-                        messages.setType(MsgType.DOC.getMsgTypeId());
-                        messages.setFrom(messageSenderUserId);
-                        messages.setGroupId(groupId);
-                        messages.setTime(Utility.getCurrentTime());
-                        messages.setTime(Utility.getCurrentDate());
-                        messages.setMessageId(messagePushID);
-                        messages.setSenderDisplayName(currentUserDisplayName);
+                            myUrl = downloadUrl.toString();
+
+                            GroupMessage messages = new GroupMessage();
+                            messages.setMessage(myUrl);
+                            messages.setFileName(resultUri.getLastPathSegment());
+                            messages.setType(MsgType.DOC.getMsgTypeId());
+                            messages.setFrom(messageSenderUserId);
+                            messages.setGroupId(groupId);
+                            messages.setTime(Utility.getCurrentTime());
+                            messages.setTime(Utility.getCurrentDate());
+                            messages.setMessageId(messagePushID);
+                            messages.setSenderDisplayName(currentUserDisplayName);
 
 
-                        final Map messageBodyDetails = new HashMap();
-                        messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
+                            final Map messageBodyDetails = new HashMap();
+                            messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
 
-                        FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
-                            @Override
-                            public void onComplete(@NonNull Task task) {
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                            FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull Task task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    groupMessageInputText.setText("");
                                 }
+                            });
+                        }
 
-                                groupMessageInputText.setText("");
-                            }
-                        });
                     }
-
-                    loadingBar.dismiss();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e)
-                {
-                    loadingBar.setMessage("Upload failed");
-                    loadingBar.dismiss();
-                }
-            });
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(GroupChatActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 

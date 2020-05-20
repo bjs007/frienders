@@ -34,6 +34,7 @@ public class SplashActivity extends Activity implements MediaPlayer.OnCompletion
 //        loading.show();
         video.setVideoPath(videoLink);
         video.start();
+        video.getBufferPercentage();
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {

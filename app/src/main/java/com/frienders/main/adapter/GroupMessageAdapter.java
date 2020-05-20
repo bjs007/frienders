@@ -1,9 +1,15 @@
 package com.frienders.main.adapter;
 
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.frienders.main.SplashActivity;
+import com.frienders.main.config.Configuration;
 import com.frienders.main.db.MsgType;
 import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.R;
@@ -120,17 +128,12 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                 groupMessageViewHolder.receiverProfileImage.setVisibility(View.GONE);
                 groupMessageViewHolder.senderProfileImage.setVisibility(View.VISIBLE);
                 groupMessageViewHolder.senderProfileImage.setText("Me");
-//            Picasso.get().load(message.getMessage()).placeholder(R.drawable.profile_image)
-//                    .into(groupMessageViewHolder.senderProfileImage);
             }
             else
             {
                 groupMessageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
                 groupMessageViewHolder.senderProfileImage.setVisibility(View.GONE);
                 groupMessageViewHolder.receiverProfileImage.setText(message.getSenderDisplayName());
-//            Picasso.get().load(message.getMessage()).placeholder(R.drawable.profile_image)
-//                    .into(groupMessageViewHolder.receiverProfileImage);
-
             }
 
             if(message.getType().equals(MsgType.TEXT.getMsgTypeId()))
@@ -156,17 +159,27 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                 if(message.getFrom().equals(currentUserId))
                 {
                     groupMessageViewHolder.imageSentBySender.setVisibility(View.VISIBLE);
-                    Picasso.get().load(message.getMessage()).placeholder(R.drawable.image_icon)
-                            .into(groupMessageViewHolder.imageSentBySender);
-                    Glide.with(groupMessageViewHolder.itemView.getContext()).load(message.getMessage()).placeholder(R.drawable.image_icon).dontAnimate().into(
+                    groupMessageViewHolder.imageSentBySender.setMinimumHeight(Configuration.imageMaxHeight);
+                    groupMessageViewHolder.imageSentBySender.setMaxWidth(Configuration.imageMaxWidth);
+                    Glide.with(groupMessageViewHolder.itemView.getContext()).load(message.getMessage())
+                            .placeholder(R.drawable.image_icon).dontAnimate()
+                            .centerCrop()
+                            .into(
                             groupMessageViewHolder.imageSentBySender
                     );
                 }
                 else
                 {
                     groupMessageViewHolder.imageSentByReceiver.setVisibility(View.VISIBLE);
-                    Picasso.get().load(message.getMessage()).placeholder(R.drawable.image_icon)
-                            .into(groupMessageViewHolder.imageSentByReceiver);
+                    groupMessageViewHolder.imageSentByReceiver.setMinimumHeight(Configuration.imageMaxHeight);
+                    groupMessageViewHolder.imageSentByReceiver.setMaxWidth(Configuration.imageMaxWidth);
+                    Glide.with(groupMessageViewHolder.itemView.getContext()).load(message.getMessage())
+                            .placeholder(R.drawable.image_icon).dontAnimate()
+                            .centerCrop()
+                            .into(
+                                    groupMessageViewHolder.imageSentByReceiver
+                            );
+
                 }
             }
             else if(message.getType().equals(MsgType.VIDEO.getMsgTypeId()))
@@ -246,8 +259,36 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                         @Override
                         public void onClick(View v)
                         {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(groupMessageList.get(position).getMessage()));
-                            groupMessageViewHolder.itemView.getContext().startActivity(intent);
+
+//                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(groupMessageList.get(position).getMessage()));
+//                            groupMessageViewHolder.itemView.getContext().startActivity(intent);
+                            try
+                            {
+                                DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(message.getMessage()));
+                                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                                        DownloadManager.Request.NETWORK_MOBILE);
+
+// set title and description
+                                request.setTitle("Data Download");
+                                request.setDescription("Android Data download using DownloadManager.");
+
+                                request.allowScanningByMediaScanner();
+                                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+//set the local destination for download file to a path within the application's external files directory
+                                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,"downloadfileName");
+                                request.setMimeType("*/*");
+                                downloadManager.enqueue(request);
+                                Toast.makeText(context, "Download started", Toast.LENGTH_SHORT).show();
+                            }
+                            catch (Exception ex)
+                            {
+                                Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show();
+                            }
+
+// Create request for android download manager
+
                         }
                     });
                 }
