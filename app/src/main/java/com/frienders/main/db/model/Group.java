@@ -1,8 +1,9 @@
 package com.frienders.main.db.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Group
+public class Group implements Serializable
 {
     private String engName;
     private String hinName;

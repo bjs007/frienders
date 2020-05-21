@@ -135,8 +135,8 @@ public class SubscribedGroupsFragment extends Fragment
                                     Intent nestedGroupIntent = new Intent(getContext(), GroupChatActivity.class);
                                     nestedGroupIntent.putExtra(ActivityParameters.level, 1);
                                     nestedGroupIntent.putExtra(ActivityParameters.groupId, model.getId());
+                                    nestedGroupIntent.putExtra(ActivityParameters.Group, model);
                                     nestedGroupIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-
                                     startActivity(nestedGroupIntent);
                                 }
                             });

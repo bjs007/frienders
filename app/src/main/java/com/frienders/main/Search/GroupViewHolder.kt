@@ -6,8 +6,8 @@ import kotlinx.android.synthetic.main.group_item.view.*
 
 class GroupViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
-    fun bind(product: GroupModel) {
-        view.groupName.text = product.name
-        view.city.text = product.desc;
+    fun bind(group: GroupModel) {
+        view.groupName.text = group.name
+        view.groupdesc.text = group.desc;
     }
 }

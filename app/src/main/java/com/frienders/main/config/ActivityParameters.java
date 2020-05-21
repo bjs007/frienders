@@ -9,4 +9,5 @@ public class ActivityParameters
     public static String rootParent = "root";
     public static String level = "level";
     public static String videoLink = "videoLink";
+    public static String Group = "Group";
 }

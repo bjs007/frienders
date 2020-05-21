@@ -13,4 +13,5 @@ public class UsersFirebaseFields
     public static String language = "lang";
     public static String profileImageLink = "image";
     public static String senderDisplayName = "senderDisplayName";
+    public static String subscribed = "subscribed";
 }

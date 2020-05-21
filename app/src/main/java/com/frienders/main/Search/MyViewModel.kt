@@ -55,7 +55,8 @@ class MyViewModel : ViewModel() {
     val dataSourceFactory = SearcherSingleIndexDataSource.Factory(searcher) { hit ->
         GroupModel(
                 hit.json.getPrimitive(langName).content,
-                hit.json.getPrimitive(langDesc).content
+                hit.json.getPrimitive(langDesc).content,
+                hit.json.getPrimitive("id").content
         )
     }
 

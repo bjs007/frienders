@@ -45,5 +45,7 @@
     <string name="allgrouptab">All groups</string>
     <string name="search">Search</string>
     <string name="rationale_photo_picker">android.permission.WRITE_EXTERNAL_STORAGE</string>
+    <string name="groupchatdisplaymessage">Please subscribe to chat</string>
+    <string name="subscribedtoChat">Subscribe to chat</string>
 
 </resources>

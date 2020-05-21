@@ -120,6 +120,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         groupMessageViewHolder.playIconSender.setVisibility(View.GONE);
         groupMessageViewHolder.groupVideoSender.setVisibility(View.GONE);
         groupMessageViewHolder.groupVideoReceiver.setVisibility(View.GONE);
+        groupMessageViewHolder.recieverDocumentName.setVisibility(View.GONE);
+        groupMessageViewHolder.senderDocumentName.setVisibility(View.GONE);
 
         if(message != null && message.getMessage() != null)
         {
@@ -246,13 +248,17 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
 
                     if(message.getFrom().equals(currentUserId))
                     {
+                        groupMessageViewHolder.senderDocumentName.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.docSentBySender.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.docSentBySender.setBackgroundResource(R.drawable.document);
+                        groupMessageViewHolder.senderDocumentName.setText(message.getFileName());
                     }
                     else
                     {
+                        groupMessageViewHolder.recieverDocumentName.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.docSentByReciver.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.docSentByReciver.setBackgroundResource(R.drawable.document);
+                        groupMessageViewHolder.recieverDocumentName.setText(message.getFileName());
                     }
 
                     groupMessageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -311,6 +317,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
     {
         public TextView senderMessageTextInGroup, reciverMessageTextInGroup;
         public TextView receiverProfileImage, senderProfileImage;
+        public TextView recieverDocumentName, senderDocumentName;
         public ImageView imageSentBySender, imageSentByReceiver, docSentBySender, docSentByReciver;
         public ImageView groupVideoSender, groupVideoReceiver, playIconSender, playIconReceiver;
 
@@ -331,6 +338,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
             docSentBySender = itemView.findViewById(R.id.group_message_sender_doc_view);
             playIconSender = itemView.findViewById(R.id.groupvideomessageplayiconSender);
             playIconReceiver = itemView.findViewById(R.id.groupvideomessageplayiconReceiver);
+            recieverDocumentName = itemView.findViewById(R.id.group_message_receiver_doc_name);
+            senderDocumentName = itemView.findViewById(R.id.group_message_sender_doc_name);
 
         }
     }

@@ -13,16 +13,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -50,11 +51,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.jaiselrahman.filepicker.config.Configurations;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -68,11 +70,9 @@ import java.util.Map;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import droidninja.filepicker.FilePickerActivity;
 import droidninja.filepicker.FilePickerBuilder;
 import droidninja.filepicker.FilePickerConst;
 import id.zelory.compressor.Compressor;
-import io.ktor.client.engine.android.Android;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -91,6 +91,7 @@ public class GroupChatActivity extends AppCompatActivity
 
     private ImageButton groupSendMessageButton, groupSendFileButton;
     private EditText groupMessageInputText;
+    private Button groupChatSubscribeButton;
     private androidx.appcompat.widget.Toolbar groupChatToolBar;
 
     private final List<GroupMessage> groupMessageList = new ArrayList<>();
@@ -106,6 +107,7 @@ public class GroupChatActivity extends AppCompatActivity
     private static final int RC_PHOTO_PICKER_PERM = 555;
     public static int imageCount = 0;
     private ProgressBar progressBar;
+    private Group group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -114,6 +116,11 @@ public class GroupChatActivity extends AppCompatActivity
         setContentView(R.layout.activity_group_chat);
         groupId = getIntent().getExtras().get(ActivityParameters.groupId).toString();
 
+        if(getIntent().getExtras().get(ActivityParameters.Group) != null)
+        {
+            group = (Group) getIntent().getExtras().get(ActivityParameters.Group);
+        }
+
         initializeUi();
         initializeUiButtons();
         populateGroupName();
@@ -121,6 +128,153 @@ public class GroupChatActivity extends AppCompatActivity
 
     private void initializeUiButtons()
     {
+
+        if(messageSenderUserId == null)
+        {
+            messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
+        }
+
+        final DatabaseReference firebaseRef = FirebasePaths.firebaseUsersDbRef()
+                .child(messageSenderUserId)
+                .child("subscribed").child(groupId);
+
+        firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                if(!dataSnapshot.exists())
+                {
+                    groupSendMessageButton.setVisibility(View.GONE);
+                    groupSendFileButton.setVisibility(View.GONE);
+                    groupMessageInputText.setVisibility(View.GONE);
+                    groupChatSubscribeButton.setVisibility(View.VISIBLE);
+                    groupChatSubscribeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            FirebasePaths.firebaseUserRef(messageSenderUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if(dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                                    {
+
+                                        final String token = dataSnapshot.child(UsersFirebaseFields.device_token).getValue().toString();
+                                        final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
+                                                .child(groupId)
+                                                .child(messageSenderUserId)
+                                                .child(UsersFirebaseFields.device_token);
+                                        leaveRef.setValue(token);
+
+                                        firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                            {
+                                                if(group == null)
+                                                {
+                                                    FirebasePaths.firebaseGroupsLeafsRef()
+                                                            .child(groupId)
+                                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                @Override
+                                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                    if(dataSnapshot.exists())
+                                                                    {
+                                                                        group = dataSnapshot.getValue(Group.class);
+                                                                        firebaseRef.setValue(group);
+                                                                        makeUserAbleToChat();
+                                                                    }
+                                                                }
+
+                                                                @Override
+                                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                                }
+                                                            });
+                                                }
+                                                else
+                                                {
+                                                    firebaseRef.setValue(group);
+                                                    makeUserAbleToChat();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError)
+                                            {
+
+                                            }
+                                        });
+
+                                    }
+                                    else
+                                    {
+                                        FirebaseInstanceId.getInstance().getInstanceId()
+                                                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                                {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                                    {
+                                                        if(task.isSuccessful())
+                                                        {
+                                                            final String deviceToken = task.getResult().getToken();
+                                                            FirebasePaths.firebaseUserRef(messageSenderUserId).child(UsersFirebaseFields.device_token)
+                                                                    .setValue(deviceToken)
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                                    {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task)
+                                                                        {
+                                                                            if(task.isSuccessful())
+                                                                            {
+                                                                                final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
+                                                                                        .child(groupId)
+                                                                                        .child(messageSenderUserId)
+                                                                                        .child(UsersFirebaseFields.device_token);
+                                                                                leaveRef.setValue(deviceToken);
+                                                                                firebaseRef.child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                    @Override
+                                                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                                                                    {
+                                                                                        firebaseRef.setValue(group);
+                                                                                        makeUserAbleToChat();
+                                                                                    }
+
+                                                                                    @Override
+                                                                                    public void onCancelled(@NonNull DatabaseError databaseError)
+                                                                                    {
+
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+                    });
+                }
+                else
+                {
+                    makeUserAbleToChat();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         groupSendMessageButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -302,6 +456,7 @@ public class GroupChatActivity extends AppCompatActivity
         groupChatToolBar = findViewById(R.id.setting_toolbar);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
         groupChatToolBar = findViewById(R.id.group_chat_toolbar);
+        groupChatSubscribeButton = findViewById(R.id.group_display_message);
         progressBar = findViewById(R.id.progressbar_group_chat);
         setSupportActionBar(groupChatToolBar);
         ActionBar actionBar = getSupportActionBar();
@@ -652,12 +807,12 @@ public class GroupChatActivity extends AppCompatActivity
                         if (task.isSuccessful()) {
 //                            uploadedFiles[0]++;
                             final Uri downloadUrl = task.getResult();
-
+                            final String fileName = getFileName(resultUri);
                             myUrl = downloadUrl.toString();
 
                             GroupMessage messages = new GroupMessage();
                             messages.setMessage(myUrl);
-                            messages.setFileName(resultUri.getLastPathSegment());
+                            messages.setFileName(fileName);
                             messages.setType(MsgType.VIDEO.getMsgTypeId());
                             messages.setFrom(messageSenderUserId);
                             messages.setGroupId(groupId);
@@ -713,6 +868,9 @@ public class GroupChatActivity extends AppCompatActivity
             for(final Uri resultUri : dataList)
             {
 
+                final String fileName = getFileName(resultUri);
+//                final int lastIndexOfDot = fileName.lastIndexOf(".");
+//                final String ext = fileName.substring(lastIndexOfDot, fileName.length());
                 progressBar.setVisibility(View.VISIBLE);
 
                 final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Doc file").child(groupId);
@@ -720,8 +878,8 @@ public class GroupChatActivity extends AppCompatActivity
                 final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
                         .child(groupId).push();
                 final String messagePushID = userMessageKeyRef.getKey();
-                final StorageReference filePath = storageReference.child(messagePushID + "." + checker == Configuration.DOCFILE ?
-                        "docx" : "pdf");
+
+                final StorageReference filePath = storageReference.child(messagePushID + "." + checker);
 
                 uploadTask = filePath.putFile(resultUri);
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -792,7 +950,7 @@ public class GroupChatActivity extends AppCompatActivity
 
                             GroupMessage messages = new GroupMessage();
                             messages.setMessage(myUrl);
-                            messages.setFileName(resultUri.getLastPathSegment());
+                            messages.setFileName(fileName);
                             messages.setType(MsgType.DOC.getMsgTypeId());
                             messages.setFrom(messageSenderUserId);
                             messages.setGroupId(groupId);
@@ -887,6 +1045,28 @@ public class GroupChatActivity extends AppCompatActivity
 
     }
 
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
     private void sendMessageInGroup()
     {
         String messageText = groupMessageInputText.getText().toString();
@@ -974,4 +1154,14 @@ public class GroupChatActivity extends AppCompatActivity
         }
         return uri;
     }
+
+    private void makeUserAbleToChat()
+    {
+        groupChatSubscribeButton.setVisibility(View.INVISIBLE);
+        groupSendMessageButton.setVisibility(View.VISIBLE);
+        groupSendFileButton.setVisibility(View.VISIBLE);
+        groupMessageInputText.setVisibility(View.VISIBLE);
+    }
 }
+
+

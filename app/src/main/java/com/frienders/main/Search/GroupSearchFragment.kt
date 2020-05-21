@@ -33,7 +33,7 @@ public class GroupSearchFragment : Fragment() {
         // Hits
         // ...
 
-        val groupProduct = GroupAdapter()
+        val groupProduct = GroupAdapter(getContext())
         viewModel.groups.observe(viewLifecycleOwner, Observer { hits -> groupProduct.submitList(hits) })
         groupList.let {
             it.itemAnimator = null
