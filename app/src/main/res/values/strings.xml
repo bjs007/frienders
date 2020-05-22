@@ -47,5 +47,7 @@
     <string name="rationale_photo_picker">android.permission.WRITE_EXTERNAL_STORAGE</string>
     <string name="groupchatdisplaymessage">Please subscribe to chat</string>
     <string name="subscribedtoChat">Subscribe to chat</string>
+    <string name="filesizeerrormessage">File size should be less than 16 MB</string>
+    <string name="filemorethan10MB">File size more than 10MB takes ~15 seconds </string>
 
 </resources>

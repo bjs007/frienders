@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,6 +62,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -119,6 +121,7 @@ public class GroupChatActivity extends AppCompatActivity
         if(getIntent().getExtras().get(ActivityParameters.Group) != null)
         {
             group = (Group) getIntent().getExtras().get(ActivityParameters.Group);
+            groupId = group.getId();
         }
 
         initializeUi();
@@ -720,12 +723,24 @@ public class GroupChatActivity extends AppCompatActivity
                 dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA);
             }
 
-            final int[] totalFiles2 = new int[] { android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M
-                    ? dataList.size(): 1};
-            final int[] uploadedFiles = new int[] {0};
 
             for(final Uri resultUri : dataList)
             {
+
+                try {
+                    ParcelFileDescriptor f =  getContentResolver().openFileDescriptor(resultUri, "r");
+                    long size = f.getStatSize();
+
+                    if(size > Configuration.maxVideoFileUploadableSizeInBytes)
+                    {
+                        Toast.makeText(this, getString(R.string.filesizeerrormessage),  Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+
                 progressBar.setVisibility(View.VISIBLE);
                 final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Video file").child(groupId);
                 final String messageSenderRef = FirebasePaths.MessagesPath + "/";

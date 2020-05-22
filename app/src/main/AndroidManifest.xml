@@ -7,13 +7,14 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".explayer.ExoplayerActivity"></activity>
         <activity android:name=".notification.NotificaitonActivity" />
         <activity android:name=".SearchGroupActivity" />
         <activity android:name=".activity.group.GroupDetailDisplayActivity" />
@@ -43,10 +44,11 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <activity android:name=".SplashActivity" android:screenOrientation="fullSensor"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-        </activity>
 
+        <activity
+            android:name=".SplashActivity"
+            android:screenOrientation="fullSensor"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
     </application>
 
 </manifest>

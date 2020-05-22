@@ -30,11 +30,11 @@ import com.frienders.main.db.MsgType;
 import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.R;
 import com.frienders.main.db.refs.FirebasePaths;
+import com.frienders.main.explayer.ExoplayerActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -205,7 +205,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                             @Override
                             public void onClick(View v)
                             {
-                                Intent playMusi = new Intent(context, SplashActivity.class);
+                                Intent playMusi = new Intent(context, ExoplayerActivity.class);
                                 playMusi.putExtra("videoLink", message.getMessage() != null? message.getMessage() : "");
                                 context.startActivity(playMusi);
                             }

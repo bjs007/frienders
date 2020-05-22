@@ -32,5 +32,6 @@ public class Configuration
     public static int imageMaxWidth = 1920;
     public static int imageMaxHeight = 2560;
 
-    public static long maxVieoFileUploadableSizeInBytes = 16000000;
+    public static long maxVideoFileUploadableSizeInBytes = 17000000;
+    public static long longVideoFileUploadableSizeInBytes = 10000000;
 }
