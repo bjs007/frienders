@@ -18,15 +18,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,7 @@ import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.MsgType;
+import com.frienders.main.db.model.Messages;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.model.Group;
@@ -48,9 +52,11 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -67,9 +73,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import droidninja.filepicker.FilePickerBuilder;
@@ -85,6 +94,7 @@ import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
 import static com.frienders.main.config.Configuration.imageMaxHeight;
 import static com.frienders.main.config.Configuration.imageMaxWidth;
 
+
 public class GroupChatActivity extends AppCompatActivity
 {
     private TextView groupDisplayName, groupDescription;
@@ -96,10 +106,10 @@ public class GroupChatActivity extends AppCompatActivity
     private Button groupChatSubscribeButton;
     private androidx.appcompat.widget.Toolbar groupChatToolBar;
 
-    private final List<GroupMessage> groupMessageList = new ArrayList<>();
+    private final List<GroupMessage> groupMessageList = new LinkedList<>();
     private LinearLayoutManager linearLayoutManager;
     private GroupMessageAdapter groupMessageAdapter;
-    private RecyclerView groupMessagesListView;
+    private RecyclerView recyclerView;
     private String groupId;
     private ProgressDialog loadingBar;
     private String language = "eng";
@@ -108,8 +118,17 @@ public class GroupChatActivity extends AppCompatActivity
     private String currentUserDisplayName = "Unknown";
     private static final int RC_PHOTO_PICKER_PERM = 555;
     public static int imageCount = 0;
-    private ProgressBar progressBar;
+    private ProgressBar progressBar, groupMessageProgressBar;
     private Group group;
+    private List<GroupMessage> moreMessages = new LinkedList<>();
+    boolean reachedEnd = false;
+    boolean isLoading = false;
+    private RecyclerView.OnScrollListener onScrollListener;
+    private Set<String> messageDownloaded = new HashSet<>();
+    private List<GroupMessage> buffer = new LinkedList<>();
+    private TextView newmessagenotification;
+    boolean istheLatestMessageTheLastVisibleItem = true;
+    final int[] notvisiblenewmessagecount = new int[]{0};
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -127,6 +146,359 @@ public class GroupChatActivity extends AppCompatActivity
         initializeUi();
         initializeUiButtons();
         populateGroupName();
+//        initScrollListener();
+//        initScrollListener();
+    }
+
+    private void initializeUi()
+    {
+        groupMessageProgressBar = findViewById(R.id.groupMessageProgressBar);
+        groupChatToolBar = findViewById(R.id.setting_toolbar);
+        groupSendFileButton = findViewById(R.id.group_send_file_btn);
+        groupChatToolBar = findViewById(R.id.group_chat_toolbar);
+        groupChatSubscribeButton = findViewById(R.id.group_display_message);
+        progressBar = findViewById(R.id.progressbar_group_chat);
+        newmessagenotification = findViewById(R.id.new_message_notification);
+        newmessagenotification.setVisibility(View.GONE);
+        setSupportActionBar(groupChatToolBar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        LayoutInflater layoutInflater  = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View actionBarView = layoutInflater.inflate(R.layout.custom_group_chat_bar, null);
+        actionBar.setCustomView(actionBarView);
+
+        groupDisplayName = findViewById(R.id.custom_group_name);
+        groupDescription = findViewById(R.id.custom_group_desc);
+        groupProfileImage = findViewById(R.id.custom_group_profile_image);
+
+        groupSendMessageButton = findViewById(R.id.group_send_message_btn);
+        groupSendFileButton = findViewById(R.id.group_send_file_btn);
+        groupMessageInputText = findViewById(R.id.group_input_message);
+
+
+        /// GroupMessageAdapter starts
+
+        recyclerView = findViewById(R.id.group_message_list_of_users);
+        linearLayoutManager = new LinearLayoutManager(this);
+        groupMessageAdapter = new GroupMessageAdapter(groupMessageList, this, recyclerView, groupId,
+                linearLayoutManager);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        initScrollListener();
+
+        /// GroupMessageAdapter Ends
+
+
+        loadingBar = new ProgressDialog(GroupChatActivity.this);
+        loadingBar.setCanceledOnTouchOutside(false);
+
+        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists())
+                        {
+                            currentUserDisplayName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
+                            messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+        newmessagenotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
+                notvisiblenewmessagecount[0] = 0;
+                newmessagenotification.setVisibility(View.GONE);
+            }
+        });
+
+        final DatabaseReference ref = FirebasePaths.firebaseMessageRef().child(groupId);
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.exists() && dataSnapshot.hasChildren())
+                {
+                    int childrenCount = (int)dataSnapshot.getChildrenCount();
+
+                    ref.endAt(childrenCount).limitToLast(1).addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                            if(dataSnapshot.exists())
+                            {
+                                GroupMessage groupMessage = dataSnapshot.getValue(GroupMessage.class);
+                                if(!messageDownloaded.contains(groupMessage.getMessageId()))
+                                {
+                                    groupMessageList.add(groupMessage);
+                                    groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
+                                }
+
+                                if(istheLatestMessageTheLastVisibleItem)
+                                {
+                                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
+                                }
+                                else
+                                {
+                                    notvisiblenewmessagecount[0]++;
+                                    newmessagenotification.setVisibility(View.VISIBLE);
+                                    newmessagenotification.setText("Check new messages: "+ String.valueOf(notvisiblenewmessagecount[0]));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                        }
+
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+
+    public void getMessages(final String nodeId)
+    {
+        Query query;
+        moreMessages.clear();
+
+        if(nodeId == null && groupMessageList.size() == 0)
+        {
+            groupMessageList.add(0, null);
+            groupMessageAdapter.notifyItemInserted(0);
+        }
+
+
+        if(nodeId == null)
+        {
+            query = FirebasePaths
+                    .firebaseMessageRef()
+                    .child(groupId)
+                    .orderByKey()
+                    .limitToLast(12);
+        }
+        else
+        {
+            query = FirebasePaths
+                    .firebaseMessageRef()
+                    .child(groupId)
+                    .endAt(nodeId)
+                    .orderByKey()
+                    .limitToLast(8);
+        }
+
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot != null && dataSnapshot.exists() && dataSnapshot.hasChildren())
+                {
+                    if(dataSnapshot.getChildrenCount() == 1)
+                    {
+                        reachedEnd = false;
+                    }
+                    else
+                    {
+                        for(DataSnapshot ds: dataSnapshot.getChildren())
+                        {
+                            reachedEnd = false;
+                            GroupMessage message = ds.getValue(GroupMessage.class);
+
+
+                            if(message != null && message.getMessageId() != null)
+                            {
+                                if(nodeId == null)
+                                {
+                                    if(!messageDownloaded.contains(message.getMessageId()))
+                                    {
+                                        messageDownloaded.add(message.getMessageId());
+                                        moreMessages.add(message);
+                                    }
+                                    else if (message.getMessageId().equals(nodeId))
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        reachedEnd = true;
+                                        break;
+                                    }
+                                }
+
+                                else
+                                {
+                                    if(!messageDownloaded.contains(message.getMessageId()))
+                                    {
+                                        messageDownloaded.add(message.getMessageId());
+                                        moreMessages.add(message);
+                                    }
+                                    else if (message.getMessageId().equals(nodeId))
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        reachedEnd = true;
+                                        break;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    while (groupMessageList != null && groupMessageList.size()> 0 && groupMessageList.get(0) == null)
+                    {
+                        groupMessageList.remove(0);
+                        groupMessageAdapter.notifyItemRemoved(0);
+                    }
+                    Toast.makeText(GroupChatActivity.this, "Be the first one to chat", Toast.LENGTH_SHORT).show();
+                }
+
+
+                if(reachedEnd == false)
+                {
+                    while (groupMessageList != null && groupMessageList.size()> 0 && groupMessageList.get(0) == null)
+                    {
+                        groupMessageList.remove(0);
+                        groupMessageAdapter.notifyItemRemoved(0);
+                    }
+
+
+                    if(moreMessages.size() > 0)
+                    {
+                        groupMessageList.addAll(0, moreMessages);
+                        groupMessageAdapter.notifyDataSetChanged();
+                        moreMessages.clear();
+                    }
+
+                    if(nodeId == null)
+                    {
+                        recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
+
+                    }
+
+                }
+                else
+                {
+                    Toast.makeText(GroupChatActivity.this, "No more chats", Toast.LENGTH_SHORT).show();
+                }
+
+
+                isLoading = false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(GroupChatActivity.this, "Error occured", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initScrollListener() {
+
+        getMessages(null);
+
+        recyclerView.setAdapter(groupMessageAdapter);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == ListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
+                {
+                    isLoading = true;
+
+                    int lastCompletellyVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+
+                    if(lastCompletellyVisibleItemPosition >= groupMessageList.size() -  4)
+                    {
+                        istheLatestMessageTheLastVisibleItem = true;
+                    }
+                    else
+                    {
+                        istheLatestMessageTheLastVisibleItem = false;
+                        newmessagenotification.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                int posx = linearLayoutManager.findFirstVisibleItemPosition();
+
+                if(isLoading)
+                {
+                    if(dy < 0 && dx == 0)
+                    {
+                        groupMessageList.add(0, null);
+                        groupMessageAdapter.notifyItemInserted(0);
+
+                        if (linearLayoutManager != null)
+                        {
+                            //bottom of list!
+                            if(groupMessageList.size() > 0)
+                            {
+                                final String messageId =  (groupMessageList.get(1) != null ? groupMessageList.get(1).getMessageId() : null);
+                                if(messageId != null)
+                                {
+                                    getMessages(messageId);
+                                }
+                                else
+                                {
+                                    groupMessageList.remove(0);
+                                    groupMessageAdapter.notifyItemRemoved(0);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isLoading = false;
+                    }
+
+                }
+            }
+        });
+
+
     }
 
     private void initializeUiButtons()
@@ -258,7 +630,8 @@ public class GroupChatActivity extends AppCompatActivity
                                 }
 
                                 @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                public void onCancelled(@NonNull DatabaseError databaseError)
+                                {
 
                                 }
                             });
@@ -302,11 +675,11 @@ public class GroupChatActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 final CharSequence options[] = new CharSequence[]
-                    {
-                        getString(R.string.image),
-                        getString(R.string.video) + " 20MB MAX",
-                        "DOCS",
-                    };
+                        {
+                                getString(R.string.image),
+                                getString(R.string.video) + " 20MB MAX",
+                                "DOCS",
+                        };
                 AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
                 builder.setTitle(getString(R.string.selectfiletype));
                 builder.setItems(options, new DialogInterface.OnClickListener()
@@ -317,7 +690,7 @@ public class GroupChatActivity extends AppCompatActivity
                         if(which == 0)
                         {
                             checker = Configuration.IMAGEFILE;
-                             pickPhotoClicked();
+                            pickPhotoClicked();
 //                            Intent intent = new Intent();
 //                            intent.setAction(Intent.ACTION_GET_CONTENT);
 //                            intent.setType("image/*");
@@ -454,57 +827,6 @@ public class GroupChatActivity extends AppCompatActivity
         }
     }
 
-    private void initializeUi()
-    {
-        groupChatToolBar = findViewById(R.id.setting_toolbar);
-        groupSendFileButton = findViewById(R.id.group_send_file_btn);
-        groupChatToolBar = findViewById(R.id.group_chat_toolbar);
-        groupChatSubscribeButton = findViewById(R.id.group_display_message);
-        progressBar = findViewById(R.id.progressbar_group_chat);
-        setSupportActionBar(groupChatToolBar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowCustomEnabled(true);
-
-        LayoutInflater layoutInflater  = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View actionBarView = layoutInflater.inflate(R.layout.custom_group_chat_bar, null);
-        actionBar.setCustomView(actionBarView);
-
-        groupDisplayName = findViewById(R.id.custom_group_name);
-        groupDescription = findViewById(R.id.custom_group_desc);
-        groupProfileImage = findViewById(R.id.custom_group_profile_image);
-
-        groupSendMessageButton = findViewById(R.id.group_send_message_btn);
-        groupSendFileButton = findViewById(R.id.group_send_file_btn);
-        groupMessageInputText = findViewById(R.id.group_input_message);
-
-
-        groupMessagesListView = findViewById(R.id.group_message_list_of_users);
-        groupMessageAdapter = new GroupMessageAdapter(groupMessageList, this, groupMessagesListView, groupId);
-        linearLayoutManager = new LinearLayoutManager(this);
-        groupMessagesListView.setLayoutManager(linearLayoutManager);
-        groupMessagesListView.setAdapter(groupMessageAdapter);
-        loadingBar = new ProgressDialog(GroupChatActivity.this);
-        loadingBar.setCanceledOnTouchOutside(false);
-
-        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists())
-                    {
-                        currentUserDisplayName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
-                        messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
@@ -536,8 +858,8 @@ public class GroupChatActivity extends AppCompatActivity
                 for(Uri ImageUri : dataList)
                 {
                     CropImage.activity(ImageUri)
-                           .setGuidelines(CropImageView.Guidelines.ON)
-                           .start(this);
+                            .setGuidelines(CropImageView.Guidelines.ON)
+                            .start(this);
                 }
             }
         }
@@ -572,18 +894,18 @@ public class GroupChatActivity extends AppCompatActivity
                     try
                     {
                         actualImage = FileUtil.from(GroupChatActivity.this, resultUri);
-                         compressedFile = new Compressor(this)
-                                  .setMaxHeight(Math.min(image.getHeight(), imageMaxHeight))
-                                  .setMaxWidth(Math.min(image.getWidth(), imageMaxWidth))
-                                  .setQuality(75)
-                                  .setCompressFormat(Bitmap.CompressFormat.JPEG)
-                                  .compressToFile(actualImage);
+                        compressedFile = new Compressor(this)
+                                .setMaxHeight(Math.min(image.getHeight(), imageMaxHeight))
+                                .setMaxWidth(Math.min(image.getWidth(), imageMaxWidth))
+                                .setQuality(75)
+                                .setCompressFormat(Bitmap.CompressFormat.JPEG)
+                                .compressToFile(actualImage);
 
 //                         progressBar = new ProgressBar(this);
                         progressBar.setProgress(20);
 
-                         uploadTask = filePath.putFile(Uri.fromFile(compressedFile));
-                         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        uploadTask = filePath.putFile(Uri.fromFile(compressedFile));
+                        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
                             {
@@ -640,7 +962,7 @@ public class GroupChatActivity extends AppCompatActivity
                                     progressBar.setProgress(100);
                                 }
                             }
-                         }).continueWithTask(new Continuation() {
+                        }).continueWithTask(new Continuation() {
 
                             @Override
                             public Object then(@NonNull Task task) throws Exception {
@@ -648,8 +970,8 @@ public class GroupChatActivity extends AppCompatActivity
                                     throw task.getException();
                                 }
                                 return filePath.getDownloadUrl();
-                             }
-                         }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                             @Override
                             public void onComplete(@NonNull Task<Uri> task)
                             {
@@ -661,14 +983,13 @@ public class GroupChatActivity extends AppCompatActivity
                                     Uri downloadUrl = task.getResult();
                                     myUrl = downloadUrl.toString();
 
-                                    GroupMessage messages = new GroupMessage();
+                                    final GroupMessage messages = new GroupMessage();
                                     messages.setMessage(myUrl);
                                     messages.setFileName(resultUri.getLastPathSegment());
                                     messages.setType(MsgType.IMAGE.getMsgTypeId());
                                     messages.setFrom(messageSenderUserId);
                                     messages.setGroupId(groupId);
-                                    messages.setTime(Utility.getCurrentTime());
-                                    messages.setTime(Utility.getCurrentDate());
+                                    messages.setTime(Utility.getCurrentTime() + " "+ Utility.getCurrentDate());
                                     messages.setMessageId(messagePushID);
                                     messages.setSenderDisplayName(currentUserDisplayName);
 
@@ -680,6 +1001,12 @@ public class GroupChatActivity extends AppCompatActivity
                                         public void onComplete(@NonNull Task task) {
                                             if (!task.isSuccessful()) {
                                                 Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                            }
+                                            else
+                                            {
+//                                                groupMessageList.add(messages);
+//                                                groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
+//                                                recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
                                             }
                                             loadingBar.dismiss();
                                         }
@@ -825,14 +1152,13 @@ public class GroupChatActivity extends AppCompatActivity
                             final String fileName = getFileName(resultUri);
                             myUrl = downloadUrl.toString();
 
-                            GroupMessage messages = new GroupMessage();
+                            final GroupMessage messages = new GroupMessage();
                             messages.setMessage(myUrl);
                             messages.setFileName(fileName);
                             messages.setType(MsgType.VIDEO.getMsgTypeId());
                             messages.setFrom(messageSenderUserId);
                             messages.setGroupId(groupId);
-                            messages.setTime(Utility.getCurrentTime());
-                            messages.setTime(Utility.getCurrentDate());
+                            messages.setTime(Utility.getCurrentTime() + " " + Utility.getCurrentDate());
                             messages.setMessageId(messagePushID);
                             messages.setSenderDisplayName(currentUserDisplayName);
 
@@ -843,11 +1169,17 @@ public class GroupChatActivity extends AppCompatActivity
                             FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
-                                if (!task.isSuccessful())
-                                {
-                                    Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                                }
-                                progressBar.setVisibility(View.INVISIBLE);
+                                    if (!task.isSuccessful())
+                                    {
+                                        Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else
+                                    {
+//                                        groupMessageList.add(messages);
+//                                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
+//                                        recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
+                                    }
+                                    progressBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
@@ -963,14 +1295,13 @@ public class GroupChatActivity extends AppCompatActivity
 
                             myUrl = downloadUrl.toString();
 
-                            GroupMessage messages = new GroupMessage();
+                            final GroupMessage messages = new GroupMessage();
                             messages.setMessage(myUrl);
                             messages.setFileName(fileName);
                             messages.setType(MsgType.DOC.getMsgTypeId());
                             messages.setFrom(messageSenderUserId);
                             messages.setGroupId(groupId);
-                            messages.setTime(Utility.getCurrentTime());
-                            messages.setTime(Utility.getCurrentDate());
+                            messages.setTime(Utility.getCurrentTime() +" "+ Utility.getCurrentDate());
                             messages.setMessageId(messagePushID);
                             messages.setSenderDisplayName(currentUserDisplayName);
 
@@ -983,6 +1314,12 @@ public class GroupChatActivity extends AppCompatActivity
                                 public void onComplete(@NonNull Task task) {
                                     if (!task.isSuccessful()) {
                                         Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else
+                                    {
+//                                        groupMessageList.add(messages);
+//                                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
+//                                        recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
                                     }
 
                                     progressBar.setVisibility(View.INVISIBLE);
@@ -1005,9 +1342,9 @@ public class GroupChatActivity extends AppCompatActivity
 
     private void populateGroupName()
     {
-         final DatabaseReference groupLeafsDbRef = FirebasePaths.firebaseGroupsLeafsRef();
-         final DatabaseReference userlanguage = FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                 .child(UsersFirebaseFields.language);
+        final DatabaseReference groupLeafsDbRef = FirebasePaths.firebaseGroupsLeafsRef();
+        final DatabaseReference userlanguage = FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
+                .child(UsersFirebaseFields.language);
 
         userlanguage.addListenerForSingleValueEvent(new ValueEventListener()
         {
@@ -1098,13 +1435,12 @@ public class GroupChatActivity extends AppCompatActivity
                     .child(groupId).push();
             final String messagePushID = userMessageKeyRef.getKey();
 
-            GroupMessage messages = new GroupMessage();
+            final GroupMessage messages = new GroupMessage();
             messages.setMessage(messageText);
             messages.setType(MsgType.TEXT.getMsgTypeId());
             messages.setFrom(messageSenderUserId);
             messages.setGroupId(groupId);
-            messages.setTime(Utility.getCurrentTime());
-            messages.setTime(Utility.getCurrentDate());
+            messages.setTime(Utility.getCurrentTime() +" "+ Utility.getCurrentDate());
             messages.setMessageId(messagePushID);
             messages.setSenderDisplayName(currentUserDisplayName);
 
@@ -1118,6 +1454,12 @@ public class GroupChatActivity extends AppCompatActivity
                     if (!task.isSuccessful())
                     {
                         Toast.makeText(GroupChatActivity.this, "Could not send the last message", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+//                        groupMessageList.add(messages);
+//                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
+//                        recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
                     }
                     loadingBar.dismiss();
                     groupMessageInputText.setText("");
@@ -1141,34 +1483,6 @@ public class GroupChatActivity extends AppCompatActivity
         finish();
     }
 
-    public Uri bitmapToUriConverter(Bitmap mBitmap) {
-        Uri uri = null;
-        try {
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            // Calculate inSampleSize
-            options.inSampleSize = calculateInSampleSize(options, 100, 100);
-
-            // Decode bitmap with inSampleSize set
-            options.inJustDecodeBounds = false;
-            Bitmap newBitmap = Bitmap.createScaledBitmap(mBitmap, 200, 200,
-                    true);
-            File file = new File(getFilesDir(), "Image"
-                    + new Random().nextInt() + ".jpeg");
-            FileOutputStream out = openFileOutput(file.getName(),
-                    Context.MODE_PRIVATE);
-            newBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-            //get absolute path
-            String realPath = file.getAbsolutePath();
-            File f = new File(realPath);
-            uri = Uri.fromFile(f);
-
-        } catch (Exception e) {
-            Log.e("Your Error Message", e.getMessage());
-        }
-        return uri;
-    }
 
     private void makeUserAbleToChat()
     {
@@ -1177,6 +1491,10 @@ public class GroupChatActivity extends AppCompatActivity
         groupSendFileButton.setVisibility(View.VISIBLE);
         groupMessageInputText.setVisibility(View.VISIBLE);
     }
+
+
+
+
 }
 
 

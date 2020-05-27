@@ -10,8 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
+import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,8 +23,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import com.frienders.main.R;
-import com.frienders.main.activity.login.LoginActivity;
-import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.adapter.TabsAccessorAdapter;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
@@ -237,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendUserToSettingActivity()
     {
-        Intent settingIntent = new Intent(MainActivity.this, SettingActivity.class);
+        Intent settingIntent = new Intent(MainActivity.this, NewSetting.class);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);

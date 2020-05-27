@@ -29,6 +29,21 @@
         android:textSize="16sp" />
 
     <TextView
+        android:id="@+id/group_sender_message_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/group_message_receiver_profile_image"
+        android:padding="10dp"
+        android:scaleType="centerCrop"
+        android:textColor="@color/colorBlack"
+        android:visibility="gone"
+        android:textStyle="italic"
+        android:textSize="10sp" />
+
+    <TextView
         android:id="@+id/group_sender_message_profile_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -50,6 +65,7 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/image_icon"
+        android:visibility="gone"
         android:layout_below="@id/group_sender_message_profile_image"
         android:scaleType="centerCrop" />
     <TextView
@@ -111,6 +127,7 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         android:background="@drawable/image_icon"
+        android:visibility="gone"
         android:layout_below="@id/group_message_receiver_profile_image"
         android:scaleType="centerCrop"
         />
@@ -146,6 +163,25 @@
         android:padding="10dp"
         android:text="sender message here"
         android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/group_receiver_message_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="@+id/group_receiver_message_text"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:paddingBottom="10dp"
+        android:layout_below="@id/group_sender_message_profile_image"
+        android:layout_toStartOf="@id/group_message_sender_image_view"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:textStyle="italic"
+        android:textSize="10sp" />
+
 
     <ImageView
         android:id="@+id/groupVideoViewReceiver"

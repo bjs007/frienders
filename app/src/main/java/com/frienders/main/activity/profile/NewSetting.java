@@ -20,20 +20,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.group.GroupChatActivity;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.refs.FirestorePath;
-import com.google.android.gms.tasks.OnCanceledListener;
+import com.frienders.main.utility.FileUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,14 +54,19 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
-public class SettingActivity extends AppCompatActivity {
+import static com.frienders.main.config.Configuration.imageMaxHeight;
+import static com.frienders.main.config.Configuration.imageMaxWidth;
 
-    private Button updateAccountSettings;
+public class NewSetting extends AppCompatActivity {
+
+    private ImageButton updateAccountSettings;
     private EditText userName, userStatus;
     private CircleImageView userProfileImage;
     private androidx.appcompat.widget.Toolbar settingsToolBar;
@@ -72,27 +80,22 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setting);
+        setContentView(R.layout.activity_new_setting);
         initializeUi();
     }
 
-
     private void initializeUi() {
-        progressDialog = new ProgressDialog(this);
-        updateAccountSettings = findViewById(R.id.update_settings_button);
-        userName = findViewById(R.id.set_user_name);
-        progressBar = findViewById(R.id.progressbar);
-        userStatus = findViewById(R.id.set_profile_status);
-        userProfileImage = findViewById(R.id.set_profile_image);
-        settingsToolBar = findViewById(R.id.setting_toolbar);
-        setSupportActionBar(settingsToolBar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setTitle("");
-        languaeRadioGroup = findViewById(R.id.radioGroup);
+
+        updateAccountSettings = findViewById(R.id.update_settings_button_new);
+        userName = findViewById(R.id.set_user_name_new);
+        progressBar = findViewById(R.id.progressbar_profile_setting);
+        progressBar.setVisibility(View.VISIBLE);
+        userStatus = findViewById(R.id.set_profile_status_new);
+        userProfileImage = findViewById(R.id.set_profile_image_new);
+        languaeRadioGroup = findViewById(R.id.radioGroup_new);
         engLanguageRadioButton = findViewById(R.id.english);
         hinLanuguageRadioButton = findViewById(R.id.hindi);
-        deleteProfileImage = findViewById(R.id.delete_profile_image);
+        deleteProfileImage = findViewById(R.id.delete_profile_image_new);
         userName.setVisibility(View.VISIBLE);
 
         updateAccountSettings.setOnClickListener(new View.OnClickListener()
@@ -108,15 +111,15 @@ public class SettingActivity extends AppCompatActivity {
 
         userProfileImage.setOnClickListener(
                 new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent, Configuration.RequestCodeForImagePick);
-            }
-        });
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Intent galleryIntent = new Intent();
+                        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                        galleryIntent.setType("image/*");
+                        startActivityForResult(galleryIntent, Configuration.RequestCodeForImagePick);
+                    }
+                });
 
         deleteProfileImage.setOnClickListener(new View.OnClickListener()
         {
@@ -136,7 +139,7 @@ public class SettingActivity extends AppCompatActivity {
                                     userProfileImage.setImageDrawable(getDrawable(R.drawable.profile_image));
                                     FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                                             .child(UsersFirebaseFields.profileImageLink).removeValue();
-                                    deleteProfileImage.setVisibility(View.GONE);
+                                    deleteProfileImage.setText(null);
                                 }
                             }
 
@@ -153,45 +156,45 @@ public class SettingActivity extends AppCompatActivity {
 
         FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                 .addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
                 {
-                    if(dataSnapshot.hasChild(UsersFirebaseFields.language))
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                     {
-                        userLanguage = dataSnapshot.child(UsersFirebaseFields.language).getValue().toString();
+                        if(dataSnapshot.exists())
+                        {
+                            if(dataSnapshot.hasChild(UsersFirebaseFields.language))
+                            {
+                                userLanguage = dataSnapshot.child(UsersFirebaseFields.language).getValue().toString();
+                            }
+
+                            if(userLanguage.equals("eng"))
+                            {
+                                int id = engLanguageRadioButton.getId();
+                                languaeRadioGroup.check(id);
+                            }
+                            else
+                            {
+                                int id = hinLanuguageRadioButton.getId();
+                                languaeRadioGroup.check(id);
+                            }
+                        }
                     }
 
-                    if(userLanguage.equals("eng"))
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError)
                     {
-                       int id = engLanguageRadioButton.getId();
-                       languaeRadioGroup.check(id);
+
                     }
-                    else
-                    {
-                        int id = hinLanuguageRadioButton.getId();
-                        languaeRadioGroup.check(id);
-                    }
-                }
-            }
+                });
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
-
-            }
-        });
-
-        settingsToolBar.setNavigationOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                SendUserToMainActivity();
-            }
-        });
+//        settingsToolBar.setNavigationOnClickListener(new View.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                SendUserToMainActivity();
+//            }
+//        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -219,16 +222,32 @@ public class SettingActivity extends AppCompatActivity {
 
                 Bitmap bitmap = decodeFile(resultUri.getPath());
                 Uri bitMapuri = bitmapToUriConverter(bitmap);
+                File actualImage = null;
+                File compressedFile = null;
 
 
                 final StorageReference filePath = FirestorePath.firestoreprofileImagesDbRef()
                         .child(FirebaseAuthProvider.getCurrentUserId() + ".jpg");
 
+
+                try {
+                    actualImage = FileUtil.from(NewSetting.this, resultUri);
+                    compressedFile = new Compressor(this)
+                            .setMaxHeight(Math.min(bitmap.getHeight(), imageMaxHeight))
+                            .setMaxWidth(Math.min(bitmap.getWidth(), imageMaxWidth))
+                            .setQuality(75)
+                            .setCompressFormat(Bitmap.CompressFormat.JPEG)
+                            .compressToFile(actualImage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                final File compressed = compressedFile;
+
                 progressBar.setVisibility(View.VISIBLE);
-                progressBar.getProgressDrawable().setColorFilter(getColor(R.color.colorBlue), android.graphics.PorterDuff.Mode.SRC_IN);
+//                progressBar.getProgressDrawable().setColorFilter(getColor(R.color.colorBlue), android.graphics.PorterDuff.Mode.SRC_IN);
 
-
-                filePath.putFile(bitMapuri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
+                userProfileImage.setVisibility(View.INVISIBLE);
+                filePath.putFile(Uri.fromFile(compressedFile)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
                 {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
@@ -254,13 +273,19 @@ public class SettingActivity extends AppCompatActivity {
                                                 {
                                                     if (task.isSuccessful())
                                                     {
-                                                        progressBar.setVisibility(View.GONE);
+                                                        progressBar.setVisibility(View.INVISIBLE);
                                                         deleteProfileImage.setVisibility(View.VISIBLE);
+                                                        if(compressed != null)
+                                                        Glide.with(NewSetting.this)
+                                                                .asBitmap()
+                                                                .load(Uri.fromFile(compressed)) // or URI/path
+                                                                .into(userProfileImage); //imageview to set thumb
+                                                        userProfileImage.setVisibility(View.VISIBLE);
                                                     }
                                                     else
                                                     {
                                                         String message = task.getException().toString();
-                                                        Toast.makeText(SettingActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(NewSetting.this, "Error: " + message, Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
                                             });
@@ -270,67 +295,73 @@ public class SettingActivity extends AppCompatActivity {
                         else
                         {
                             String message = task.getException().toString();
-                            Toast.makeText(SettingActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(NewSetting.this, "Error: " + message, Toast.LENGTH_SHORT).show();
                         }
                     }
 
-                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>()
-                {
+                }).addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
-                    {
-                        float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                        int currentprogress = (int) progress;
-
-                        if(currentprogress > 20 && currentprogress <= 30)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(20);
-                        }
-
-                        if(currentprogress > 40 && currentprogress <= 50)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(40);
-                        }
-
-                        if(currentprogress > 50 && currentprogress <= 60)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(50);
-                        }
-
-                        if(currentprogress > 60 && currentprogress <= 70)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(60);
-                        }
-
-                        if(currentprogress > 70 && currentprogress <= 80)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(70);
-                        }
-
-                        if(currentprogress > 80 && currentprogress <= 90)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(80);
-                        }
-
-                        if(currentprogress > 90 && currentprogress < 100)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(90);
-                        }
-
-                        if(currentprogress == 100)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(100);
-                        }
+                    public void onFailure(@NonNull Exception e) {
+                        userProfileImage.setVisibility(View.VISIBLE);
                     }
                 });
+//                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>()
+//                {
+//                    @Override
+//                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
+//                    {
+//                        float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+//                        int currentprogress = (int) progress;
+//
+//                        if(currentprogress > 20 && currentprogress <= 30)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(20);
+//                        }
+//
+//                        if(currentprogress > 40 && currentprogress <= 50)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(40);
+//                        }
+//
+//                        if(currentprogress > 50 && currentprogress <= 60)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(50);
+//                        }
+//
+//                        if(currentprogress > 60 && currentprogress <= 70)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(60);
+//                        }
+//
+//                        if(currentprogress > 70 && currentprogress <= 80)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(70);
+//                        }
+//
+//                        if(currentprogress > 80 && currentprogress <= 90)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(80);
+//                        }
+//
+//                        if(currentprogress > 90 && currentprogress < 100)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(90);
+//                        }
+//
+//                        if(currentprogress == 100)
+//                        {
+//                            progressBar.setMax(100);
+//                            progressBar.setProgress(100);
+//                        }
+//                    }
+//                });
             }
         }
     }
@@ -484,6 +515,7 @@ public class SettingActivity extends AppCompatActivity {
 
         else
         {
+            progressDialog = new ProgressDialog(NewSetting.this);
             progressDialog.setMessage("Updating profile...");
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
@@ -501,42 +533,45 @@ public class SettingActivity extends AppCompatActivity {
             }
 
             HashMap<String, Object> profileMap = new HashMap<>();
-                profileMap.put(UsersFirebaseFields.uid, FirebaseAuthProvider.getCurrentUserId());
-                profileMap.put(UsersFirebaseFields.name, setUserName);
-                profileMap.put(UsersFirebaseFields.status, setUserStatus);
-                profileMap.put(UsersFirebaseFields.language, language);
+            profileMap.put(UsersFirebaseFields.uid, FirebaseAuthProvider.getCurrentUserId());
+            profileMap.put(UsersFirebaseFields.name, setUserName);
+            profileMap.put(UsersFirebaseFields.status, setUserStatus);
+            profileMap.put(UsersFirebaseFields.language, language);
 
+            final String userId = FirebaseAuthProvider.getCurrentUserId();
 
-            FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                    .updateChildren(profileMap)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful())
-                            {
-                                progressDialog.setMessage("Profile updated...");
-                                SendUserToMainActivity();
+            try
+            {
+                FirebasePaths.firebaseUserRef(userId)
+                        .updateChildren(profileMap)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful())
+                                {
+                                    progressDialog.setMessage("Profile updated...");
+                                    progressDialog.dismiss();
+                                    SendUserToMainActivity();
+                                }
+                                else
+                                {
+                                    progressDialog.dismiss();
+                                    String message = task.getException().toString();
+                                    Toast.makeText(NewSetting.this, "Error" + message, Toast.LENGTH_SHORT).show();
+                                }
+
                             }
-                            else
-                            {
-                                String message = task.getException().toString();
-                                Toast.makeText(SettingActivity.this, "Error" + message, Toast.LENGTH_SHORT).show();
-                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.setMessage("Profile failed...");
+                        progressDialog.dismiss();
+                    }
+                });
+            }catch (Exception ex){
+                SendUserToMainActivity();
+            }
 
-                            progressDialog.dismiss();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    progressDialog.setMessage("Profile failed...");
-                    progressDialog.dismiss();
-                }
-            }).addOnCanceledListener(new OnCanceledListener() {
-                @Override
-                public void onCanceled() {
-                    
-                }
-            });
 
 
         }
@@ -545,7 +580,7 @@ public class SettingActivity extends AppCompatActivity {
 
 
     private void SendUserToMainActivity(){
-        Intent mainIntent = new Intent(SettingActivity.this, MainActivity.class);
+        Intent mainIntent = new Intent(NewSetting.this, MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(mainIntent);
@@ -561,12 +596,19 @@ public class SettingActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if((dataSnapshot.exists()) && (dataSnapshot.hasChild(UsersFirebaseFields.name) && (dataSnapshot.hasChild(UsersFirebaseFields.profileImageLink))))
                         {
-                           String retrieveUserName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
-                           String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
-                           String retrieveProfileImage = dataSnapshot.child(UsersFirebaseFields.profileImageLink).getValue().toString();
-                           userName.setText(retrieveUserName);
-                           userStatus.setText(retrieveStatus);
-                           Picasso.get().load(retrieveProfileImage).into(userProfileImage);
+                            String retrieveUserName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
+                            String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
+                            String retrieveProfileImage = dataSnapshot.child(UsersFirebaseFields.profileImageLink).getValue().toString();
+                            userName.setText(retrieveUserName);
+                            userStatus.setText(retrieveStatus);
+
+                            Glide.with(NewSetting.this)
+                                    .asBitmap()
+//                                .placeholder(R.drawable.video_preview_icon)
+                                    .load(retrieveProfileImage) // or URI/path
+                                    .into(userProfileImage); //imageview to set thumb
+                            userProfileImage.setVisibility(View.VISIBLE);
+//                            Picasso.get().load(retrieveProfileImage).into(userProfileImage);
                         }
                         else if((dataSnapshot.exists()) && (dataSnapshot.hasChild(UsersFirebaseFields.name)))
                         {
@@ -574,13 +616,15 @@ public class SettingActivity extends AppCompatActivity {
                             String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
                             userName.setText(retrieveUserName);
                             userStatus.setText(retrieveStatus);
-                            deleteProfileImage.setVisibility(View.GONE);
+                            deleteProfileImage.setVisibility(View.INVISIBLE);
 
                         }
                         else
                         {
 
                         }
+
+                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override

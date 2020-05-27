@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".explayer.ExoplayerActivity"></activity>
+        <activity android:name=".activity.profile.NewSetting"></activity>
+        <activity android:name=".explayer.ExoplayerActivity" />
         <activity android:name=".notification.NotificaitonActivity" />
         <activity android:name=".SearchGroupActivity" />
         <activity android:name=".activity.group.GroupDetailDisplayActivity" />
@@ -48,7 +49,7 @@
         <activity
             android:name=".SplashActivity"
             android:screenOrientation="fullSensor"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
     </application>
 
 </manifest>
