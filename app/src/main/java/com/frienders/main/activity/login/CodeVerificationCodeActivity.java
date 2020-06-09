@@ -19,7 +19,6 @@ import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
-import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -64,12 +63,12 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
                 final String verificationCode = inputVerificationCode.getText().toString();
                 if (TextUtils.isEmpty(verificationCode))
                 {
-                    Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.writeverificationcodehere), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.write_verification_code_here), Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    progressDialog.setTitle(getString(R.string.verificationcodepopoptitle));
-                    progressDialog.setMessage(getString(R.string.verificationcodepleasewaitmessage));
+                    progressDialog.setTitle(getString(R.string.verification_code_popop_title));
+                    progressDialog.setMessage(getString(R.string.verification_code_please_wait_message));
                     progressDialog.setCanceledOnTouchOutside(false);
                     progressDialog.show();
 
@@ -92,7 +91,7 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
                         {
                             // Sign in success, update UI with the signed-in user's information
                             progressDialog.dismiss();
-                            Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.codeverified), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.code_verified), Toast.LENGTH_SHORT).show();
 
                             final String currentUserId =  FirebaseAuthProvider.getCurrentUserId();
 
@@ -172,7 +171,7 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
                         {
                             // Sign in failed, display a message and update the UI
                             String message = task.getException().toString();
-                            Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.wrongcode), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CodeVerificationCodeActivity.this, getString(R.string.wrong_code), Toast.LENGTH_SHORT).show();
 
                             Intent newLoginActivity = new Intent(CodeVerificationCodeActivity.this, NewLoginActivity.class);
                             newLoginActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);

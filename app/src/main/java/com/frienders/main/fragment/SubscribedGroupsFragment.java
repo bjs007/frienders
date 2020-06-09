@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -27,11 +26,8 @@ import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.model.Group;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -49,13 +45,11 @@ public class SubscribedGroupsFragment extends Fragment
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage(getString(R.string.loadingmessage));
         Window window = progressDialog.getWindow();
@@ -94,8 +88,6 @@ public class SubscribedGroupsFragment extends Fragment
 
             }
         });
-
-
     }
 
     private void createGroupList()
@@ -105,41 +97,67 @@ public class SubscribedGroupsFragment extends Fragment
                         .setQuery(FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).child("subscribed"), Group.class)
                         .build();
 
-        try{
+        try
+        {
             FirebaseRecyclerAdapter<Group, SubscribedGroupsFragment.GroupViewHolder> adapter =
                     new FirebaseRecyclerAdapter<Group, SubscribedGroupsFragment.GroupViewHolder>(options)
                     {
                         @Override
                         protected void onBindViewHolder(@NonNull final SubscribedGroupsFragment.GroupViewHolder holder, int position, @NonNull final Group model)
                         {
-                            holder.enterIntoButton.setVisibility(View.GONE);
-                            holder.subScribeButton.setVisibility(View.GONE);
                             holder.groupViewImage.setVisibility(View.VISIBLE);
+
+
+                            String groupDisplayName = null;
+                            String groupDesc = null;
 
                             if(language.equals("eng"))
                             {
-                                holder.groupName.setText(model.getEngName());
-                                holder.groupDescription.setText(model.getEngDesc());
+                                groupDisplayName = model.getEngName();
+                                groupDesc = model.getEngDesc();
                             }
                             else
                             {
-                                holder.groupName.setText(model.getHinName());
-                                holder.groupDescription.setText(model.getHinDesc());
+                                groupDisplayName = model.getHinName();
+                                groupDesc = model.getHinDesc();
+
                             }
 
-                            holder.itemView.setOnClickListener(new View.OnClickListener()
+                            if(groupDisplayName != null && groupDesc != null)
                             {
-                                @Override
-                                public void onClick(View v)
+                                String[] groupWithParentNameWithoutAsterisk = null;
+                                if(groupDisplayName.indexOf('*') != -1)
                                 {
-                                    Intent nestedGroupIntent = new Intent(getContext(), GroupChatActivity.class);
-                                    nestedGroupIntent.putExtra(ActivityParameters.level, 1);
-                                    nestedGroupIntent.putExtra(ActivityParameters.groupId, model.getId());
-                                    nestedGroupIntent.putExtra(ActivityParameters.Group, model);
-                                    nestedGroupIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                    startActivity(nestedGroupIntent);
+                                    groupWithParentNameWithoutAsterisk = model.getEngName().split("\\*");
                                 }
-                            });
+
+                                String groupDisplayNameMayContainRootName = null;
+                                if(groupWithParentNameWithoutAsterisk.length == 2)
+                                {
+                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+                                }
+                                else
+                                {
+                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
+                                }
+                                holder.groupName.setText(groupDisplayNameMayContainRootName);
+                                holder.groupDescription.setText(groupDesc);
+
+
+                                holder.itemView.setOnClickListener(new View.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick(View v)
+                                    {
+                                        Intent nestedGroupIntent = new Intent(getContext(), GroupChatActivity.class);
+                                        nestedGroupIntent.putExtra(ActivityParameters.level, 1);
+                                        nestedGroupIntent.putExtra(ActivityParameters.groupId, model.getId());
+                                        nestedGroupIntent.putExtra(ActivityParameters.Group, model);
+                                        nestedGroupIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        startActivity(nestedGroupIntent);
+                                    }
+                                });
+                            }
                         }
 
                         @NonNull
@@ -161,13 +179,11 @@ public class SubscribedGroupsFragment extends Fragment
         }
     }
 
-
     public static class GroupViewHolder extends RecyclerView.ViewHolder
     {
 
         private CircleImageView groupViewImage;
         private TextView groupName, groupDescription;
-        private Button subScribeButton, enterIntoButton;
 
         public GroupViewHolder(@NonNull View itemView)
         {
@@ -175,10 +191,6 @@ public class SubscribedGroupsFragment extends Fragment
             groupViewImage = itemView.findViewById(R.id.group_profile_image);
             groupName = itemView.findViewById(R.id.group_name);
             groupDescription = itemView.findViewById(R.id.group_description);
-            subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);
-            enterIntoButton = itemView.findViewById(R.id.enter_into_group_button);
         }
     }
-
-
 }

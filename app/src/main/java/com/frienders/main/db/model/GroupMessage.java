@@ -3,6 +3,7 @@ package com.frienders.main.db.model;
 public class GroupMessage
 {
     private String from, message, type, messageId, time, date, fileName, groupId, senderDisplayName;
+    private Long likes;
 
     public GroupMessage()
     {
@@ -98,5 +99,13 @@ public class GroupMessage
 
     public void setSenderDisplayName(String senderDisplayName) {
         this.senderDisplayName = senderDisplayName;
+    }
+
+    public Long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(long likes) {
+        this.likes = likes;
     }
 }

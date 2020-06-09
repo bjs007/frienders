@@ -65,22 +65,55 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                             groupName.setText(group.getEngName());
                             groupDescription.setText(group.getEngDesc());
 
-                            if(group != null)
+//                            if(group != null)
+//                            {
+//                                if(language.equals("eng"))
+//                                {
+//                                    groupName.setText(group.getEngName());
+//                                    groupDescription.setText(group.getEngDesc());
+//                                }
+//                                else
+//                                {
+//                                    groupName.setText(group.getHinName());
+//                                    groupDescription.setText(group.getHinDesc());
+//                                }
+//                            }
+
+                            String groupDisplayName = null;
+                            String groupDesc = null;
+
+                            if(language.equals("eng"))
                             {
-                                if(language.equals("eng"))
-                                {
-                                    groupName.setText(group.getEngName());
-                                    groupDescription.setText(group.getEngDesc());
-                                }
-                                else
-                                {
-                                    groupName.setText(group.getHinName());
-                                    groupDescription.setText(group.getHinDesc());
-                                }
+                                groupDisplayName = group.getEngName();
+                                groupDesc = group.getEngDesc();
+                            }
+                            else
+                            {
+                                groupDisplayName = group.getHinName();
+                                groupDesc = group.getHinDesc();
+
                             }
 
 
-                            FirebasePaths.firebaseGroupDbRef().child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            if(groupDisplayName != null && groupDesc != null) {
+                                String[] groupWithParentNameWithoutAsterisk = null;
+                                if (groupDisplayName.indexOf('*') != -1) {
+                                    groupWithParentNameWithoutAsterisk = group.getEngName().split("\\*");
+                                }
+
+                                String groupDisplayNameMayContainRootName = null;
+                                if (groupWithParentNameWithoutAsterisk.length == 2) {
+                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+                                } else {
+                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
+                                }
+                                groupName.setText(groupDisplayNameMayContainRootName);
+                               groupDescription.setText(groupDesc);
+                            }
+
+
+
+                                FirebasePaths.firebaseGroupDbRef().child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                                 {

@@ -16,16 +16,16 @@
     <string name="subscribe"> Add in my groups</string>
     <string name="unsubscribe"> Remove from my groups</string>
     <string name="hometabs">hometabs</string>
-    <string name="pleasewait">Please wait</string>
-    <string name="enteremailmessage">Please enter email...</string>
-    <string name="enterpasswordmessage">Please enter password...</string>
-    <string name="loginsuccess">Login Success</string>
-    <string name="loginerror">Login failed</string>
-    <string name="verificationcodepopoptitle">Verification Code</string>
-    <string name="verificationcodepleasewaitmessage">Please wait, while we are verifying verification code</string>
-    <string name="writeverificationcodehere">Please write verification code first</string>
-    <string name="codeverified">Code verified!</string>
-    <string name="wrongcode">Wrong code! Try again</string>
+    <string name="please_wait">Please wait</string>
+    <string name="enter_email_message">Please enter email...</string>
+    <string name="enter_password_message">Please enter password...</string>
+    <string name="login_success">Login Success</string>
+    <string name="login_error">Login failed</string>
+    <string name="verification_code_popop_title">Verification Code</string>
+    <string name="verification_code_please_wait_message">Please wait, while we are verifying verification code</string>
+    <string name="write_verification_code_here">Please write verification code first</string>
+    <string name="code_verified">Code verified!</string>
+    <string name="wrong_code">Wrong code! Try again</string>
     <string name="phonenumberrequired">Phone number is required</string>
     <string name="pleaseenterphonenumber">Please enter 10 digits indian mobile number e.g. 987654321</string>
     <string name="sendingverificationcode">We are sending verification code. Please wait!</string>
@@ -49,5 +49,13 @@
     <string name="subscribedtoChat">Subscribe to chat</string>
     <string name="filesizeerrormessage">File size should be less than 16 MB</string>
     <string name="filemorethan10MB">File size more than 10MB takes ~15 seconds </string>
+    <string name="default_notification_channelid">app_channel_id</string>
+    <string name="questions">Questions</string>
+    <string name="groups">Groups</string>
+    <string name="ans">Answers</string>
+    <string name="user_national_ranking">Ranking</string>
+    <string name="view_group">View</string>
+    <string name="subscribed_group_removed">A Group has been removed</string>
+    <string name="subscribed_group_added">A new group has been added!</string>
 
 </resources>

@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
-import com.frienders.main.activity.group.NestedGroupDisplayActivity;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.UsersFirebaseFields;
@@ -24,7 +23,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DataSnapshot;
@@ -218,7 +216,7 @@ public class NewLoginActivity extends AppCompatActivity {
                             // Sign in failed, display a message and update the UI
                             String message = task.getException().toString();
                             progressDialog.dismiss();
-                            Toast.makeText(NewLoginActivity.this, getString(R.string.loginerror) + message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(NewLoginActivity.this, getString(R.string.login_error) + message, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

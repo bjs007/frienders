@@ -69,7 +69,6 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +76,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -87,7 +85,6 @@ import id.zelory.compressor.Compressor;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static com.frienders.main.activity.profile.SettingActivity.calculateInSampleSize;
 import static com.frienders.main.config.Configuration.RequestCodeForDocPick;
 import static com.frienders.main.config.Configuration.RequestCodeForImagePick;
 import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
@@ -153,7 +150,6 @@ public class GroupChatActivity extends AppCompatActivity
     private void initializeUi()
     {
         groupMessageProgressBar = findViewById(R.id.groupMessageProgressBar);
-        groupChatToolBar = findViewById(R.id.setting_toolbar);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
         groupChatToolBar = findViewById(R.id.group_chat_toolbar);
         groupChatSubscribeButton = findViewById(R.id.group_display_message);
@@ -162,6 +158,7 @@ public class GroupChatActivity extends AppCompatActivity
         newmessagenotification.setVisibility(View.GONE);
         setSupportActionBar(groupChatToolBar);
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(null);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
@@ -220,6 +217,7 @@ public class GroupChatActivity extends AppCompatActivity
         });
 
         final DatabaseReference ref = FirebasePaths.firebaseMessageRef().child(groupId);
+
         ref.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
@@ -239,6 +237,10 @@ public class GroupChatActivity extends AppCompatActivity
                                 {
                                     groupMessageList.add(groupMessage);
                                     groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
+                                }else  if(groupMessageList != null && groupMessageList.size() ==0)
+                                {
+                                    groupMessageList.add(groupMessage);
+                                    groupMessageAdapter.notifyItemInserted(0);
                                 }
 
                                 if(istheLatestMessageTheLastVisibleItem)
@@ -247,9 +249,16 @@ public class GroupChatActivity extends AppCompatActivity
                                 }
                                 else
                                 {
-                                    notvisiblenewmessagecount[0]++;
-                                    newmessagenotification.setVisibility(View.VISIBLE);
-                                    newmessagenotification.setText("Check new messages: "+ String.valueOf(notvisiblenewmessagecount[0]));
+                                    if(!groupMessage.getFrom().equals(FirebaseAuthProvider.getCurrentUserId()))
+                                    {
+                                        notvisiblenewmessagecount[0]++;
+                                        newmessagenotification.setVisibility(View.VISIBLE);
+                                        newmessagenotification.setText("New messages : "+ String.valueOf(notvisiblenewmessagecount[0]));
+                                    }
+                                    else
+                                    {
+                                        recyclerView.smoothScrollToPosition(groupMessageAdapter.getItemCount());
+                                    }
                                 }
                             }
                         }
@@ -1343,10 +1352,11 @@ public class GroupChatActivity extends AppCompatActivity
     private void populateGroupName()
     {
         final DatabaseReference groupLeafsDbRef = FirebasePaths.firebaseGroupsLeafsRef();
-        final DatabaseReference userlanguage = FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                .child(UsersFirebaseFields.language);
+        final DatabaseReference userDbRef = FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId());
 
-        userlanguage.addListenerForSingleValueEvent(new ValueEventListener()
+        userDbRef
+        .child(UsersFirebaseFields.language)
+        .addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
@@ -1366,16 +1376,38 @@ public class GroupChatActivity extends AppCompatActivity
                             Group grp = dataSnapshot.getValue(Group.class);
                             if(grp != null)
                             {
+                                String groupDisplayNameString = null;
+                                String groupDescString = null;
+
                                 if(language.equals("eng"))
                                 {
-                                    groupDisplayName.setText(grp.getEngName());
-                                    groupDescription.setText(grp.getEngDesc());
+                                    groupDisplayNameString = group.getEngName();
+                                    groupDescString = group.getEngDesc();
                                 }
                                 else
                                 {
-                                    groupDisplayName.setText(grp.getHinName());
-                                    groupDescription.setText(grp.getHinDesc());
+                                    groupDisplayNameString = group.getHinName();
+                                    groupDescString = group.getHinDesc();
+
                                 }
+
+
+                                if(groupDisplayNameString != null && groupDescString != null) {
+                                    String[] groupWithParentNameWithoutAsterisk = null;
+                                    if (groupDisplayNameString.indexOf('*') != -1) {
+                                        groupWithParentNameWithoutAsterisk = group.getEngName().split("\\*");
+                                    }
+
+                                    String groupDisplayNameMayContainRootName = null;
+                                    if (groupWithParentNameWithoutAsterisk.length == 2) {
+                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+                                    } else {
+                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
+                                    }
+                                    groupDisplayName.setText(groupDisplayNameMayContainRootName);
+                                    groupDescription.setText(groupDescString);
+                                }
+
                             }
                         }
                     }

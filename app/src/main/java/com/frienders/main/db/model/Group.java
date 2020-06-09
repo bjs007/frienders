@@ -16,6 +16,7 @@ public class Group implements Serializable
     private boolean leaf;
     private int level = 0;
     private String parentId;
+    private String rootId;
     private List<String> childrenIds;
 
 
@@ -24,7 +25,15 @@ public class Group implements Serializable
 
     }
 
-    public Group(String createdBy, String date, String engDesc, String engName, String hinDesc, String hinName, String id, boolean Leaf, int level, String parentId, String time)
+    public String getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(String rootId) {
+        this.rootId = rootId;
+    }
+
+    public Group(String createdBy, String date, String engDesc, String engName, String hinDesc, String hinName, String id, boolean Leaf, int level, String parentId, String rootId,  String time)
     {
         this.engDesc = engDesc;
         this.engName = engName;
@@ -37,6 +46,7 @@ public class Group implements Serializable
         this.leaf = Leaf;
         this.level = level;
         this.parentId = parentId;
+        this.rootId = rootId;
         this.time = time;
     }
 

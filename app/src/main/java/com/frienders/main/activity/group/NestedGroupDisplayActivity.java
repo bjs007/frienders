@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -127,19 +128,52 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                 holder.groupName.setVisibility(View.VISIBLE);
                                 holder.groupDescription.setVisibility(View.VISIBLE);
 
+//                                if(language.equals("eng"))
+//                                {
+//                                    holder.groupName.setText(model.getEngName());
+//                                    holder.groupDescription.setText(model.getEngDesc());
+//                                }
+//                                else
+//                                {
+//                                    holder.groupName.setText(model.getHinName());
+//                                    holder.groupDescription.setText(model.getHinDesc());
+//                                }
+
+
+
+                                String groupDisplayName = null;
+                                String groupDesc = null;
+
                                 if(language.equals("eng"))
                                 {
-                                    holder.groupName.setText(model.getEngName());
-                                    holder.groupDescription.setText(model.getEngDesc());
+                                    groupDisplayName = model.getEngName();
+                                    groupDesc = model.getEngDesc();
                                 }
                                 else
                                 {
-                                    holder.groupName.setText(model.getHinName());
-                                    holder.groupDescription.setText(model.getHinDesc());
+                                    groupDisplayName = model.getHinName();
+                                    groupDesc = model.getHinDesc();
+
+                                }
+
+                                if(groupDisplayName != null && groupDesc != null) {
+                                    String[] groupWithParentNameWithoutAsterisk = null;
+                                    if (groupDisplayName.indexOf('*') != -1) {
+                                        groupWithParentNameWithoutAsterisk = model.getEngName().split("\\*");
+                                    }
+
+                                    String groupDisplayNameMayContainRootName = null;
+                                    if (groupWithParentNameWithoutAsterisk.length == 2) {
+                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+                                    } else {
+                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
+                                    }
+                                    holder.groupName.setText(groupDisplayNameMayContainRootName);
+                                    holder.groupDescription.setText(groupDesc);
                                 }
 
 
-                                if(model.isLeaf())
+                                    if(model.isLeaf())
                                 {
                                     holder.enterIntoButton.setVisibility(View.VISIBLE);
                                     holder.subScribeButton.setVisibility(View.VISIBLE);
@@ -150,10 +184,9 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                         public void onClick(View v)
                                         {
                                             final DatabaseReference firebaseRef = FirebasePaths.firebaseUsersDbRef()
-                                                    .child(currentUserId)
-                                                    .child("subscribed").child(model.getId());
+                                                    .child(currentUserId);
 
-                                            firebaseRef.addListenerForSingleValueEvent(new ValueEventListener()
+                                            firebaseRef.child(UsersFirebaseFields.subscribed).child(model.getId()).addListenerForSingleValueEvent(new ValueEventListener()
                                             {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot)
@@ -161,103 +194,21 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                                     //if datasnapshot exists it means users has subcribed to the group and buttton is now showing "Remove from my groups"
                                                     if(dataSnapshot.exists())
                                                     {
-                                                        //Check if the user has device_token, take that token and remove from the "Subscribed database"
-                                                        FirebasePaths.firebaseUserRef(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                            @Override
-                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                                //get the user device_token if exists
-                                                                if(dataSnapshot.hasChild(UsersFirebaseFields.device_token))
-                                                                {
-                                                                    //remove the user device toke from the Subscribed database to stop notification
-                                                                    FirebasePaths.firebaseSubscribedRef()
-                                                                            .child(model.getId())
-                                                                            .child(currentUserId)
-                                                                            .child(UsersFirebaseFields.device_token).removeValue(new DatabaseReference.CompletionListener() {
-                                                                        @Override
-                                                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference)
-                                                                        {
-                                                                            holder.subScribeButton.setText(getText(R.string.subscribe));
-                                                                            firebaseRef.removeValue();
-                                                                        }
-                                                                    });
-
-
-                                                                }
-                                                                else//if the user does not have device token
-                                                                {
-                                                                    holder.subScribeButton.setText(getText(R.string.subscribe));
-                                                                }
-                                                            }
-
-                                                            @Override
-                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                            }
-                                                        });
+                                                        holder.subScribeButton.setText(getText(R.string.subscribe));
+                                                        firebaseRef.child(UsersFirebaseFields.subscribed).child(model.getId()).removeValue();
+                                                        Toast.makeText(NestedGroupDisplayActivity.this, getString(R.string.subscribed_group_removed), Toast.LENGTH_SHORT).show();
 
                                                     }
                                                     else
                                                     {
-                                                        FirebasePaths.firebaseUserRef(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        holder.subScribeButton.setText(R.string.unsubscribe);
+                                                        firebaseRef.child(UsersFirebaseFields.subscribed).child(model.getId()).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                             @Override
-                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                                if(dataSnapshot.hasChild(UsersFirebaseFields.device_token))
-                                                                {
-
-                                                                    String token = dataSnapshot.child(UsersFirebaseFields.device_token).getValue().toString();
-                                                                    final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
-                                                                            .child(model.getId())
-                                                                            .child(currentUserId)
-                                                                            .child(UsersFirebaseFields.device_token);
-
-                                                                    leaveRef.setValue(token);
-                                                                }
-                                                                else
-                                                                {
-
-                                                                    FirebaseInstanceId.getInstance().getInstanceId()
-                                                                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
-                                                                            {
-                                                                                @Override
-                                                                                public void onComplete(@NonNull Task<InstanceIdResult> task)
-                                                                                {
-                                                                                    if(task.isSuccessful())
-                                                                                    {
-                                                                                        final String deviceToken = task.getResult().getToken();
-                                                                                        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
-                                                                                                .setValue(deviceToken)
-                                                                                                .addOnCompleteListener(new OnCompleteListener<Void>()
-                                                                                                {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task)
-                                                                                                    {
-                                                                                                        if(task.isSuccessful())
-                                                                                                        {
-                                                                                                            final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
-                                                                                                                    .child(model.getId())
-                                                                                                                    .child(currentUserId)
-                                                                                                                    .child(UsersFirebaseFields.device_token);
-                                                                                                            leaveRef.setValue(deviceToken);
-
-                                                                                                        }
-                                                                                                    }
-                                                                                                });
-                                                                                    }
-                                                                                }
-                                                                            });
-
-                                                                }
-                                                            }
-
-                                                            @Override
-                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                Toast.makeText(NestedGroupDisplayActivity.this, getString(R.string.subscribed_group_added), Toast.LENGTH_SHORT).show();
 
                                                             }
                                                         });
-
-
-                                                        holder.subScribeButton.setText(R.string.unsubscribe);
-                                                        firebaseRef.setValue(model);
                                                     }
                                                 }
                                                 @Override

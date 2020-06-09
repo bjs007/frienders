@@ -10,10 +10,19 @@ public class FirebasePaths
     public static final String UsersPath = "Users";
     public static final String MessagesPath = "Messages";
     public static final String groupLeafsPath = "leafs";
+    public static final String lastNotificationTime = "UsersNotification";
+    public static final String messageLike = "MessageLikes";
+    public static final String userMessageLikesCount  = "UserMessageLikesCount";
+
 
     public static DatabaseReference firebaseDbRawRef()
     {
         return FirebaseDatabase.getInstance().getReference();
+    }
+
+    public static DatabaseReference firebaseGroupsRootDbRef()
+    {
+        return FirebasePaths.firebaseDbRawRef().child("level - 0");
     }
 
     public static DatabaseReference firebaseGroupDbRef()
@@ -54,6 +63,21 @@ public class FirebasePaths
     public static DatabaseReference firebaseSubscribedRef() {
         return FirebaseDatabase.getInstance().getReference(SubscribedPath);
     }
+
+    public static DatabaseReference firebaseUsersNotificationTimeDbRef()
+    {
+        return FirebaseDatabase.getInstance().getReference(lastNotificationTime);
+    }
+
+    public static DatabaseReference firebaseMessageLikeDbRef()
+    {
+        return FirebaseDatabase.getInstance().getReference(messageLike);
+    }
+
+    public static final DatabaseReference fireabaseUserMessageLikesCount(){
+        return firebaseDbRawRef().child(userMessageLikesCount);
+    }
+
 
     public static String messagePath()
     {

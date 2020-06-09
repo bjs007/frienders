@@ -30,8 +30,9 @@
                 android:background="@color/colorGray"
                 android:textAllCaps="false"
                 android:textColor="@color/colorBlack"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:gravity="center"
+                android:text="Loading..."
                 />
 
         </LinearLayout>
@@ -50,7 +51,8 @@
                 android:background="#FFFFFF"
                 android:textAllCaps="false"
                 android:hint="Group Description"
-                android:textSize="18sp"
+                android:textSize="16sp"
+                android:text="Loading..."
                 />
 
         </LinearLayout>
@@ -77,7 +79,7 @@
                     android:textAllCaps="false"
                     android:hint="Group Detail"
                     android:textColor="@color/colorBlack"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     />
 
             </LinearLayout>

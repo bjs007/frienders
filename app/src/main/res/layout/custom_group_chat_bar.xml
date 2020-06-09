@@ -1,45 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_chat_bar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     android:background="@color/colorPrimary"
     >
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="4"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/custom_group_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading..."
+
+                android:textColor="@android:color/background_light"
+                android:textSize="20sp"
+                />
+
+
+            <TextView
+                android:id="@+id/custom_group_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Loading..."
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp"
+            />
+
+        </LinearLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/custom_group_profile_image"
+            android:layout_width="47dp"
+            android:layout_height="47dp"
+            android:layout_weight="1"
+            android:src="@drawable/group"
+            android:cropToPadding="true" />
+
+
+
+
+    </LinearLayout>
 <!--    Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>-->
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/custom_group_profile_image"
-        android:layout_width="47dp"
-        android:layout_height="47dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/group"
-        android:cropToPadding="true"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentRight="true" />
-
-    <TextView
-        android:id="@+id/custom_group_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:text="Display UserName"
-        android:textColor="@android:color/background_light"
-        android:textSize="20sp"
-        android:layout_alignParentLeft="true" />
 
 
-    <TextView
-        android:id="@+id/custom_group_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/custom_group_name"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="3dp"
-        android:text="Group Description"
-        android:textColor="@android:color/background_light"
-        android:textSize="14sp"
-        android:layout_alignParentLeft="true" />
 
 
-</RelativeLayout>
+</LinearLayout>

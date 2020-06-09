@@ -13,11 +13,13 @@
         android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
             <RelativeLayout
+                android:id="@+id/profile_detail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:background="@color/startBlue"
+                android:layout_height="match_parent">
                 <LinearLayout
                     android:id="@+id/profile_background_image"
                     android:background="@drawable/gradientbackground"
@@ -26,7 +28,7 @@
                     android:orientation="vertical">
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:gravity="center">
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/set_profile_image_new"
@@ -53,7 +55,118 @@
                         android:text="Delete"
                         android:textColor="@color/colorBlue"
                         android:textSize="18sp"/>
+
+
                 </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="300dp"
+                    android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFF"
+                    android:layout_marginTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:layout_below="@+id/profile_background_image"
+                    android:layout_centerHorizontal="true"
+                    >
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="10dp"
+                        android:background="#FFFF"
+                        android:orientation="horizontal"
+                        android:paddingBottom="10dp"
+                        android:weightSum="4">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/groups"
+                                android:textSize="12sp"
+                                />
+                            <TextView
+                                android:id="@+id/numberOfgroupsSubscribed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:paddingTop="10dp"
+                                android:textColor="@color/startBlue"/>
+
+                        </LinearLayout>
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text= "@string/questions"
+                                android:textSize="12sp"
+                                />
+                            <TextView
+                                android:id="@+id/numberOfQuestionsAsked"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:paddingTop="10dp"
+                                android:textColor="@color/startBlue"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text= "@string/ans"
+                                android:textSize="12sp"
+                                />
+                            <TextView
+                                android:id="@+id/numberOfAnswers"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:paddingTop="10dp"
+                                android:textColor="@color/startBlue"/>
+
+                        </LinearLayout>
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/user_national_ranking"
+                                android:textSize="12sp"
+                                />
+                            <TextView
+                                android:id="@+id/user_national"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:paddingTop="10dp"
+                                android:textColor="@color/startBlue"/>
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
 
             </RelativeLayout>
 
@@ -61,7 +174,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="40dp"
                 android:layout_gravity="center"
                 android:background="#FFFF"
                 >
@@ -83,6 +196,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="40dp"
+                        android:textSize="16sp"
                         android:background="@android:color/transparent"
                         android:textCursorDrawable="@color/colorBlack"
                         android:hint="Mac Dowell"/>
@@ -106,6 +220,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="40dp"
+                        android:textSize="16sp"
                         android:background="@android:color/transparent"
                         android:textCursorDrawable="@color/colorBlack"
                         android:hint="Available"/>
@@ -174,27 +289,6 @@
 
                 </LinearLayout>
 
-
-<!--                <LinearLayout-->
-<!--                    android:layout_marginTop="25dp"-->
-<!--                    android:orientation="horizontal"-->
-<!--                    android:paddingLeft="25dp"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content">-->
-<!--                    <ImageView-->
-<!--                        android:layout_width="36dp"-->
-<!--                        android:layout_height="36dp"-->
-<!--                        android:src="@drawable/ic_forum_black_24dp"-->
-<!--                        />-->
-<!--                    <TextView-->
-
-
-<!--                        android:layout_gravity="center_vertical"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:paddingLeft="20dp"-->
-<!--                        android:text="Show all comments"/>-->
-<!--                </LinearLayout>-->
 
                 <ImageButton
                     android:id="@+id/update_settings_button_new"

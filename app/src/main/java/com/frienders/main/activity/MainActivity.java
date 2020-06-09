@@ -6,11 +6,16 @@ import androidx.viewpager.widget.ViewPager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.frienders.main.activity.login.LoginActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
@@ -62,36 +67,52 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart()
     {
         super.onStart();
-        FirebaseUser currentUser = FirebaseAuthProvider.getCurrentUser();
+        final FirebaseUser currentUser = FirebaseAuthProvider.getCurrentUser();
+
+       createChannel();
+
         if(currentUser == null)
         {
+
             sendUserToLoginActivity();
         }
         else
         {
             verifyUserExistence();
         }
+    }
+
+
+    void createChannel(){
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
-            NotificationChannel channel = new NotificationChannel(Configuration.default_channel_id, Configuration.default_channel_name, NotificationManager.IMPORTANCE_DEFAULT);
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationChannel channel = new NotificationChannel(getString(R.string.default_notification_channelid), Configuration.default_channel_name, NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(Configuration.default_channel_desc);
+            channel.enableLights(true);
+            channel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, null);
+
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .build();
+            channel.setSound(defaultSoundUri,audioAttributes);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
     }
 
-
     private void verifyUserExistence()
     {
         final String currentUserId = FirebaseAuthProvider.getCurrentUserId();
 
-        FirebasePaths.firebaseUserRef(currentUserId).addValueEventListener(new ValueEventListener()
+        FirebasePaths.firebaseUserRef(currentUserId).addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
-                if(!(dataSnapshot.child(UsersFirebaseFields.name).exists()))
+                if(!dataSnapshot.child(UsersFirebaseFields.name).exists())
                 {
                     FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -169,6 +190,39 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                             }
                                         });
+                            }else if(dataSnapshot.exists() && dataSnapshot.hasChild(UsersFirebaseFields.device_token))
+                            {
+                                final String oldToken = dataSnapshot.child(UsersFirebaseFields.device_token).getValue().toString();
+                                FirebaseInstanceId.getInstance().getInstanceId()
+                                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
+                                        {
+                                            @Override
+                                            public void onComplete(@NonNull Task<InstanceIdResult> task)
+                                            {
+                                                if(task.isSuccessful())
+                                                {
+                                                    final String newDeviceToken = task.getResult().getToken();
+                                                    if(!oldToken.equals(newDeviceToken))
+                                                    {
+                                                        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.device_token)
+                                                                .setValue(newDeviceToken)
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                                {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task)
+                                                                    {
+                                                                        if(task.isSuccessful())
+                                                                        {
+
+                                                                        }
+                                                                    }
+                                                                });
+                                                    }
+
+                                                }
+                                            }
+                                        });
+
                             }
 
                         }

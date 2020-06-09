@@ -17,14 +17,14 @@ public class NotificaitonActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notificaiton);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
-            NotificationChannel channel = new NotificationChannel(Configuration.default_channel_id,
-                    Configuration.default_channel_name, NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(Configuration.default_channel_desc);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+//        {
+//            NotificationChannel channel = new NotificationChannel(Configuration.default_channel_id,
+//                    Configuration.default_channel_name, NotificationManager.IMPORTANCE_DEFAULT);
+//            channel.setDescription(Configuration.default_channel_desc);
+//            NotificationManager manager = getSystemService(NotificationManager.class);
+//            manager.createNotificationChannel(channel);
+//        }
 
     }
 

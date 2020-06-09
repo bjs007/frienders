@@ -1,5 +1,7 @@
 package com.frienders.main.activity.profile;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -76,6 +78,7 @@ public class NewSetting extends AppCompatActivity {
     private TextView deleteProfileImage;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
+    private TextView groupsSubscribed, queriesAsked, answers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +100,9 @@ public class NewSetting extends AppCompatActivity {
         hinLanuguageRadioButton = findViewById(R.id.hindi);
         deleteProfileImage = findViewById(R.id.delete_profile_image_new);
         userName.setVisibility(View.VISIBLE);
+        groupsSubscribed = findViewById(R.id.numberOfgroupsSubscribed);
+        queriesAsked = findViewById(R.id.numberOfQuestionsAsked);
+        answers = findViewById(R.id.numberOfAnswers);
 
         updateAccountSettings.setOnClickListener(new View.OnClickListener()
         {
@@ -488,9 +494,9 @@ public class NewSetting extends AppCompatActivity {
     @Override
     public void onBackPressed()
     {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+//        Intent intent = new Intent(this, MainActivity.class);
+//        startActivity(intent);
+//        finish();
     }
 
 
@@ -591,47 +597,109 @@ public class NewSetting extends AppCompatActivity {
     {
 
         FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if((dataSnapshot.exists()) && (dataSnapshot.hasChild(UsersFirebaseFields.name) && (dataSnapshot.hasChild(UsersFirebaseFields.profileImageLink))))
-                        {
-                            String retrieveUserName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
-                            String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
-                            String retrieveProfileImage = dataSnapshot.child(UsersFirebaseFields.profileImageLink).getValue().toString();
-                            userName.setText(retrieveUserName);
-                            userStatus.setText(retrieveStatus);
+            .addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if((dataSnapshot.exists()) && (dataSnapshot.hasChild(UsersFirebaseFields.name) && (dataSnapshot.hasChild(UsersFirebaseFields.profileImageLink))))
+                    {
+                        String retrieveUserName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
+                        String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
+                        String retrieveProfileImage = dataSnapshot.child(UsersFirebaseFields.profileImageLink).getValue().toString();
+                        userName.setText(retrieveUserName);
+                        userStatus.setText(retrieveStatus);
 
-                            Glide.with(NewSetting.this)
-                                    .asBitmap()
+                        Glide.with(NewSetting.this)
+                                .asBitmap()
 //                                .placeholder(R.drawable.video_preview_icon)
-                                    .load(retrieveProfileImage) // or URI/path
-                                    .into(userProfileImage); //imageview to set thumb
-                            userProfileImage.setVisibility(View.VISIBLE);
+                                .load(retrieveProfileImage) // or URI/path
+                                .into(userProfileImage); //imageview to set thumb
+                        userProfileImage.setVisibility(View.VISIBLE);
 //                            Picasso.get().load(retrieveProfileImage).into(userProfileImage);
-                        }
-                        else if((dataSnapshot.exists()) && (dataSnapshot.hasChild(UsersFirebaseFields.name)))
-                        {
-                            String retrieveUserName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
-                            String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
-                            userName.setText(retrieveUserName);
-                            userStatus.setText(retrieveStatus);
-                            deleteProfileImage.setVisibility(View.INVISIBLE);
-
-                        }
-                        else
-                        {
-
-                        }
-
-                        progressBar.setVisibility(View.GONE);
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    else if((dataSnapshot.exists()) && (dataSnapshot.hasChild(UsersFirebaseFields.name)))
+                    {
+                        String retrieveUserName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
+                        String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
+                        userName.setText(retrieveUserName);
+                        userStatus.setText(retrieveStatus);
+                        deleteProfileImage.setVisibility(View.INVISIBLE);
 
                     }
-                });
+                    else
+                    {
+
+                    }
+
+                    Long[] numberofGroupsSubscribed = new Long[1];
+
+                    if(dataSnapshot.hasChild(UsersFirebaseFields.subscribed))
+                    {
+                        numberofGroupsSubscribed[0] = dataSnapshot.child(UsersFirebaseFields.subscribed).getChildrenCount();
+                    }
+                    groupsSubscribed.setText(String.valueOf(numberofGroupsSubscribed[0] == null ? 0 : numberofGroupsSubscribed[0]));
+                    if(dataSnapshot.exists())
+                    {
+                        final Long[] questionasked = new Long[1];
+                        FirebasePaths.firebaseUsersNotificationTimeDbRef()
+                            .child(FirebaseAuthProvider.getCurrentUserId())
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if(dataSnapshot.exists())
+                                    {
+                                        questionasked[0] = dataSnapshot.getChildrenCount();
+                                    }
+
+                                    queriesAsked.setText(String.valueOf(questionasked[0] == null ? 0 : questionasked[0]));
+
+                                    FirebasePaths.fireabaseUserMessageLikesCount()
+                                            .child(FirebaseAuthProvider.getCurrentUserId())
+                                            .child("likesCount")
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                    if(dataSnapshot.exists())
+                                                    {
+                                                        String likesCount = dataSnapshot.getValue().toString();
+                                                        if(likesCount != null)
+                                                        {
+                                                            answers.setText(String.valueOf(likesCount));
+                                                        }
+                                                        else
+                                                        {
+                                                            answers.setText(String.valueOf(0));
+                                                        }
+
+                                                    }
+                                                    else
+
+                                                    {
+                                                        answers.setText(String.valueOf(0));
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                    }
+
+                    progressBar.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
     }
 
 }

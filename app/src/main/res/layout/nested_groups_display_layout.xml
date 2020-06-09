@@ -28,12 +28,12 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/nested_group_name"
-                    android:layout_width="240dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Group"
                     android:textColor="@color/colorBlack"
                     android:textAlignment="textStart"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:gravity="start"
 
                     />
@@ -41,33 +41,33 @@
 
             <TextView
                 android:id="@+id/nested_group_description"
-                android:layout_width="240dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Description"
                 android:textAlignment="textStart"
-                android:textSize="16sp"
+                android:textColor="#828687"
+                android:textSize="12sp"
                 android:paddingTop="5dp"
                 android:gravity="start"
 
 
                 />
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
+                android:weightSum="4"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/nested_subscribe_group_button"
-                    android:layout_width="240dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:text="Remove from my groups"
+                    android:layout_weight="3"
                     android:background="@color/colorGray"
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"
-                    android:textSize="14sp"
-                    android:visibility="gone"
+                    android:textSize="12sp"
 
 
                     />
@@ -76,20 +76,16 @@
                     android:id="@+id/nested_enter_into_group_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/nested_subscribe_group_button"
                     android:layout_marginStart="15dp"
-                    android:layout_marginLeft="15dp"
-                    android:layout_alignParentRight="true"
-                    android:text="View"
+                    android:layout_weight="1"
+                    android:background="@color/colorGray"
+                    android:text="@string/view_group"
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlack"
-                    android:textSize="14sp"
-                    android:visibility="gone"
-                    android:background="@color/colorGray"
-                    android:layout_toRightOf="@id/nested_subscribe_group_button" />
+                    android:textSize="12sp" />
 
 
-            </RelativeLayout>
+            </LinearLayout>
             <View
                 android:layout_width="fill_parent"
                 android:layout_marginTop="10dp"

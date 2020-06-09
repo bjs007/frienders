@@ -15,19 +15,17 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
-import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 
 public class LoginActivity extends AppCompatActivity
 {
@@ -92,7 +90,7 @@ public class LoginActivity extends AppCompatActivity
 
     private void sendUserSettingActivity()
     {
-        Intent mainIntent = new Intent(LoginActivity.this, SettingActivity.class);
+        Intent mainIntent = new Intent(LoginActivity.this, NewSetting.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(mainIntent);
@@ -113,16 +111,16 @@ public class LoginActivity extends AppCompatActivity
 
         if(TextUtils.isEmpty(email))
         {
-            Toast.makeText(this, getString(R.string.enteremailmessage), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.enter_email_message), Toast.LENGTH_SHORT).show();
         }
 
         if(TextUtils.isEmpty(password))
         {
-            Toast.makeText(this, getString(R.string.enterpasswordmessage), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.enter_password_message), Toast.LENGTH_SHORT).show();
         }
         else
         {
-            progressDialog.setTitle(getString(R.string.pleasewait));
+            progressDialog.setTitle(getString(R.string.please_wait));
             progressDialog.setCanceledOnTouchOutside(true);
             FirebaseAuthProvider.getFirebaseAuth().signInWithEmailAndPassword(email, password)
                .addOnCompleteListener(new OnCompleteListener<AuthResult>()
@@ -157,7 +155,7 @@ public class LoginActivity extends AppCompatActivity
                        else
                        {
                            final String message = task.getException().getMessage();
-                           Toast.makeText(LoginActivity.this, getString(R.string.loginerror) + message, Toast.LENGTH_SHORT);
+                           Toast.makeText(LoginActivity.this, getString(R.string.login_error) + message, Toast.LENGTH_SHORT);
                        }
                        progressDialog.dismiss();
                    }
