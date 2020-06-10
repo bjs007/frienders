@@ -143,8 +143,6 @@ public class GroupChatActivity extends AppCompatActivity
         initializeUi();
         initializeUiButtons();
         populateGroupName();
-//        initScrollListener();
-//        initScrollListener();
     }
 
     private void initializeUi()
@@ -992,15 +990,19 @@ public class GroupChatActivity extends AppCompatActivity
                                     Uri downloadUrl = task.getResult();
                                     myUrl = downloadUrl.toString();
 
-                                    final GroupMessage messages = new GroupMessage();
-                                    messages.setMessage(myUrl);
-                                    messages.setFileName(resultUri.getLastPathSegment());
-                                    messages.setType(MsgType.IMAGE.getMsgTypeId());
-                                    messages.setFrom(messageSenderUserId);
-                                    messages.setGroupId(groupId);
-                                    messages.setTime(Utility.getCurrentTime() + " "+ Utility.getCurrentDate());
-                                    messages.setMessageId(messagePushID);
-                                    messages.setSenderDisplayName(currentUserDisplayName);
+//                                    final GroupMessage messages = new GroupMessage();
+                                    final GroupMessage messages = createAndReturnGroupMessage(myUrl, messagePushID, MsgType.IMAGE.getMsgTypeId(),
+                                            groupId, messageSenderUserId, currentUserDisplayName, null);
+//                                    messages.setMessage(myUrl);
+//                                    messages.setFileName(resultUri.getLastPathSegment());
+//                                    messages.setType(MsgType.IMAGE.getMsgTypeId());
+//                                    messages.setFrom(messageSenderUserId);
+//                                    messages.setGroupId(groupId);
+//                                    messages.setTime(Utility.getCurrentTime() + " "+ Utility.getCurrentDate());
+//                                    messages.setMessageId(messagePushID);
+//                                    messages.setSenderDisplayName(currentUserDisplayName);
+//
+
 
                                     Map messageBodyDetails = new HashMap();
                                     messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
@@ -1366,58 +1368,33 @@ public class GroupChatActivity extends AppCompatActivity
                     language = dataSnapshot.getValue().toString();
                 }
 
-                groupLeafsDbRef.child(groupId).addListenerForSingleValueEvent(new ValueEventListener()
+                if(group == null)
                 {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                    {
-                        if(dataSnapshot.exists())
-                        {
-                            Group grp = dataSnapshot.getValue(Group.class);
-                            if(grp != null)
+                    groupLeafsDbRef
+                        .child(groupId)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    Group grp = dataSnapshot.getValue(Group.class);
+                                    if (grp != null)
+                                    {
+                                        prepareGroupNameToDisplay(grp);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError)
                             {
-                                String groupDisplayNameString = null;
-                                String groupDescString = null;
-
-                                if(language.equals("eng"))
-                                {
-                                    groupDisplayNameString = group.getEngName();
-                                    groupDescString = group.getEngDesc();
-                                }
-                                else
-                                {
-                                    groupDisplayNameString = group.getHinName();
-                                    groupDescString = group.getHinDesc();
-
-                                }
-
-
-                                if(groupDisplayNameString != null && groupDescString != null) {
-                                    String[] groupWithParentNameWithoutAsterisk = null;
-                                    if (groupDisplayNameString.indexOf('*') != -1) {
-                                        groupWithParentNameWithoutAsterisk = group.getEngName().split("\\*");
-                                    }
-
-                                    String groupDisplayNameMayContainRootName = null;
-                                    if (groupWithParentNameWithoutAsterisk.length == 2) {
-                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
-                                    } else {
-                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
-                                    }
-                                    groupDisplayName.setText(groupDisplayNameMayContainRootName);
-                                    groupDescription.setText(groupDescString);
-                                }
 
                             }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError)
-                    {
-
-                    }
-                });
+                        });
+                }
+                else
+                {
+                    prepareGroupNameToDisplay(group);
+                }
             }
 
             @Override
@@ -1428,6 +1405,31 @@ public class GroupChatActivity extends AppCompatActivity
         });
 
     }
+
+    private void prepareGroupNameToDisplay(Group grp)
+    {
+        String groupDisplayNameString = null;
+        String groupDescString = null;
+
+        if (language.equals("eng"))
+        {
+            groupDisplayNameString = grp.getEngName();
+            groupDescString = grp.getEngDesc();
+        }
+        else
+        {
+            groupDisplayNameString = grp.getHinName();
+            groupDescString = grp.getHinDesc();
+        }
+
+        if (groupDisplayNameString != null && groupDescString != null)
+        {
+            String groupDisplayNameMayContainRootName = Utility.getGroupDisplayNameFromDbGroupName(groupDisplayNameString);
+            groupDisplayName.setText(groupDisplayNameMayContainRootName);
+            groupDescription.setText(groupDescString);
+        }
+    }
+
 
     private String getFileName(Uri uri) {
         String result = null;
@@ -1524,8 +1526,32 @@ public class GroupChatActivity extends AppCompatActivity
         groupMessageInputText.setVisibility(View.VISIBLE);
     }
 
+   private GroupMessage createAndReturnGroupMessage(String messageText, String id, String msgType, String from, String groupId, String senderDisplayName, String fileName )
+    {
+        final GroupMessage messages = new GroupMessage();
+        if(messageText == null || id == null || msgType == null) return null;
 
+        messages.setMessage(messageText);
+        messages.setTime(Utility.getCurrentTime() +" "+ Utility.getCurrentDate());
+        messages.setMessageId(id);
 
+        if(fileName != null)
+        messages.setFileName(fileName);
+
+        if(msgType != null)
+        messages.setType(msgType);
+
+        if(from != null)
+        messages.setFrom(from);
+
+        if(groupId != null)
+        messages.setGroupId(groupId);
+
+        if(senderDisplayName != null)
+        messages.setSenderDisplayName(senderDisplayName);
+
+        return messages;
+    }
 
 }
 

@@ -1,12 +1,10 @@
 package com.frienders.main.utility;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.net.Uri;
-import android.util.Log;
+
 
 import androidx.annotation.NonNull;
 
@@ -22,18 +20,31 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Random;
 
-import static com.frienders.main.activity.profile.SettingActivity.calculateInSampleSize;
 
 public class Utility
 {
     public static Calendar calendar = Calendar.getInstance();
+
+    public static String getGroupDisplayNameFromDbGroupName(String groupNameFromDb) {
+        final String[] groupWithParentNameWithoutAsterisk =  groupNameFromDb.split("\\*");
+        String groupDisplayNameMayContainRootName = null;
+
+        if (groupWithParentNameWithoutAsterisk != null && groupWithParentNameWithoutAsterisk.length == 2)
+        {
+            groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+        }
+        else if(groupWithParentNameWithoutAsterisk != null && groupWithParentNameWithoutAsterisk.length == 1)
+        {
+            groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
+        }
+
+        return groupDisplayNameMayContainRootName;
+    }
+
     public static Bitmap decodeFile(String filePath) {
 
         BitmapFactory.Options o = new BitmapFactory.Options();

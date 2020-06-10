@@ -6,7 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -33,11 +36,13 @@ import com.bumptech.glide.Glide;
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
 import com.frienders.main.activity.group.GroupChatActivity;
+import com.frienders.main.activity.group.NestedGroupDisplayActivity;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.refs.FirestorePath;
+import com.frienders.main.fragment.GinfoxGroupsFragment;
 import com.frienders.main.utility.FileUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -557,7 +562,31 @@ public class NewSetting extends AppCompatActivity {
                                 {
                                     progressDialog.setMessage("Profile updated...");
                                     progressDialog.dismiss();
-                                    SendUserToMainActivity();
+                                    FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
+                                            .child(UsersFirebaseFields.subscribed)
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                    if(dataSnapshot.exists() && dataSnapshot.hasChildren())
+                                                    {
+                                                        SendUserToMainActivity();
+                                                    }
+                                                    else
+                                                    {
+                                                        Fragment mFragment = null;
+                                                        mFragment = new GinfoxGroupsFragment();
+                                                        FragmentManager fragmentManager = getSupportFragmentManager();
+
+                                                        fragmentManager.beginTransaction().replace(R.id.main_tabs, mFragment).commit();
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                }
+                                            });
+
                                 }
                                 else
                                 {

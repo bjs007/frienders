@@ -26,6 +26,7 @@ import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.model.Group;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
+import com.frienders.main.utility.Utility;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -125,24 +126,10 @@ public class SubscribedGroupsFragment extends Fragment
 
                             if(groupDisplayName != null && groupDesc != null)
                             {
-                                String[] groupWithParentNameWithoutAsterisk = null;
-                                if(groupDisplayName.indexOf('*') != -1)
-                                {
-                                    groupWithParentNameWithoutAsterisk = model.getEngName().split("\\*");
-                                }
+                                String groupDisplayNameMayContainRootName = Utility.getGroupDisplayNameFromDbGroupName(groupDisplayName);
 
-                                String groupDisplayNameMayContainRootName = null;
-                                if(groupWithParentNameWithoutAsterisk.length == 2)
-                                {
-                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
-                                }
-                                else
-                                {
-                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
-                                }
                                 holder.groupName.setText(groupDisplayNameMayContainRootName);
                                 holder.groupDescription.setText(groupDesc);
-
 
                                 holder.itemView.setOnClickListener(new View.OnClickListener()
                                 {

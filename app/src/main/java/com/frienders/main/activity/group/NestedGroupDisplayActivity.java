@@ -124,23 +124,10 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
                             if(model.getParentId().equals(parentId))
                             {
-                                holder.groupName.setText(model.getEngName());
                                 holder.groupName.setVisibility(View.VISIBLE);
                                 holder.groupDescription.setVisibility(View.VISIBLE);
 
-//                                if(language.equals("eng"))
-//                                {
-//                                    holder.groupName.setText(model.getEngName());
-//                                    holder.groupDescription.setText(model.getEngDesc());
-//                                }
-//                                else
-//                                {
-//                                    holder.groupName.setText(model.getHinName());
-//                                    holder.groupDescription.setText(model.getHinDesc());
-//                                }
-
-
-
+//
                                 String groupDisplayName = null;
                                 String groupDesc = null;
 
@@ -157,23 +144,13 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                 }
 
                                 if(groupDisplayName != null && groupDesc != null) {
-                                    String[] groupWithParentNameWithoutAsterisk = null;
-                                    if (groupDisplayName.indexOf('*') != -1) {
-                                        groupWithParentNameWithoutAsterisk = model.getEngName().split("\\*");
-                                    }
-
-                                    String groupDisplayNameMayContainRootName = null;
-                                    if (groupWithParentNameWithoutAsterisk.length == 2) {
-                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
-                                    } else {
-                                        groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
-                                    }
+                                    String groupDisplayNameMayContainRootName = Utility.getGroupDisplayNameFromDbGroupName(groupDisplayName);
                                     holder.groupName.setText(groupDisplayNameMayContainRootName);
                                     holder.groupDescription.setText(groupDesc);
                                 }
 
 
-                                    if(model.isLeaf())
+                                if(model.isLeaf())
                                 {
                                     holder.enterIntoButton.setVisibility(View.VISIBLE);
                                     holder.subScribeButton.setVisibility(View.VISIBLE);

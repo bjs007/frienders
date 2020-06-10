@@ -76,7 +76,7 @@
                         android:background="#FFFF"
                         android:orientation="horizontal"
                         android:paddingBottom="10dp"
-                        android:weightSum="4">
+                        android:weightSum="3">
                         <LinearLayout
                             android:gravity="center"
                             android:orientation="vertical"
@@ -141,28 +141,6 @@
                                 android:textColor="@color/startBlue"/>
 
                         </LinearLayout>
-                        <LinearLayout
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="match_parent">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/user_national_ranking"
-                                android:textSize="12sp"
-                                />
-                            <TextView
-                                android:id="@+id/user_national"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:paddingTop="10dp"
-                                android:textColor="@color/startBlue"/>
-
-                        </LinearLayout>
-
 
                     </LinearLayout>
 

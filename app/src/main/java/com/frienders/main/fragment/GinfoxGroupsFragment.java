@@ -91,7 +91,7 @@ public class GinfoxGroupsFragment extends Fragment
             }
         });
 
-        createGroupList();
+//        createGroupList();
     }
 
     private void createGroupList()
