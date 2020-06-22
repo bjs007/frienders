@@ -12,29 +12,47 @@
             android:layout_height="wrap_content"
           >
 
-            <EditText
-                android:id="@+id/phone_number_input_new_login"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginStart="17dp"
-                android:layout_marginEnd="17dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="180dp"
-                android:background="#FFFFFF"
-                android:layout_marginLeft="17dp"
-                android:padding="8dp"
-                android:hint="Enter phone number"
-                android:textAllCaps="false"
-                android:textSize="20sp"
-                android:textAlignment="center"
-                android:gravity="center" />
+                android:weightSum="12"
+                android:id="@+id/phone_number_input_view">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="#FFFF"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/india_isd_code"
+                    android:textSize="20sp"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:layout_weight="1">
+
+                </TextView>
+                <EditText
+                    android:id="@+id/phone_number_input_new_login"
+                    android:layout_height="60dp"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="11"
+                    android:layout_marginEnd="17dp"
+                    android:background="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"
+                    android:paddingStart="25dp"
+                    android:textAlignment="textStart"
+                    android:hint="Enter you phone number"
+                    />
+            </LinearLayout>
+
 
             <Button
                 android:id="@+id/send_verification_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Send verification code"
-                android:layout_below="@+id/phone_number_input_new_login"
+                android:layout_below="@+id/phone_number_input_view"
                 android:textAllCaps="false"
                 android:layout_marginStart="17dp"
                 android:layout_marginEnd="17dp"

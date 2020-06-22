@@ -81,7 +81,7 @@
                     android:textAllCaps="false"
                     android:textColor="@android:color/background_light"
                     android:background="@android:color/holo_red_dark"
-                    android:layout_marginLeft="15dp"
+                    
                     android:visibility="invisible"
 
                     />

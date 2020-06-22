@@ -4,11 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,9 +20,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -48,6 +54,7 @@ import com.frienders.main.adapter.GroupMessageAdapter;
 import com.frienders.main.R;
 import com.frienders.main.utility.FileUtil;
 import com.frienders.main.utility.Utility;
+
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -70,11 +77,16 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -82,9 +94,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import droidninja.filepicker.FilePickerBuilder;
 import droidninja.filepicker.FilePickerConst;
 import id.zelory.compressor.Compressor;
+//import nl.bravobit.ffmpeg.FFmpeg;
+//import nl.bravobit.ffmpeg.FFmpeg;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static android.media.tv.TvTrackInfo.TYPE_VIDEO;
 import static com.frienders.main.config.Configuration.RequestCodeForDocPick;
 import static com.frienders.main.config.Configuration.RequestCodeForImagePick;
 import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
@@ -92,8 +107,7 @@ import static com.frienders.main.config.Configuration.imageMaxHeight;
 import static com.frienders.main.config.Configuration.imageMaxWidth;
 
 
-public class GroupChatActivity extends AppCompatActivity
-{
+public class GroupChatActivity extends AppCompatActivity {
     private TextView groupDisplayName, groupDescription;
     private CircleImageView groupProfileImage;
     private String messageSenderUserId;
@@ -114,7 +128,6 @@ public class GroupChatActivity extends AppCompatActivity
     private UploadTask uploadTask;
     private String currentUserDisplayName = "Unknown";
     private static final int RC_PHOTO_PICKER_PERM = 555;
-    public static int imageCount = 0;
     private ProgressBar progressBar, groupMessageProgressBar;
     private Group group;
     private List<GroupMessage> moreMessages = new LinkedList<>();
@@ -128,14 +141,12 @@ public class GroupChatActivity extends AppCompatActivity
     final int[] notvisiblenewmessagecount = new int[]{0};
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_chat);
         groupId = getIntent().getExtras().get(ActivityParameters.groupId).toString();
 
-        if(getIntent().getExtras().get(ActivityParameters.Group) != null)
-        {
+        if (getIntent().getExtras().get(ActivityParameters.Group) != null) {
             group = (Group) getIntent().getExtras().get(ActivityParameters.Group);
             groupId = group.getId();
         }
@@ -145,8 +156,7 @@ public class GroupChatActivity extends AppCompatActivity
         populateGroupName();
     }
 
-    private void initializeUi()
-    {
+    private void initializeUi() {
         groupMessageProgressBar = findViewById(R.id.groupMessageProgressBar);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
         groupChatToolBar = findViewById(R.id.group_chat_toolbar);
@@ -160,7 +170,7 @@ public class GroupChatActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        LayoutInflater layoutInflater  = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionBarView = layoutInflater.inflate(R.layout.custom_group_chat_bar, null);
         actionBar.setCustomView(actionBarView);
 
@@ -192,8 +202,8 @@ public class GroupChatActivity extends AppCompatActivity
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists())
-                        {
+                        if (dataSnapshot.exists() && dataSnapshot.child(UsersFirebaseFields.name) != null) {
+
                             currentUserDisplayName = dataSnapshot.child(UsersFirebaseFields.name).getValue().toString();
                             messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
                         }
@@ -216,45 +226,33 @@ public class GroupChatActivity extends AppCompatActivity
 
         final DatabaseReference ref = FirebasePaths.firebaseMessageRef().child(groupId);
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener()
-        {
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists() && dataSnapshot.hasChildren())
-                {
-                    int childrenCount = (int)dataSnapshot.getChildrenCount();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    int childrenCount = (int) dataSnapshot.getChildrenCount();
 
                     ref.endAt(childrenCount).limitToLast(1).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                            if(dataSnapshot.exists())
-                            {
+                            if (dataSnapshot.exists()) {
                                 GroupMessage groupMessage = dataSnapshot.getValue(GroupMessage.class);
-                                if(!messageDownloaded.contains(groupMessage.getMessageId()))
-                                {
+                                if (!messageDownloaded.contains(groupMessage.getMessageId())) {
                                     groupMessageList.add(groupMessage);
                                     groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
-                                }else  if(groupMessageList != null && groupMessageList.size() ==0)
-                                {
+                                } else if (groupMessageList != null && groupMessageList.size() == 0) {
                                     groupMessageList.add(groupMessage);
                                     groupMessageAdapter.notifyItemInserted(0);
                                 }
 
-                                if(istheLatestMessageTheLastVisibleItem)
-                                {
+                                if (istheLatestMessageTheLastVisibleItem) {
                                     recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
-                                }
-                                else
-                                {
-                                    if(!groupMessage.getFrom().equals(FirebaseAuthProvider.getCurrentUserId()))
-                                    {
+                                } else {
+                                    if (!groupMessage.getFrom().equals(FirebaseAuthProvider.getCurrentUserId())) {
                                         notvisiblenewmessagecount[0]++;
                                         newmessagenotification.setVisibility(View.VISIBLE);
-                                        newmessagenotification.setText("New messages : "+ String.valueOf(notvisiblenewmessagecount[0]));
-                                    }
-                                    else
-                                    {
+                                        newmessagenotification.setText("New messages : " + String.valueOf(notvisiblenewmessagecount[0]));
+                                    } else {
                                         recyclerView.smoothScrollToPosition(groupMessageAdapter.getItemCount());
                                     }
                                 }
@@ -295,28 +293,23 @@ public class GroupChatActivity extends AppCompatActivity
     }
 
 
-    public void getMessages(final String nodeId)
-    {
+    public void getMessages(final String nodeId) {
         Query query;
         moreMessages.clear();
 
-        if(nodeId == null && groupMessageList.size() == 0)
-        {
+        if (nodeId == null && groupMessageList.size() == 0) {
             groupMessageList.add(0, null);
             groupMessageAdapter.notifyItemInserted(0);
         }
 
 
-        if(nodeId == null)
-        {
+        if (nodeId == null) {
             query = FirebasePaths
                     .firebaseMessageRef()
                     .child(groupId)
                     .orderByKey()
                     .limitToLast(12);
-        }
-        else
-        {
+        } else {
             query = FirebasePaths
                     .firebaseMessageRef()
                     .child(groupId)
@@ -330,53 +323,33 @@ public class GroupChatActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot != null && dataSnapshot.exists() && dataSnapshot.hasChildren())
-                {
-                    if(dataSnapshot.getChildrenCount() == 1)
-                    {
+                if (dataSnapshot != null && dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    if (dataSnapshot.getChildrenCount() == 1) {
                         reachedEnd = false;
-                    }
-                    else
-                    {
-                        for(DataSnapshot ds: dataSnapshot.getChildren())
-                        {
+                    } else {
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             reachedEnd = false;
                             GroupMessage message = ds.getValue(GroupMessage.class);
 
 
-                            if(message != null && message.getMessageId() != null)
-                            {
-                                if(nodeId == null)
-                                {
-                                    if(!messageDownloaded.contains(message.getMessageId()))
-                                    {
+                            if (message != null && message.getMessageId() != null) {
+                                if (nodeId == null) {
+                                    if (!messageDownloaded.contains(message.getMessageId())) {
                                         messageDownloaded.add(message.getMessageId());
                                         moreMessages.add(message);
-                                    }
-                                    else if (message.getMessageId().equals(nodeId))
-                                    {
+                                    } else if (message.getMessageId().equals(nodeId)) {
                                         continue;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         reachedEnd = true;
                                         break;
                                     }
-                                }
-
-                                else
-                                {
-                                    if(!messageDownloaded.contains(message.getMessageId()))
-                                    {
+                                } else {
+                                    if (!messageDownloaded.contains(message.getMessageId())) {
                                         messageDownloaded.add(message.getMessageId());
                                         moreMessages.add(message);
-                                    }
-                                    else if (message.getMessageId().equals(nodeId))
-                                    {
+                                    } else if (message.getMessageId().equals(nodeId)) {
                                         continue;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         reachedEnd = true;
                                         break;
                                     }
@@ -385,11 +358,8 @@ public class GroupChatActivity extends AppCompatActivity
                             }
                         }
                     }
-                }
-                else
-                {
-                    while (groupMessageList != null && groupMessageList.size()> 0 && groupMessageList.get(0) == null)
-                    {
+                } else {
+                    while (groupMessageList != null && groupMessageList.size() > 0 && groupMessageList.get(0) == null) {
                         groupMessageList.remove(0);
                         groupMessageAdapter.notifyItemRemoved(0);
                     }
@@ -397,31 +367,25 @@ public class GroupChatActivity extends AppCompatActivity
                 }
 
 
-                if(reachedEnd == false)
-                {
-                    while (groupMessageList != null && groupMessageList.size()> 0 && groupMessageList.get(0) == null)
-                    {
+                if (reachedEnd == false) {
+                    while (groupMessageList != null && groupMessageList.size() > 0 && groupMessageList.get(0) == null) {
                         groupMessageList.remove(0);
                         groupMessageAdapter.notifyItemRemoved(0);
                     }
 
 
-                    if(moreMessages.size() > 0)
-                    {
+                    if (moreMessages.size() > 0) {
                         groupMessageList.addAll(0, moreMessages);
                         groupMessageAdapter.notifyDataSetChanged();
                         moreMessages.clear();
                     }
 
-                    if(nodeId == null)
-                    {
+                    if (nodeId == null) {
                         recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
 
                     }
 
-                }
-                else
-                {
+                } else {
                     Toast.makeText(GroupChatActivity.this, "No more chats", Toast.LENGTH_SHORT).show();
                 }
 
@@ -446,18 +410,14 @@ public class GroupChatActivity extends AppCompatActivity
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(newState == ListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
-                {
+                if (newState == ListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     isLoading = true;
 
                     int lastCompletellyVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
 
-                    if(lastCompletellyVisibleItemPosition >= groupMessageList.size() -  4)
-                    {
+                    if (lastCompletellyVisibleItemPosition >= groupMessageList.size() - 4) {
                         istheLatestMessageTheLastVisibleItem = true;
-                    }
-                    else
-                    {
+                    } else {
                         istheLatestMessageTheLastVisibleItem = false;
                         newmessagenotification.setVisibility(View.GONE);
                     }
@@ -471,33 +431,24 @@ public class GroupChatActivity extends AppCompatActivity
 
                 int posx = linearLayoutManager.findFirstVisibleItemPosition();
 
-                if(isLoading)
-                {
-                    if(dy < 0 && dx == 0)
-                    {
+                if (isLoading) {
+                    if (dy < 0 && dx == 0) {
                         groupMessageList.add(0, null);
                         groupMessageAdapter.notifyItemInserted(0);
 
-                        if (linearLayoutManager != null)
-                        {
+                        if (linearLayoutManager != null) {
                             //bottom of list!
-                            if(groupMessageList.size() > 0)
-                            {
-                                final String messageId =  (groupMessageList.get(1) != null ? groupMessageList.get(1).getMessageId() : null);
-                                if(messageId != null)
-                                {
+                            if (groupMessageList.size() > 0) {
+                                final String messageId = (groupMessageList.get(1) != null ? groupMessageList.get(1).getMessageId() : null);
+                                if (messageId != null) {
                                     getMessages(messageId);
-                                }
-                                else
-                                {
+                                } else {
                                     groupMessageList.remove(0);
                                     groupMessageAdapter.notifyItemRemoved(0);
                                 }
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         isLoading = false;
                     }
 
@@ -508,11 +459,9 @@ public class GroupChatActivity extends AppCompatActivity
 
     }
 
-    private void initializeUiButtons()
-    {
+    private void initializeUiButtons() {
 
-        if(messageSenderUserId == null)
-        {
+        if (messageSenderUserId == null) {
             messageSenderUserId = FirebaseAuthProvider.getCurrentUserId();
         }
 
@@ -522,23 +471,19 @@ public class GroupChatActivity extends AppCompatActivity
 
         firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(!dataSnapshot.exists())
-                {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
                     groupSendMessageButton.setVisibility(View.GONE);
                     groupSendFileButton.setVisibility(View.GONE);
                     groupMessageInputText.setVisibility(View.GONE);
                     groupChatSubscribeButton.setVisibility(View.VISIBLE);
                     groupChatSubscribeButton.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View v)
-                        {
+                        public void onClick(View v) {
                             FirebasePaths.firebaseUserRef(messageSenderUserId).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if(dataSnapshot.hasChild(UsersFirebaseFields.device_token))
-                                    {
+                                    if (dataSnapshot.hasChild(UsersFirebaseFields.device_token)) {
 
                                         final String token = dataSnapshot.child(UsersFirebaseFields.device_token).getValue().toString();
                                         final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
@@ -549,17 +494,14 @@ public class GroupChatActivity extends AppCompatActivity
 
                                         firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
-                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                                            {
-                                                if(group == null)
-                                                {
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if (group == null) {
                                                     FirebasePaths.firebaseGroupsLeafsRef()
                                                             .child(groupId)
                                                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                                                 @Override
                                                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                                    if(dataSnapshot.exists())
-                                                                    {
+                                                                    if (dataSnapshot.exists()) {
                                                                         group = dataSnapshot.getValue(Group.class);
                                                                         firebaseRef.setValue(group);
                                                                         makeUserAbleToChat();
@@ -571,42 +513,31 @@ public class GroupChatActivity extends AppCompatActivity
 
                                                                 }
                                                             });
-                                                }
-                                                else
-                                                {
+                                                } else {
                                                     firebaseRef.setValue(group);
                                                     makeUserAbleToChat();
                                                 }
                                             }
 
                                             @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError)
-                                            {
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
                                             }
                                         });
 
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         FirebaseInstanceId.getInstance().getInstanceId()
-                                                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>()
-                                                {
+                                                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                                                     @Override
-                                                    public void onComplete(@NonNull Task<InstanceIdResult> task)
-                                                    {
-                                                        if(task.isSuccessful())
-                                                        {
+                                                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                                        if (task.isSuccessful()) {
                                                             final String deviceToken = task.getResult().getToken();
                                                             FirebasePaths.firebaseUserRef(messageSenderUserId).child(UsersFirebaseFields.device_token)
                                                                     .setValue(deviceToken)
-                                                                    .addOnCompleteListener(new OnCompleteListener<Void>()
-                                                                    {
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                         @Override
-                                                                        public void onComplete(@NonNull Task<Void> task)
-                                                                        {
-                                                                            if(task.isSuccessful())
-                                                                            {
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            if (task.isSuccessful()) {
                                                                                 final DatabaseReference leaveRef = FirebasePaths.firebaseSubscribedRef()
                                                                                         .child(groupId)
                                                                                         .child(messageSenderUserId)
@@ -614,15 +545,13 @@ public class GroupChatActivity extends AppCompatActivity
                                                                                 leaveRef.setValue(deviceToken);
                                                                                 firebaseRef.child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                     @Override
-                                                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                                                                                    {
+                                                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                                                         firebaseRef.setValue(group);
                                                                                         makeUserAbleToChat();
                                                                                     }
 
                                                                                     @Override
-                                                                                    public void onCancelled(@NonNull DatabaseError databaseError)
-                                                                                    {
+                                                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
                                                                                     }
                                                                                 });
@@ -637,17 +566,14 @@ public class GroupChatActivity extends AppCompatActivity
                                 }
 
                                 @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError)
-                                {
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
                                 }
                             });
 
                         }
                     });
-                }
-                else
-                {
+                } else {
                     makeUserAbleToChat();
                 }
             }
@@ -658,106 +584,84 @@ public class GroupChatActivity extends AppCompatActivity
             }
         });
 
-        groupSendMessageButton.setOnClickListener(new View.OnClickListener()
-        {
+        groupSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 sendMessageInGroup();
             }
         });
 
-        groupChatToolBar.setNavigationOnClickListener(new View.OnClickListener()
-        {
+        groupChatToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 sendUserToMainActivity();
             }
         });
 
-        groupSendFileButton.setOnClickListener(new View.OnClickListener()
-        {
+        groupSendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 final CharSequence options[] = new CharSequence[]
                         {
                                 getString(R.string.image),
-                                getString(R.string.video) + " 20MB MAX",
+                                getString(R.string.video) + " 16MB MAX",
                                 "DOCS",
                         };
                 AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
                 builder.setTitle(getString(R.string.selectfiletype));
-                builder.setItems(options, new DialogInterface.OnClickListener()
-                {
+                builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        if(which == 0)
-                        {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
                             checker = Configuration.IMAGEFILE;
                             pickPhotoClicked();
-//                            Intent intent = new Intent();
-//                            intent.setAction(Intent.ACTION_GET_CONTENT);
-//                            intent.setType("image/*");
-//                            intent.putExtra("crop", true);
-//                            startActivityForResult(Intent.createChooser(intent, "select image"), RequestCodeForImagePick);
                         }
-                        if(which == 1)
-                        {
+                        if (which == 1) {
                             checker = Configuration.VIDEOFILE;
 
-                            if (true)
-                            {
+                            if (true) {
                                 pickVideoClicked();
-                            }
-                            else
-                            {
+
+//                                Intent takeVideoIntent = new Intent(Intent.ACTION_PICK);
+//                                takeVideoIntent.setType("video/*");
+////                                if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+//                                    try {
+//
+//                                        takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 10);
+//                                        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+//                                        takeVideoIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                        Uri capturedUri =
+////                                                Uri.fromFile(createMediaFile(TYPE_VIDEO));
+//                                        FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider" , createMediaFile(TYPE_VIDEO));
+//                                        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, capturedUri);
+//
+//                                        startActivityForResult(takeVideoIntent, RequestCodeForVideoPick);
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//
+////                                }
+                            } else {
                                 Intent intent = new Intent(Intent.ACTION_PICK);
                                 intent.setType("video/*");
                                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-//                                startActivityForResult(intent, RequestCodeForVideoPick);
                                 startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForVideoPick);
                             }
                         }
-                        if(which == 2)
-                        {
-
+                        if (which == 2) {
                             checker = Configuration.DOCFILE;
                             pickDoc();
-//                            Intent intent = new Intent();
-//                            intent.setAction(Intent.ACTION_PICK);
-//                            intent.setType("Application/msword");
-//                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                            startActivityForResult(Intent.createChooser(intent, "select doc"), RequestCodeForDocPick);
-//                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-//                            startActivityForResult(intent, RequestCodeForDocPick);
-
-
-
                         }
 
-//                        if(which == 3)
-//                        {
-//                            checker = Configuration.PDFFILE;
-//                            Intent intent = new Intent();
-//                            intent.setAction(Intent.ACTION_GET_CONTENT);
-//                            intent.setType("Application/pdf");
-//                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                            startActivityForResult(Intent.createChooser(intent, "select pdf"), RequestCodeForDocPick);
-//                        }
                     }
                 });
                 builder.show();
             }
         });
 
-        groupChatToolBar.setOnClickListener(new View.OnClickListener()
-        {
+        groupChatToolBar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 Intent groupDetailDisplayActivity = new Intent(GroupChatActivity.this, GroupDetailDisplayActivity.class);
                 groupDetailDisplayActivity.putExtra(ActivityParameters.groupId, groupId);
                 groupDetailDisplayActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -766,10 +670,26 @@ public class GroupChatActivity extends AppCompatActivity
         });
     }
 
+    private File createMediaFile(int type) throws IOException {
+
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String fileName = type == 1 ? "JPEG_" + timeStamp + "_" : "VID_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                type == 1 ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
+        File file = File.createTempFile(
+                fileName,  /* prefix */
+                type == 1 ? ".jpg" : ".mp4",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+
+        return file;
+    }
     @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
     public void pickPhotoClicked() {
-        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER))
-        {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER)) {
             FilePickerBuilder.getInstance()
                     .setActivityTitle("Please select photos")
                     .enableVideoPicker(false)
@@ -781,8 +701,7 @@ public class GroupChatActivity extends AppCompatActivity
                     .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                     .pickPhoto(this, RequestCodeForImagePick);
 
-        } else
-        {
+        } else {
             // Ask for one permission
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
                     RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
@@ -790,10 +709,8 @@ public class GroupChatActivity extends AppCompatActivity
     }
 
     @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
-    public void pickVideoClicked()
-    {
-        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER))
-        {
+    public void pickVideoClicked() {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER)) {
             FilePickerBuilder.getInstance()
                     .setActivityTitle("Please select video")
                     .enableVideoPicker(true)
@@ -804,9 +721,7 @@ public class GroupChatActivity extends AppCompatActivity
                     .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                     .pickPhoto(this, RequestCodeForVideoPick);
 
-        }
-        else
-        {
+        } else {
             // Ask for one permission
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
                     RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
@@ -814,20 +729,14 @@ public class GroupChatActivity extends AppCompatActivity
     }
 
     @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
-    public void pickDoc()
-    {
-        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER))
-        {
+    public void pickDoc() {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER)) {
             FilePickerBuilder.getInstance()
                     .setMaxCount(5)
                     .enableDocSupport(true)//optional
                     .setActivityTheme(R.style.LibAppTheme) //optional
                     .pickFile(this, RequestCodeForDocPick);
-//            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-//            startActivityForResult(intent, RequestCodeForDocPick);
-        }
-        else
-        {
+        } else {
             // Ask for one permission
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
                     RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
@@ -835,35 +744,29 @@ public class GroupChatActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(data == null)
-        {
+        if (data == null) {
             loadingBar.setMessage("Nothing selected");
             loadingBar.setCanceledOnTouchOutside(false);
             loadingBar.show();
             loadingBar.dismiss();
         }
 
-        loadingBar.setMessage("Uploading " + (requestCode == RequestCodeForImagePick || requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE? "Image" : "Video"));
+        loadingBar.setMessage("Uploading " + (requestCode == RequestCodeForImagePick || requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE ? "Image" : "Video"));
         loadingBar.setCanceledOnTouchOutside(false);
 //        loadingBar.show();
 
-        final int[] totalFiles1 = new int[] {0};
+        final int[] totalFiles1 = new int[]{0};
         ArrayList<Uri> dataList = null;
-        if(requestCode == RequestCodeForImagePick && resultCode ==  RESULT_OK && data != null && requestCode != CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
-        {
+        if (requestCode == RequestCodeForImagePick && resultCode == RESULT_OK && data != null && requestCode != CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA);
-            if (dataList != null)
-            {
-                if(dataList.size() > 0)
-                {
+            if (dataList != null) {
+                if (dataList.size() > 0) {
                     totalFiles1[0] = dataList.size();
                 }
-                for(Uri ImageUri : dataList)
-                {
+                for (Uri ImageUri : dataList) {
                     CropImage.activity(ImageUri)
                             .setGuidelines(CropImageView.Guidelines.ON)
                             .start(this);
@@ -871,20 +774,17 @@ public class GroupChatActivity extends AppCompatActivity
             }
         }
 
-        if (checker.equals(Configuration.IMAGEFILE) && requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
-        {
-            if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
-            {
+        if (checker.equals(Configuration.IMAGEFILE) && requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-                if (resultCode == RESULT_OK)
-                {
+                if (resultCode == RESULT_OK) {
                     progressBar.setVisibility(View.VISIBLE);
                     final Uri resultUri = result.getUri();
 //                    loadingBar.show();
 
 
-                    final int[] uploadedFiles = new int[] {0};
+                    final int[] uploadedFiles = new int[]{0};
 
                     StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Image file").child(groupId);
                     final String messageSenderRef = FirebasePaths.MessagesPath + "/";
@@ -898,8 +798,7 @@ public class GroupChatActivity extends AppCompatActivity
                     File actualImage = null;
                     File compressedFile = null;
 
-                    try
-                    {
+                    try {
                         actualImage = FileUtil.from(GroupChatActivity.this, resultUri);
                         compressedFile = new Compressor(this)
                                 .setMaxHeight(Math.min(image.getHeight(), imageMaxHeight))
@@ -908,66 +807,19 @@ public class GroupChatActivity extends AppCompatActivity
                                 .setCompressFormat(Bitmap.CompressFormat.JPEG)
                                 .compressToFile(actualImage);
 
-//                         progressBar = new ProgressBar(this);
                         progressBar.setProgress(20);
 
                         uploadTask = filePath.putFile(Uri.fromFile(compressedFile));
                         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                             @Override
-                            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
-                            {
-                                double p = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
+                            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                                double p = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
 //                                loadingBar.setMessage("Uploading " + (int)p + "% complete.");
                                 float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                                 int currentprogress = (int) progress;
+//                                progressBar.setProgress(currentprogress);
 
-                                if(currentprogress > 20 && currentprogress <= 30)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(20);
-                                }
-
-                                if(currentprogress > 40 && currentprogress <= 50)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(40);
-                                }
-
-                                if(currentprogress > 50 && currentprogress <= 60)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(50);
-                                }
-
-                                if(currentprogress > 60 && currentprogress <= 70)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(60);
-                                }
-
-                                if(currentprogress > 70 && currentprogress <= 80)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(70);
-                                }
-
-                                if(currentprogress > 80 && currentprogress <= 90)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(80);
-                                }
-
-                                if(currentprogress > 90 && currentprogress < 100)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(90);
-                                }
-
-                                if(currentprogress == 100)
-                                {
-                                    progressBar.setMax(100);
-                                    progressBar.setProgress(100);
-                                }
+                                setProgressBarProgress(currentprogress);
                             }
                         }).continueWithTask(new Continuation() {
 
@@ -980,27 +832,18 @@ public class GroupChatActivity extends AppCompatActivity
                             }
                         }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                             @Override
-                            public void onComplete(@NonNull Task<Uri> task)
-                            {
+                            public void onComplete(@NonNull Task<Uri> task) {
                                 if (task.isSuccessful()) {
                                     uploadedFiles[0]++;
                                     progressBar.setVisibility(View.INVISIBLE);
-                                    loadingBar.setMessage("Uploading " +uploadedFiles[0] +" of "+ totalFiles1[0] + " is complete.");
+                                    loadingBar.setMessage("Uploading " + uploadedFiles[0] + " of " + totalFiles1[0] + " is complete.");
 
                                     Uri downloadUrl = task.getResult();
                                     myUrl = downloadUrl.toString();
 
 //                                    final GroupMessage messages = new GroupMessage();
                                     final GroupMessage messages = createAndReturnGroupMessage(myUrl, messagePushID, MsgType.IMAGE.getMsgTypeId(),
-                                            groupId, messageSenderUserId, currentUserDisplayName, null);
-//                                    messages.setMessage(myUrl);
-//                                    messages.setFileName(resultUri.getLastPathSegment());
-//                                    messages.setType(MsgType.IMAGE.getMsgTypeId());
-//                                    messages.setFrom(messageSenderUserId);
-//                                    messages.setGroupId(groupId);
-//                                    messages.setTime(Utility.getCurrentTime() + " "+ Utility.getCurrentDate());
-//                                    messages.setMessageId(messagePushID);
-//                                    messages.setSenderDisplayName(currentUserDisplayName);
+                                            messageSenderUserId, groupId, currentUserDisplayName, null);
 //
 
 
@@ -1012,9 +855,7 @@ public class GroupChatActivity extends AppCompatActivity
                                         public void onComplete(@NonNull Task task) {
                                             if (!task.isSuccessful()) {
                                                 Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                                            }
-                                            else
-                                            {
+                                            } else {
 //                                                groupMessageList.add(messages);
 //                                                groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
 //                                                recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
@@ -1027,56 +868,95 @@ public class GroupChatActivity extends AppCompatActivity
 
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
-                            public void onFailure(@NonNull Exception e)
-                            {
+                            public void onFailure(@NonNull Exception e) {
                                 loadingBar.setMessage("Upload failed");
                                 loadingBar.dismiss();
                             }
                         });
 
-                    }
-                    catch (IOException e)
-                    {
+                    } catch (IOException e) {
                         e.printStackTrace();
                         loadingBar.dismiss();
                     }
                 }
             }
 
-        }
-
-        else if(requestCode == RequestCodeForVideoPick && data !=null )
-        {
+        } else if (requestCode == RequestCodeForVideoPick && data != null) {
 //            loadingBar.show();
 
-            if (false)
-            {
-                if(data.getData() == null)
+            if (false) {
+                if (data.getData() == null)
                     return;
                 dataList = new ArrayList<>();
                 dataList.add(data.getData());
-            }
-            else
-            {
+            } else {
                 dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA);
+//                dataList = new ArrayList<>();
+//                dataList.add(data.getData());
             }
 
 
-            for(final Uri resultUri : dataList)
-            {
-
+            for (final Uri resultUri : dataList) {
+                ParcelFileDescriptor[] f1 = new ParcelFileDescriptor[dataList.size()];
                 try {
-                    ParcelFileDescriptor f =  getContentResolver().openFileDescriptor(resultUri, "r");
-                    long size = f.getStatSize();
+                     f1[0] = getContentResolver().openFileDescriptor(resultUri, "r");
+                    long size = f1[0].getStatSize();
+                    File file = new File(resultUri.getPath());
+                    String name = getFileName(resultUri);
 
-                    if(size > Configuration.maxVideoFileUploadableSizeInBytes)
-                    {
-                        Toast.makeText(this, getString(R.string.filesizeerrormessage),  Toast.LENGTH_SHORT).show();
+                    if (size > Configuration.maxVideoFileUploadableSizeInBytes) {
+                        Toast.makeText(this, getString(R.string.filesizeerrormessage), Toast.LENGTH_SHORT).show();
                         return;
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
+                ///
+//
+//                if(FFmpeg.getInstance(this).isSupported())
+//                {
+//                    Toast.makeText(this, "Fmpeg is supported", Toast.LENGTH_SHORT).show();
+//                }
+               final VideoCompressor mVideoCompressor = new VideoCompressor(this);
+                String[] projection = {MediaStore.MediaColumns.DATA};
+
+                ContentResolver cr = getApplicationContext().getContentResolver();
+                Cursor c = cr.query(resultUri, projection, null, null, null);
+                c.moveToFirst();
+//                int col =
+                String pat2 = c.getString(0);
+
+                mVideoCompressor.startCompressing(pat2, new VideoCompressor.CompressionListener() {
+                    @Override
+                    public void compressionFinished(int status, boolean isVideo, String fileOutputPath) {
+
+                        if (mVideoCompressor.isDone()) {
+                            File outputFile = new File(fileOutputPath);
+                            long outputCompressVideosize = outputFile.length();
+                            long fileSizeInKB = outputCompressVideosize / 1024;
+                            long fileSizeInMB = fileSizeInKB / 1024;
+
+                            String s = "Output video path : " + fileOutputPath + "\n" +
+                                    "Output video size : " + fileSizeInMB + "mb";
+
+                            Toast.makeText(GroupChatActivity.this, "Compression succeeded " + s, Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        Toast.makeText(GroupChatActivity.this, "compression failed" + message, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onProgress(final int progress) {
+                        Toast.makeText(GroupChatActivity.this, "compression progress" + progress, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
+                ////
 
 
                 progressBar.setVisibility(View.VISIBLE);
@@ -1088,6 +968,7 @@ public class GroupChatActivity extends AppCompatActivity
                 final StorageReference filePath = storageReference.child(messagePushID + "." + "3gp");
 
                 uploadTask = filePath.putFile(resultUri);
+                progressBar.setProgress(20);
 
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -1096,53 +977,7 @@ public class GroupChatActivity extends AppCompatActivity
                         float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                         int currentprogress = (int) progress;
 
-                        if(currentprogress > 20 && currentprogress <= 30)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(20);
-                        }
-
-                        if(currentprogress > 40 && currentprogress <= 50)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(40);
-                        }
-
-                        if(currentprogress > 50 && currentprogress <= 60)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(50);
-                        }
-
-                        if(currentprogress > 60 && currentprogress <= 70)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(60);
-                        }
-
-                        if(currentprogress > 70 && currentprogress <= 80)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(70);
-                        }
-
-                        if(currentprogress > 80 && currentprogress <= 90)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(80);
-                        }
-
-                        if(currentprogress > 90 && currentprogress < 100)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(90);
-                        }
-
-                        if(currentprogress == 100)
-                        {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(100);
-                        }
+                        setProgressBarProgress(currentprogress);
                     }
                 }).continueWithTask(new Continuation() {
 
@@ -1163,16 +998,15 @@ public class GroupChatActivity extends AppCompatActivity
                             final String fileName = getFileName(resultUri);
                             myUrl = downloadUrl.toString();
 
-                            final GroupMessage messages = new GroupMessage();
-                            messages.setMessage(myUrl);
-                            messages.setFileName(fileName);
-                            messages.setType(MsgType.VIDEO.getMsgTypeId());
-                            messages.setFrom(messageSenderUserId);
-                            messages.setGroupId(groupId);
-                            messages.setTime(Utility.getCurrentTime() + " " + Utility.getCurrentDate());
-                            messages.setMessageId(messagePushID);
-                            messages.setSenderDisplayName(currentUserDisplayName);
-
+                            final GroupMessage messages = createAndReturnGroupMessage(
+                                    myUrl,
+                                    messagePushID,
+                                    MsgType.VIDEO.getMsgTypeId(),
+                                    messageSenderUserId,
+                                    groupId,
+                                    currentUserDisplayName,
+                                    null
+                            );
 
                             final Map messageBodyDetails = new HashMap();
                             messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
@@ -1180,16 +1014,14 @@ public class GroupChatActivity extends AppCompatActivity
                             FirebasePaths.firebaseDbRawRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
-                                    if (!task.isSuccessful())
-                                    {
+                                    if (!task.isSuccessful()) {
                                         Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else
-                                    {
+                                    } else {
 //                                        groupMessageList.add(messages);
 //                                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
 //                                        recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
                                     }
+                                    progressBar.setProgress(20);
                                     progressBar.setVisibility(View.INVISIBLE);
                                 }
                             });
@@ -1204,31 +1036,23 @@ public class GroupChatActivity extends AppCompatActivity
                     }
                 });
             }
-        }
-        else if(requestCode == RequestCodeForDocPick)
-        {
+        } else if (requestCode == RequestCodeForDocPick) {
 
 
-            if (false)
-            {
-                if(data.getData() == null)
+            if (false) {
+                if (data.getData() == null)
                     return;
                 dataList = new ArrayList<>();
                 dataList.add(data.getData());
-            }
-            else
-            {
+            } else {
                 dataList = data.getParcelableArrayListExtra(FilePickerConst.KEY_SELECTED_DOCS);
             }
 
-            if(dataList == null || dataList.size() == 0) return;
+            if (dataList == null || dataList.size() == 0) return;
 
-            for(final Uri resultUri : dataList)
-            {
+            for (final Uri resultUri : dataList) {
 
                 final String fileName = getFileName(resultUri);
-//                final int lastIndexOfDot = fileName.lastIndexOf(".");
-//                final String ext = fileName.substring(lastIndexOfDot, fileName.length());
                 progressBar.setVisibility(View.VISIBLE);
 
                 final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("MessageMedia").child("Doc file").child(groupId);
@@ -1245,48 +1069,7 @@ public class GroupChatActivity extends AppCompatActivity
                     public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                         float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                         int currentprogress = (int) progress;
-
-                        if (currentprogress > 20 && currentprogress <= 30) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(20);
-                        }
-
-                        if (currentprogress > 40 && currentprogress <= 50) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(40);
-                        }
-
-                        if (currentprogress > 50 && currentprogress <= 60) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(50);
-                        }
-
-                        if (currentprogress > 60 && currentprogress <= 70) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(60);
-                        }
-
-                        if (currentprogress > 70 && currentprogress <= 80) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(70);
-                        }
-
-                        if (currentprogress > 80 && currentprogress <= 90) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(80);
-                        }
-
-                        if (currentprogress > 90 && currentprogress < 100) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(90);
-                        }
-
-                        if (currentprogress == 100) {
-                            progressBar.setMax(100);
-                            progressBar.setProgress(100);
-                        }
-
-
+                        setProgressBarProgress(currentprogress);
                     }
                 }).continueWithTask(new Continuation() {
 
@@ -1306,16 +1089,15 @@ public class GroupChatActivity extends AppCompatActivity
 
                             myUrl = downloadUrl.toString();
 
-                            final GroupMessage messages = new GroupMessage();
-                            messages.setMessage(myUrl);
-                            messages.setFileName(fileName);
-                            messages.setType(MsgType.DOC.getMsgTypeId());
-                            messages.setFrom(messageSenderUserId);
-                            messages.setGroupId(groupId);
-                            messages.setTime(Utility.getCurrentTime() +" "+ Utility.getCurrentDate());
-                            messages.setMessageId(messagePushID);
-                            messages.setSenderDisplayName(currentUserDisplayName);
-
+                            final GroupMessage messages =
+                                    createAndReturnGroupMessage(
+                                            myUrl,
+                                            messagePushID,
+                                            MsgType.DOC.getMsgTypeId(),
+                                            messageSenderUserId,
+                                            groupId,
+                                            currentUserDisplayName,
+                                            fileName);
 
                             final Map messageBodyDetails = new HashMap();
                             messageBodyDetails.put(messageSenderRef + groupId + "/" + messagePushID, messages);
@@ -1325,9 +1107,7 @@ public class GroupChatActivity extends AppCompatActivity
                                 public void onComplete(@NonNull Task task) {
                                     if (!task.isSuccessful()) {
                                         Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else
-                                    {
+                                    } else {
 //                                        groupMessageList.add(messages);
 //                                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
 //                                        recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
@@ -1351,79 +1131,106 @@ public class GroupChatActivity extends AppCompatActivity
         }
     }
 
-    private void populateGroupName()
-    {
+    private void setProgressBarProgress(int currentprogress) {
+        if (currentprogress > 20 && currentprogress <= 30) {
+            progressBar.setMax(100);
+            progressBar.setProgress(20);
+        }
+
+        if (currentprogress > 40 && currentprogress <= 50) {
+            progressBar.setMax(100);
+            progressBar.setProgress(40);
+        }
+
+        if (currentprogress > 50 && currentprogress <= 60) {
+            progressBar.setMax(100);
+            progressBar.setProgress(50);
+        }
+
+        if (currentprogress > 60 && currentprogress <= 70) {
+            progressBar.setMax(100);
+            progressBar.setProgress(60);
+        }
+
+        if (currentprogress > 70 && currentprogress <= 80) {
+            progressBar.setMax(100);
+            progressBar.setProgress(70);
+        }
+
+        if (currentprogress > 80 && currentprogress <= 90) {
+            progressBar.setMax(100);
+            progressBar.setProgress(80);
+        }
+
+        if (currentprogress > 90 && currentprogress < 100) {
+            progressBar.setMax(100);
+            progressBar.setProgress(90);
+        }
+
+        if (currentprogress == 100) {
+            progressBar.setMax(100);
+            progressBar.setProgress(100);
+        }
+    }
+
+    private void populateGroupName() {
         final DatabaseReference groupLeafsDbRef = FirebasePaths.firebaseGroupsLeafsRef();
         final DatabaseReference userDbRef = FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId());
 
         userDbRef
-        .child(UsersFirebaseFields.language)
-        .addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
-                {
-                    language = dataSnapshot.getValue().toString();
-                }
+                .child(UsersFirebaseFields.language)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            language = dataSnapshot.getValue().toString();
+                        }
 
-                if(group == null)
-                {
-                    groupLeafsDbRef
-                        .child(groupId)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.exists()) {
-                                    Group grp = dataSnapshot.getValue(Group.class);
-                                    if (grp != null)
-                                    {
-                                        prepareGroupNameToDisplay(grp);
-                                    }
-                                }
-                            }
+                        if (group == null) {
+                            groupLeafsDbRef
+                                    .child(groupId)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            if (dataSnapshot.exists()) {
+                                                Group grp = dataSnapshot.getValue(Group.class);
+                                                if (grp != null) {
+                                                    prepareGroupNameToDisplay(grp);
+                                                }
+                                            }
+                                        }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError)
-                            {
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                            }
-                        });
-                }
-                else
-                {
-                    prepareGroupNameToDisplay(group);
-                }
-            }
+                                        }
+                                    });
+                        } else {
+                            prepareGroupNameToDisplay(group);
+                        }
+                    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                    }
+                });
 
     }
 
-    private void prepareGroupNameToDisplay(Group grp)
-    {
+    private void prepareGroupNameToDisplay(Group grp) {
         String groupDisplayNameString = null;
         String groupDescString = null;
 
-        if (language.equals("eng"))
-        {
+        if (language.equals("eng")) {
             groupDisplayNameString = grp.getEngName();
             groupDescString = grp.getEngDesc();
-        }
-        else
-        {
+        } else {
             groupDisplayNameString = grp.getHinName();
             groupDescString = grp.getHinDesc();
         }
 
-        if (groupDisplayNameString != null && groupDescString != null)
-        {
+        if (groupDisplayNameString != null && groupDescString != null) {
             String groupDisplayNameMayContainRootName = Utility.getGroupDisplayNameFromDbGroupName(groupDisplayNameString);
             groupDisplayName.setText(groupDisplayNameMayContainRootName);
             groupDescription.setText(groupDescString);
@@ -1453,44 +1260,36 @@ public class GroupChatActivity extends AppCompatActivity
         return result;
     }
 
-    private void sendMessageInGroup()
-    {
+    private void sendMessageInGroup() {
         String messageText = groupMessageInputText.getText().toString();
         groupMessageInputText.setText("");
 
 
-        if (TextUtils.isEmpty(messageText))
-        {
+        if (TextUtils.isEmpty(messageText)) {
             Toast.makeText(this, getString(R.string.writefirstmessage), Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
+        } else {
             final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseMessageRef()
                     .child(groupId).push();
             final String messagePushID = userMessageKeyRef.getKey();
 
-            final GroupMessage messages = new GroupMessage();
-            messages.setMessage(messageText);
-            messages.setType(MsgType.TEXT.getMsgTypeId());
-            messages.setFrom(messageSenderUserId);
-            messages.setGroupId(groupId);
-            messages.setTime(Utility.getCurrentTime() +" "+ Utility.getCurrentDate());
-            messages.setMessageId(messagePushID);
-            messages.setSenderDisplayName(currentUserDisplayName);
+            final GroupMessage messages = createAndReturnGroupMessage(messageText,
+                    messagePushID,
+                    MsgType.TEXT.getMsgTypeId(),
+                    messageSenderUserId,
+                    groupId,
+                    currentUserDisplayName,
+                    null);
+
 
             final Map messageBodyDetails = new HashMap();
             messageBodyDetails.put(groupId + "/" + messagePushID, messages);
 
             FirebasePaths.firebaseMessageRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
                 @Override
-                public void onComplete(@NonNull Task task)
-                {
-                    if (!task.isSuccessful())
-                    {
+                public void onComplete(@NonNull Task task) {
+                    if (!task.isSuccessful()) {
                         Toast.makeText(GroupChatActivity.this, "Could not send the last message", Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
+                    } else {
 //                        groupMessageList.add(messages);
 //                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
 //                        recyclerView.smoothScrollToPosition(groupMessageList.size() -1);
@@ -1503,13 +1302,11 @@ public class GroupChatActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         super.onStart();
     }
 
-    private void sendUserToMainActivity()
-    {
+    private void sendUserToMainActivity() {
         Intent mainIntent = new Intent(GroupChatActivity.this, MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -1518,40 +1315,91 @@ public class GroupChatActivity extends AppCompatActivity
     }
 
 
-    private void makeUserAbleToChat()
-    {
+    private void makeUserAbleToChat() {
         groupChatSubscribeButton.setVisibility(View.INVISIBLE);
         groupSendMessageButton.setVisibility(View.VISIBLE);
         groupSendFileButton.setVisibility(View.VISIBLE);
         groupMessageInputText.setVisibility(View.VISIBLE);
     }
 
-   private GroupMessage createAndReturnGroupMessage(String messageText, String id, String msgType, String from, String groupId, String senderDisplayName, String fileName )
-    {
+    private GroupMessage createAndReturnGroupMessage(String messageText, String id, String msgType, String from, String groupId, String senderDisplayName, String fileName) {
         final GroupMessage messages = new GroupMessage();
-        if(messageText == null || id == null || msgType == null) return null;
+        if (messageText == null || id == null || msgType == null) return null;
 
         messages.setMessage(messageText);
-        messages.setTime(Utility.getCurrentTime() +" "+ Utility.getCurrentDate());
+        messages.setTime(Utility.getCurrentTime() + " " + Utility.getCurrentDate());
         messages.setMessageId(id);
 
-        if(fileName != null)
-        messages.setFileName(fileName);
+        if (fileName != null)
+            messages.setFileName(fileName);
 
-        if(msgType != null)
-        messages.setType(msgType);
+        if (msgType != null)
+            messages.setType(msgType);
 
-        if(from != null)
-        messages.setFrom(from);
+        if (from != null)
+            messages.setFrom(from);
 
-        if(groupId != null)
-        messages.setGroupId(groupId);
+        if (groupId != null)
+            messages.setGroupId(groupId);
 
-        if(senderDisplayName != null)
-        messages.setSenderDisplayName(senderDisplayName);
+        if (senderDisplayName != null)
+            messages.setSenderDisplayName(senderDisplayName);
 
         return messages;
     }
+
+
+    /****
+     * Video compression code
+     ****/
+
+
+//    class VideoCompressAsyncTask extends AsyncTask<String, String, String> {
+//
+//        Context mContext;
+//
+////        public VideoCompressAsyncTask(Context context) {
+////            mContext = context;
+////        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+////            imageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_photo_camera_white_48px));
+////            compressionMsg.setVisibility(View.VISIBLE);
+////            picDescription.setVisibility(View.GONE);
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... paths) {
+//            String filePath = null;
+//            try {
+//
+//                filePath = SiliCompressor.with(mContext).compressVideo(paths[0], paths[1]);
+//
+//            } catch (URISyntaxException e) {
+//                e.printStackTrace();
+//            }
+//            return filePath;
+//
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String compressedFilePath) {
+//            super.onPostExecute(compressedFilePath);
+//            File imageFile = new File(compressedFilePath);
+//            float length = imageFile.length() / 1024f; // Size in KB
+//            String value;
+//            if (length >= 1024)
+//                value = length / 1024f + " MB";
+//            else
+//                value = length + " KB";
+//
+//
+//
+//        }
+//    }
+
 
 }
 

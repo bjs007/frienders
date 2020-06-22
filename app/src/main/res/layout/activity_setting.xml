@@ -76,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginLeft="8dp"
+                
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="Status"
@@ -107,7 +107,7 @@
                 android:id="@+id/name_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
+                
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="4dp"
                 android:text="Name"
@@ -137,7 +137,7 @@
                 android:id="@+id/languagebar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
+                
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="Language"

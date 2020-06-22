@@ -1,9 +1,7 @@
 package com.frienders.main.adapter;
 
-import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -23,32 +21,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.frienders.main.activity.group.GroupChatActivity;
+import com.frienders.main.SplashActivity;
 import com.frienders.main.config.Configuration;
-import com.frienders.main.config.FirebaseMessageFields;
-import com.frienders.main.config.GroupFirebaseFields;
 import com.frienders.main.db.MsgType;
 import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.R;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.explayer.ExoplayerActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
 
 public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -74,176 +64,10 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.recyclerView = groupMessagesRecyclerView;
         this.linearLayoutManager = linearLayoutManager;
         moreMessages = new LinkedList<>();
-//        getMessages(null, progressBar);
         mAuth = FirebaseAuth.getInstance();
-//        loadPaginated();
-//        loadPaginated();
-
-
-//        final DatabaseReference ref = FirebasePaths.firebaseMessageRef().child(groupId);
-//        ref.addListenerForSingleValueEvent(new ValueEventListener()
-//        {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-//            {
-//                if(dataSnapshot.exists() && dataSnapshot.hasChildren())
-//                {
-//                    int childrenCount = (int)dataSnapshot.getChildrenCount();
-//
-//                    ref.endAt(childrenCount).limitToLast(1).addChildEventListener(new ChildEventListener() {
-//                        @Override
-//                        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                            if(dataSnapshot.exists())
-//                            {
-//                                GroupMessage groupMessage = dataSnapshot.getValue(GroupMessage.class);
-//                                groupMessageList.add(groupMessage);
-//                                notifyItemInserted(groupMessageList.size() - 1);
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                        }
-//                    });
-//
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
-
-//        FirebasePaths.firebaseMessageRef().child(groupId).addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                if (dataSnapshot.exists()) {
-//                    GroupMessage message = dataSnapshot.getValue(GroupMessage.class);
-//                    groupMessageList.add(message);
-//                    notifyDataSetChanged();
-//                    groupMessagesRecyclerView.smoothScrollToPosition(groupMessagesRecyclerView.getAdapter().getItemCount());
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
         mAuth = FirebaseAuth.getInstance();
         this.context = context;
     }
-
-//    public void getMessages(String nodeId, final ProgressBar progressBar)
-//    {
-//        progressBar.setVisibility(View.VISIBLE);
-//        Query query;
-//
-//        if(nodeId == null)
-//        {
-//            query = FirebasePaths
-//                    .firebaseMessageRef()
-//                    .child(groupId)
-//                    .orderByKey()
-//                    .limitToLast(4);
-//        }
-//        else
-//        {
-//            query = FirebasePaths
-//                    .firebaseMessageRef()
-//                    .child(groupId)
-//                    .startAt(nodeId)
-//                    .orderByKey()
-//                    .limitToLast(4);
-//        }
-//
-//        query.addListenerForSingleValueEvent(new ValueEventListener()
-//        {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-//            {
-//                if(dataSnapshot != null && dataSnapshot.exists())
-//                {
-//                    if(dataSnapshot.hasChildren())
-//                    {
-//                        for(DataSnapshot ds: dataSnapshot.getChildren())
-//                        {
-//                            GroupMessage message = ds.getValue(GroupMessage.class);
-//                            moreMessages.add(message);
-//                        }
-//
-//                        reachedEnd = false;
-//                    }
-//                    else
-//                    {
-//                        reachedEnd = true;
-//                        Toast.makeText(context, "No more messages", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//                else
-//                {
-//                    Toast.makeText(context, "Be the first one to chat", Toast.LENGTH_SHORT).show();
-//                }
-//
-//                if(reachedEnd == false)
-//                {
-//                    groupMessageList.addAll(0, moreMessages);
-//                    if(!isLoading)
-//                    {
-//                        recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
-//                    }
-//                    else
-//                    {
-//                        recyclerView.smoothScrollToPosition(0);
-//                    }
-//
-//                    moreMessages.clear();
-//                }
-//                progressBar.setVisibility(View.GONE);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                progressBar.setVisibility(View.GONE);
-//                Toast.makeText(context, "Error occured", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
-
 
     @NonNull
     @Override
@@ -265,8 +89,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
 
-
-
         if (viewHolder instanceof GroupMessageViewHolder)
         {
             final String currentUserId = mAuth.getCurrentUser().getUid();
@@ -286,152 +108,157 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             groupMessageViewHolder.groupVideoReceiver.setVisibility(View.GONE);
             groupMessageViewHolder.senderDocumentName.setVisibility(View.GONE);
             groupMessageViewHolder.recieverDocumentName.setVisibility(View.GONE);
-            groupMessageViewHolder.groupMessageSenderTimeStamp.setVisibility(View.GONE);
-//            groupMessageViewHolder.groupMessageRecieverTimeStamp.setVisibility(View.GONE);
+            groupMessageViewHolder.groupMessageSenderNotificationIcon.setVisibility(View.GONE);
             groupMessageViewHolder.messageLikes.setVisibility(View.GONE);
             groupMessageViewHolder.group_reciever_message_like_button.setVisibility(View.GONE);
             groupMessageViewHolder.groupMessageLikeHolder.setVisibility(View.GONE);
 
+
             if (message != null && message.getMessage() != null)
             {
                 String[] timestamptoken = message.getTime().split(",");
-                if(message.getFrom().equals(currentUserId) && message.getType().equals(MsgType.TEXT.getMsgTypeId()))
+
+                if(message.getType().equals(MsgType.TEXT.getMsgTypeId()))
                 {
-                    groupMessageViewHolder.groupMessageSenderTimeStamp.setVisibility(View.VISIBLE);
-                    groupMessageViewHolder.groupMessageSenderTimeStamp.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            final DatabaseReference databaseReference = FirebasePaths.firebaseUsersNotificationTimeDbRef()
-                                    .child(currentUserId)
-                                    .child(message.getGroupId());
+                    if(message.getFrom().equals(currentUserId))
+                    {
+                        groupMessageViewHolder.groupMessageSenderNotificationIcon.setVisibility(View.VISIBLE);
+                        groupMessageViewHolder.groupMessageSenderNotificationIcon.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final DatabaseReference databaseReference = FirebasePaths.firebaseUsersNotificationTimeDbRef()
+                                        .child(currentUserId)
+                                        .child(message.getGroupId());
 
-                                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+                                databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+                                {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
                                     {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                        Date date = new Date();
+                                        //This method returns the time in millis
+                                        long timeMilli = date.getTime();
+
+                                        if(dataSnapshot.exists())
                                         {
-                                            Date date = new Date();
-                                            //This method returns the time in millis
-                                            long timeMilli = date.getTime();
-
-                                            if(dataSnapshot.exists())
+                                            Long timestamp = null;
+                                            try
                                             {
-                                                Long timestamp = null;
-                                                try
-                                                {
-                                                    timestamp = Long.parseLong(dataSnapshot.getValue().toString());
-                                                }catch (Exception ex)
-                                                {
+                                                timestamp = Long.parseLong(dataSnapshot.getValue().toString());
+                                            }
+                                            catch (Exception ex)
+                                            {
 
-                                                }
+                                            }
 
-                                                if(timestamp != null && timeMilli - timestamp < 16 * 60 * 1000)
-                                                {
-                                                    Toast.makeText(context, "You can't send notification \nwithin 15 minutes in the same group.",
-                                                            Toast.LENGTH_SHORT).show();
-                                                }
-                                                else
-                                                {
-                                                    databaseReference.setValue(timeMilli);
-                                                }
+                                            if(timestamp != null && timeMilli - timestamp < 16 * 60 * 1000)
+                                            {
+                                                Toast.makeText(context, "You can't send notification \nwithin 15 minutes in the same group.",
+                                                        Toast.LENGTH_SHORT).show();
                                             }
                                             else
                                             {
                                                 databaseReference.setValue(timeMilli);
                                             }
                                         }
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError)
-                                        {
-
-                                        }
-                                    });
-
-                            final DatabaseReference userMessageKeyRef = FirebasePaths.firebaseDbRawRef().child("Notification")
-                                    .child(groupId).child(message.getGroupId()).push();
-                            final String messagePushID = userMessageKeyRef.getKey();
-                            final Map messageBodyDetails = new HashMap();
-                            messageBodyDetails.put(messagePushID, message);
-
-                            FirebasePaths.firebaseDbRawRef().child("Notification").child(groupId).updateChildren(messageBodyDetails);
-                        }
-                    });
-                }
-                else
-                {
-                    groupMessageViewHolder.groupMessageLikeHolder.setVisibility(View.VISIBLE);
-                    groupMessageViewHolder.messageLikes.setVisibility(View.VISIBLE);
-                    if(message.getLikes() != null)
-                    groupMessageViewHolder.messageLikes.setText(String.valueOf(message.getLikes()));
-                    groupMessageViewHolder.group_reciever_message_like_button.setVisibility(View.VISIBLE);
-                    groupMessageViewHolder.group_reciever_message_like_button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v)
-                        {
-
-                            final DatabaseReference databaseReference = FirebasePaths.firebaseMessageLikeDbRef()
-                                    .child(groupId)
-                                    .child(message.getMessageId())
-                                    .child(currentUserId);
-
-                            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    Long likes = 0L;
-
-                                    try
-                                    {
-                                        if(message.getLikes() != null)
-                                        {
-                                            likes = message.getLikes();
-                                        }
-
-                                        if (likes == null) {
-                                            likes = 0L;
-                                        }
-
-                                        if (dataSnapshot.exists())
-                                        {
-                                            databaseReference.removeValue();
-                                            likes--;
-                                        }
                                         else
                                         {
-                                            databaseReference.setValue("liked");
-                                            likes++;
+                                            databaseReference.setValue(timeMilli);
                                         }
-                                        if (likes != null)
-                                        message.setLikes(likes);
-                                        groupMessageList.set(position, message);
-                                        recyclerView.getAdapter().notifyItemChanged(position);
-//
-//                                        Map messageMap = new HashMap();
-//                                        messageMap.put(FirebasePaths.MessagesPath + "/"+ groupId +"/"+message.getMessageId(), message);
-//                                        FirebasePaths.firebaseDbRawRef().updateChildren(messageMap).addOnCompleteListener(new OnCompleteListener()
-//                                        {
-//                                            @Override
-//                                            public void onComplete(@NonNull Task task)
-//                                            {
-//                                                groupMessageList.set(position, message);
-//                                                recyclerView.getAdapter().notifyItemChanged(position);
-//                                            }
-//                                        });
-
                                     }
-                                    catch (Exception ex)
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError)
                                     {
-                                        Toast.makeText(context, "Could not register likes!", Toast.LENGTH_SHORT).show();
+
                                     }
-                                }
+                                });
 
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                final DatabaseReference userMessageKeyRef =
+                                        FirebasePaths
+                                                .firebaseDbRawRef()
+                                                .child("Notification")
+                                                .child(groupId)
+                                                .child(message.getGroupId())
+                                                .push();
 
-                                }
-                            });
+                                final String messagePushID = userMessageKeyRef.getKey();
+                                final Map messageBodyDetails = new HashMap();
+                                messageBodyDetails.put(messagePushID, message);
+
+                                FirebasePaths.firebaseDbRawRef().child("Notification").child(groupId).updateChildren(messageBodyDetails);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        groupMessageViewHolder.groupMessageLikeHolder.setVisibility(View.VISIBLE);
+                        groupMessageViewHolder.messageLikes.setVisibility(View.VISIBLE);
+                        if(message.getLikes() != null)
+                        {
+                            groupMessageViewHolder.messageLikes.setText(String.valueOf(message.getLikes()));
                         }
-                    });
+                        groupMessageViewHolder.group_reciever_message_like_button.setVisibility(View.VISIBLE);
+                        groupMessageViewHolder.group_reciever_message_like_button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v)
+                            {
+
+                                final DatabaseReference databaseReference = FirebasePaths.firebaseMessageLikeDbRef()
+                                        .child(groupId)
+                                        .child(message.getMessageId())
+                                        .child(currentUserId);
+
+                                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        Long likes = 0L;
+
+                                        try
+                                        {
+                                            if(message.getLikes() != null)
+                                            {
+                                                likes = message.getLikes();
+                                            }
+
+                                            if (likes == null) {
+                                                likes = 0L;
+                                            }
+
+                                            if (dataSnapshot.exists() )
+                                            {
+                                                databaseReference.removeValue();
+                                                likes--;
+                                            }
+                                            else
+                                            {
+                                                databaseReference.setValue("liked");
+                                                likes++;
+                                            }
+                                            if (likes != null)
+                                                message.setLikes(likes);
+
+                                            groupMessageList.set(position, message);
+                                            recyclerView.getAdapter().notifyItemChanged(position);
+                                            Toast.makeText(context, "Position is " + groupMessageList.get(position).getMessage() + " - " + position, Toast.LENGTH_LONG).show();
+
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Toast.makeText(context, "Could not register likes!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+
                 }
+
                 if (message.getFrom().equals(currentUserId))
                 {
 
@@ -513,7 +340,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                 @Override
                                 public void onClick(View v)
                                 {
-                                    Intent playMusi = new Intent(context, ExoplayerActivity.class);
+                                    Intent playMusi = new Intent(context, SplashActivity.class);
                                     playMusi.putExtra("videoLink", message.getMessage() != null ? message.getMessage() : "");
                                     context.startActivity(playMusi);
                                 }
@@ -534,7 +361,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             groupMessageViewHolder.groupVideoReceiver.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Intent playMusi = new Intent(context, ExoplayerActivity.class);
+                                    Intent playMusi = new Intent(context, SplashActivity.class);
                                     playMusi.putExtra("videoLink", message.getMessage() != null ? message.getMessage() : "");
                                     context.startActivity(playMusi);
                                 }
@@ -631,7 +458,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             public TextView recieverDocumentName, senderDocumentName;
             public ImageView imageSentBySender, imageSentByReceiver, docSentBySender, docSentByReciver;
             public ImageView groupVideoSender, groupVideoReceiver, playIconSender, playIconReceiver;
-            public ImageButton groupMessageSenderTimeStamp, group_reciever_message_like_button;
+            public ImageButton groupMessageSenderNotificationIcon, group_reciever_message_like_button;
             public TextView messageLikes;
             public LinearLayout groupMessageLikeHolder;
 //            public ImageButton groupMessageRecieverTimeStamp;
@@ -654,7 +481,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 playIconReceiver = itemView.findViewById(R.id.groupvideomessageplayiconReceiver);
                 recieverDocumentName = itemView.findViewById(R.id.group_message_receiver_doc_name);
                 senderDocumentName = itemView.findViewById(R.id.group_message_sender_doc_name);
-                groupMessageSenderTimeStamp = itemView.findViewById(R.id.group_sender_message_timestamp);
+                groupMessageSenderNotificationIcon = itemView.findViewById(R.id.group_sender_message_notification_icon);
                 messageLikes = itemView.findViewById(R.id.group_message_likes);
                 group_reciever_message_like_button = itemView.findViewById(R.id.group_reciever_message_like_button);
                 groupMessageLikeHolder = itemView.findViewById(R.id.group_message_like_holder);

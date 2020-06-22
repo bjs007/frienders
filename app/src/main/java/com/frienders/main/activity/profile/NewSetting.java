@@ -232,14 +232,12 @@ public class NewSetting extends AppCompatActivity {
                 Uri resultUri = result.getUri();
 
                 Bitmap bitmap = decodeFile(resultUri.getPath());
-                Uri bitMapuri = bitmapToUriConverter(bitmap);
                 File actualImage = null;
                 File compressedFile = null;
 
 
                 final StorageReference filePath = FirestorePath.firestoreprofileImagesDbRef()
                         .child(FirebaseAuthProvider.getCurrentUserId() + ".jpg");
-
 
                 try {
                     actualImage = FileUtil.from(NewSetting.this, resultUri);
@@ -316,119 +314,10 @@ public class NewSetting extends AppCompatActivity {
                         userProfileImage.setVisibility(View.VISIBLE);
                     }
                 });
-//                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>()
-//                {
-//                    @Override
-//                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot)
-//                    {
-//                        float progress = (float) (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-//                        int currentprogress = (int) progress;
-//
-//                        if(currentprogress > 20 && currentprogress <= 30)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(20);
-//                        }
-//
-//                        if(currentprogress > 40 && currentprogress <= 50)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(40);
-//                        }
-//
-//                        if(currentprogress > 50 && currentprogress <= 60)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(50);
-//                        }
-//
-//                        if(currentprogress > 60 && currentprogress <= 70)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(60);
-//                        }
-//
-//                        if(currentprogress > 70 && currentprogress <= 80)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(70);
-//                        }
-//
-//                        if(currentprogress > 80 && currentprogress <= 90)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(80);
-//                        }
-//
-//                        if(currentprogress > 90 && currentprogress < 100)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(90);
-//                        }
-//
-//                        if(currentprogress == 100)
-//                        {
-//                            progressBar.setMax(100);
-//                            progressBar.setProgress(100);
-//                        }
-//                    }
-//                });
             }
         }
     }
 
-
-    public Uri bitmapToUriConverter(Bitmap mBitmap) {
-        Uri uri = null;
-        try {
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            // Calculate inSampleSize
-            options.inSampleSize = calculateInSampleSize(options, 100, 100);
-
-            // Decode bitmap with inSampleSize set
-            options.inJustDecodeBounds = false;
-            Bitmap newBitmap = Bitmap.createScaledBitmap(mBitmap, 200, 200,
-                    true);
-            File file = new File(getFilesDir(), "Image"
-                    + new Random().nextInt() + ".jpeg");
-            FileOutputStream out = openFileOutput(file.getName(),
-                    Context.MODE_PRIVATE);
-            newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-            //get absolute path
-            String realPath = file.getAbsolutePath();
-            File f = new File(realPath);
-            uri = Uri.fromFile(f);
-
-        } catch (Exception e) {
-            Log.e("Your Error Message", e.getMessage());
-        }
-        return uri;
-    }
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
 
     public Bitmap decodeFile(String filePath) {
 
@@ -573,11 +462,13 @@ public class NewSetting extends AppCompatActivity {
                                                     }
                                                     else
                                                     {
-                                                        Fragment mFragment = null;
-                                                        mFragment = new GinfoxGroupsFragment();
-                                                        FragmentManager fragmentManager = getSupportFragmentManager();
 
-                                                        fragmentManager.beginTransaction().replace(R.id.main_tabs, mFragment).commit();
+                                                        SendUserToMainActivity();
+//                                                        Fragment mFragment = null;
+//                                                        mFragment = new GinfoxGroupsFragment();
+//                                                        FragmentManager fragmentManager = getSupportFragmentManager();
+//
+//                                                        fragmentManager.beginTransaction().replace(R.id.main_tabs, mFragment).commit();
                                                     }
                                                 }
 
@@ -607,12 +498,8 @@ public class NewSetting extends AppCompatActivity {
                 SendUserToMainActivity();
             }
 
-
-
         }
     }
-
-
 
     private void SendUserToMainActivity(){
         Intent mainIntent = new Intent(NewSetting.this, MainActivity.class);

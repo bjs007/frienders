@@ -57,5 +57,6 @@
     <string name="view_group">View</string>
     <string name="subscribed_group_removed">A Group has been removed</string>
     <string name="subscribed_group_added">A new group has been added!</string>
+    <string name="india_isd_code">+91</string>
 
 </resources>

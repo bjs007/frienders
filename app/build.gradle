@@ -55,10 +55,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    implementation 'com.google.android.material:material:1.2.0-alpha06'
-    implementation 'com.google.firebase:firebase-auth:19.3.0'
+    implementation 'com.google.android.material:material:1.3.0-alpha01'
+    implementation 'com.google.firebase:firebase-auth:19.3.1'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
-    implementation 'com.google.firebase:firebase-database:19.2.1'
+    implementation 'com.google.firebase:firebase-database:19.3.0'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
 //    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.annotation:annotation:1.1.0'
@@ -71,11 +71,11 @@ dependencies {
 
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.google.firebase:firebase-messaging:20.1.7'
+    implementation 'com.google.firebase:firebase-messaging:20.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation "androidx.core:core-ktx:1.2.0"
+    implementation "androidx.core:core-ktx:1.3.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.algolia:instantsearch-android:2.3.1'
@@ -95,6 +95,11 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.6'
     implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.10.6'
+//    implementation 'com.writingminds:FFmpegAndroid:4.3.1.LTS'
+//    implementation 'nl.bravobit:android-ffmpeg:1.1.7'
+    implementation 'com.arthenica:mobile-ffmpeg-full-gpl:4.3.1.LTS'
+//
+//    implementation ('com.googlecode.mp4parser:isoparser:1.0.6') { exclude group: 'org.aspectj', module: 'aspectjrt' }
 
 }
 repositories {

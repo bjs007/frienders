@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
+        
         android:background="@android:color/background_light"
         android:orientation="horizontal"
         >
@@ -122,7 +122,7 @@
             android:layout_alignParentEnd="true"
             android:backgroundTint="@android:color/white"
             android:visibility="gone"
-            android:layout_alignParentRight="true" />
+             />
 
     </RelativeLayout>
 
