@@ -29,7 +29,9 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
@@ -190,8 +192,34 @@ public class GroupChatActivity extends AppCompatActivity {
         groupMessageAdapter = new GroupMessageAdapter(groupMessageList, this, recyclerView, groupId,
                 linearLayoutManager);
         recyclerView.setLayoutManager(linearLayoutManager);
-        initScrollListener();
 
+
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                recyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                //Values are passing to activity & to fragment as well
+                Toast.makeText(GroupChatActivity.this, "Single Click on position :"+position,
+                        Toast.LENGTH_SHORT).show();
+//                ImageView picture=(ImageView)view.findViewById(R.id.picture);
+//                picture.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Toast.makeText(GroupChatActivity.this, "Single Click on Image :"+position,
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                Toast.makeText(GroupChatActivity.this, "Long press on position :"+position,
+                        Toast.LENGTH_LONG).show();
+            }
+        }));
+
+        initScrollListener();
         /// GroupMessageAdapter Ends
 
 
@@ -1411,7 +1439,6 @@ public class GroupChatActivity extends AppCompatActivity {
 //
 //        }
 //    }
-
 
 }
 

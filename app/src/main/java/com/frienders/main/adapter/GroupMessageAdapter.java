@@ -275,11 +275,9 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
                 else
                 {
-
                     groupMessageViewHolder.receiverProfileDisplayName.setVisibility(View.VISIBLE);
                     groupMessageViewHolder.senderProfileDisplayName.setVisibility(View.GONE);
                     groupMessageViewHolder.receiverProfileDisplayName.setText(message.getSenderDisplayName() +" @" +timestamptoken[0]);
-
                 }
 
 
@@ -496,6 +494,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             public GroupMessageViewHolder(@NonNull View itemView) {
                 super(itemView);
+                itemView.setOnClickListener(this);
                 senderMessageTextInGroup = itemView.findViewById(R.id.group_sender_message_text);
                 reciverMessageTextInGroup = itemView.findViewById(R.id.group_receiver_message_text);
 
@@ -523,7 +522,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         @Override
         public void onClick(View v)
         {
-            Toast.makeText(context, String.valueOf(v.getId()),Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, String.valueOf(v.getId()),Toast.LENGTH_SHORT).show();
         }
     }
 
