@@ -365,6 +365,23 @@ public class GroupChatActivity extends AppCompatActivity {
                             }
                         });
 
+               view.findViewById(R.id.group_message_receiver_doc_view)
+                       .setOnClickListener(new View.OnClickListener() {
+                           @Override
+                           public void onClick(View v) {
+                               Utility.downloadDoc(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                           }
+                       });
+
+               view.findViewById(R.id.group_message_sender_doc_view)
+                       .setOnClickListener(new View.OnClickListener() {
+                           @Override
+                           public void onClick(View v) {
+                               Utility.downloadDoc(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                           }
+                       });
+
+
             }
 
             @Override

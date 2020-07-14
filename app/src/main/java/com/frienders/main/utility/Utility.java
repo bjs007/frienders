@@ -1,11 +1,15 @@
 package com.frienders.main.utility;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Environment;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -62,6 +66,34 @@ public class Utility
         Intent playMusi = new Intent(context, SplashActivity.class);
         playMusi.putExtra("videoLink", imageLink != null ? imageLink : "");
         context.startActivity(playMusi);
+    }
+
+    public static void downloadDoc(Context context, String docLink)
+    {
+        try
+        {
+            DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(docLink));
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                    DownloadManager.Request.NETWORK_MOBILE);
+
+            // set title and description
+            request.setTitle("Data Download");
+            request.setDescription("Android Data download using DownloadManager.");
+
+            request.allowScanningByMediaScanner();
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+            //set the local destination for download file to a path within the application's external files directory
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "downloadfileName");
+            request.setMimeType("*/*");
+            downloadManager.enqueue(request);
+            Toast.makeText(context, "Download started", Toast.LENGTH_SHORT).show();
+        }
+        catch (Exception ex)
+        {
+            Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static Bitmap decodeFile(String filePath) {

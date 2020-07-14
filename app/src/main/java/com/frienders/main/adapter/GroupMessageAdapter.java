@@ -255,38 +255,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         groupMessageViewHolder.recieverDocumentName.setText(message.getMessageId());
 
                     }
-
-                    groupMessageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            try
-                            {
-                                DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-                                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(message.getMessage()));
-                                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
-                                        DownloadManager.Request.NETWORK_MOBILE);
-
-                                // set title and description
-                                request.setTitle("Data Download");
-                                request.setDescription("Android Data download using DownloadManager.");
-
-                                request.allowScanningByMediaScanner();
-                                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-                                //set the local destination for download file to a path within the application's external files directory
-                                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "downloadfileName");
-                                request.setMimeType("*/*");
-                                downloadManager.enqueue(request);
-                                Toast.makeText(context, "Download started", Toast.LENGTH_SHORT).show();
-                            }
-                            catch (Exception ex)
-                            {
-                                Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-
                 }
             }
         }
