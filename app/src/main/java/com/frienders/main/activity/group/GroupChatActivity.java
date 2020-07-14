@@ -232,27 +232,39 @@ public class GroupChatActivity extends AppCompatActivity {
                 if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                     int childrenCount = (int) dataSnapshot.getChildrenCount();
 
-                    ref.endAt(childrenCount).limitToLast(1).addChildEventListener(new ChildEventListener() {
+                    ref.endAt(childrenCount).limitToLast(1).addChildEventListener(new ChildEventListener()
+                    {
                         @Override
-                        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                            if (dataSnapshot.exists()) {
+                        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s)
+                        {
+                            if (dataSnapshot.exists())
+                            {
                                 GroupMessage groupMessage = dataSnapshot.getValue(GroupMessage.class);
-                                if (!messageDownloaded.contains(groupMessage.getMessageId())) {
+                                if (!messageDownloaded.contains(groupMessage.getMessageId()))
+                                {
                                     groupMessageList.add(groupMessage);
                                     groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
-                                } else if (groupMessageList != null && groupMessageList.size() == 0) {
+                                }
+                                else if (groupMessageList != null && groupMessageList.size() == 0)
+                                {
                                     groupMessageList.add(groupMessage);
                                     groupMessageAdapter.notifyItemInserted(0);
                                 }
 
-                                if (istheLatestMessageTheLastVisibleItem) {
+                                if (istheLatestMessageTheLastVisibleItem)
+                                {
                                     recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
-                                } else {
-                                    if (!groupMessage.getFrom().equals(FirebaseAuthProvider.getCurrentUserId())) {
+                                }
+                                else
+                                {
+                                    if (!groupMessage.getFrom().equals(FirebaseAuthProvider.getCurrentUserId()))
+                                    {
                                         notvisiblenewmessagecount[0]++;
                                         newmessagenotification.setVisibility(View.VISIBLE);
                                         newmessagenotification.setText("New messages : " + String.valueOf(notvisiblenewmessagecount[0]));
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         recyclerView.smoothScrollToPosition(groupMessageAdapter.getItemCount());
                                     }
                                 }
@@ -279,13 +291,12 @@ public class GroupChatActivity extends AppCompatActivity {
 
                         }
                     });
-
-
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError)
+            {
 
             }
         });
@@ -917,44 +928,44 @@ public class GroupChatActivity extends AppCompatActivity {
 //                {
 //                    Toast.makeText(this, "Fmpeg is supported", Toast.LENGTH_SHORT).show();
 //                }
-               final VideoCompressor mVideoCompressor = new VideoCompressor(this);
-                String[] projection = {MediaStore.MediaColumns.DATA};
-
-                ContentResolver cr = getApplicationContext().getContentResolver();
-                Cursor c = cr.query(resultUri, projection, null, null, null);
-                c.moveToFirst();
-//                int col =
-                String pat2 = c.getString(0);
-
-                mVideoCompressor.startCompressing(pat2, new VideoCompressor.CompressionListener() {
-                    @Override
-                    public void compressionFinished(int status, boolean isVideo, String fileOutputPath) {
-
-                        if (mVideoCompressor.isDone()) {
-                            File outputFile = new File(fileOutputPath);
-                            long outputCompressVideosize = outputFile.length();
-                            long fileSizeInKB = outputCompressVideosize / 1024;
-                            long fileSizeInMB = fileSizeInKB / 1024;
-
-                            String s = "Output video path : " + fileOutputPath + "\n" +
-                                    "Output video size : " + fileSizeInMB + "mb";
-
-                            Toast.makeText(GroupChatActivity.this, "Compression succeeded " + s, Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-
-                    @Override
-                    public void onFailure(String message) {
-                        Toast.makeText(GroupChatActivity.this, "compression failed" + message, Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onProgress(final int progress) {
-                        Toast.makeText(GroupChatActivity.this, "compression progress" + progress, Toast.LENGTH_SHORT).show();
-
-                    }
-                });
+//               final VideoCompressor mVideoCompressor = new VideoCompressor(this);
+//                String[] projection = {MediaStore.MediaColumns.DATA};
+//
+//                ContentResolver cr = getApplicationContext().getContentResolver();
+//                Cursor c = cr.query(resultUri, projection, null, null, null);
+//                c.moveToFirst();
+////                int col =
+//                String pat2 = c.getString(0);
+//
+//                mVideoCompressor.startCompressing(pat2, new VideoCompressor.CompressionListener() {
+//                    @Override
+//                    public void compressionFinished(int status, boolean isVideo, String fileOutputPath) {
+//
+//                        if (mVideoCompressor.isDone()) {
+//                            File outputFile = new File(fileOutputPath);
+//                            long outputCompressVideosize = outputFile.length();
+//                            long fileSizeInKB = outputCompressVideosize / 1024;
+//                            long fileSizeInMB = fileSizeInKB / 1024;
+//
+//                            String s = "Output video path : " + fileOutputPath + "\n" +
+//                                    "Output video size : " + fileSizeInMB + "mb";
+//
+//                            Toast.makeText(GroupChatActivity.this, "Compression succeeded " + s, Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                    }
+//
+//                    @Override
+//                    public void onFailure(String message) {
+//                        Toast.makeText(GroupChatActivity.this, "compression failed" + message, Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onProgress(final int progress) {
+//                        Toast.makeText(GroupChatActivity.this, "compression progress" + progress, Toast.LENGTH_SHORT).show();
+//
+//                    }
+//                });
 
                 ////
 
@@ -968,7 +979,8 @@ public class GroupChatActivity extends AppCompatActivity {
                 final StorageReference filePath = storageReference.child(messagePushID + "." + "3gp");
 
                 uploadTask = filePath.putFile(resultUri);
-                progressBar.setProgress(20);
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setProgress(5);
 
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override

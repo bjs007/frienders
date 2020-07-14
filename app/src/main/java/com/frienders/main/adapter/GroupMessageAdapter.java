@@ -1,11 +1,13 @@
 package com.frienders.main.adapter;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +24,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.frienders.main.SplashActivity;
+import com.frienders.main.activity.ImageViwer;
 import com.frienders.main.config.Configuration;
+import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.MsgType;
 import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.R;
@@ -39,6 +43,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -284,6 +290,9 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         groupMessageViewHolder.senderMessageTextInGroup.setBackgroundResource(R.drawable.sender_message_layout);
                         groupMessageViewHolder.senderMessageTextInGroup.setTextColor(Color.BLACK);
                         groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage(): "");
+                        groupMessageViewHolder.senderMessageTextInGroup.setMovementMethod(BetterLinkMovementMethod.getInstance());
+                        Linkify.addLinks(groupMessageViewHolder.senderMessageTextInGroup, Linkify.ALL);
+
                     }
                     else
                     {
@@ -291,6 +300,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         groupMessageViewHolder.reciverMessageTextInGroup.setBackgroundResource(R.drawable.receiver_messages_layout);
                         groupMessageViewHolder.reciverMessageTextInGroup.setTextColor(Color.BLACK);
                         groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage() : "");
+                        groupMessageViewHolder.reciverMessageTextInGroup.setMovementMethod(BetterLinkMovementMethod.getInstance());
+                        Linkify.addLinks(groupMessageViewHolder.reciverMessageTextInGroup, Linkify.ALL);
                     }
                 }
 
@@ -307,6 +318,16 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                 .into(
                                         groupMessageViewHolder.imageSentBySender
                                 );
+
+                        groupMessageViewHolder.imageSentBySender.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent videoDisplayIntent = new Intent(context, ImageViwer.class);
+                                    videoDisplayIntent.putExtra(UsersFirebaseFields.imagelink, message.getMessage());
+                                    context.startActivity(videoDisplayIntent);
+                                }
+                        });
+
                     }
                     else
                     {
@@ -319,6 +340,15 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                 .into(
                                         groupMessageViewHolder.imageSentByReceiver
                                 );
+
+                        groupMessageViewHolder.imageSentByReceiver.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent videoDisplayIntent = new Intent(context, ImageViwer.class);
+                                videoDisplayIntent.putExtra(UsersFirebaseFields.imagelink, message.getMessage());
+                                context.startActivity(videoDisplayIntent);
+                            }
+                        });
                     }
                 }
                 else if (message.getType().equals(MsgType.VIDEO.getMsgTypeId()))

@@ -29,6 +29,7 @@
         android:paddingLeft="10dp"
         android:scaleType="centerCrop"
         android:text="receiver message here"
+        android:textColorLink="@color/colorBlue"
         android:textSize="16sp" />
 
     <ImageButton
@@ -167,6 +168,7 @@
         android:background="@drawable/sender_message_layout"
         android:padding="10dp"
         android:text="sender message here"
+        android:textColorLink="@color/colorBlue"
         android:textSize="16sp" />
 
     <LinearLayout

@@ -14,4 +14,5 @@ public class UsersFirebaseFields
     public static String profileImageLink = "image";
     public static String senderDisplayName = "senderDisplayName";
     public static String subscribed = "subscribed";
+    public static String imagelink = "imagelink";
 }
