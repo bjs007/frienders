@@ -37,11 +37,14 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.frienders.main.SplashActivity;
+import com.frienders.main.activity.ImageViwer;
 import com.frienders.main.activity.MainActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.Configuration;
@@ -193,23 +196,175 @@ public class GroupChatActivity extends AppCompatActivity {
                 linearLayoutManager);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-
-
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 recyclerView, new ClickListener() {
             @Override
             public void onClick(View view, final int position) {
-                //Values are passing to activity & to fragment as well
-                Toast.makeText(GroupChatActivity.this, "Single Click on position :"+position,
-                        Toast.LENGTH_SHORT).show();
-//                ImageView picture=(ImageView)view.findViewById(R.id.picture);
-//                picture.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        Toast.makeText(GroupChatActivity.this, "Single Click on Image :"+position,
-//                                Toast.LENGTH_SHORT).show();
-//                    }
-//                });
+               view.findViewById(R.id.group_message_receiver_image_view)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Utility.displayImage(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                            }
+                        });
+
+               view.findViewById(R.id.group_message_sender_image_view)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Utility.displayImage(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                            }
+                        });
+
+               view.findViewById(R.id.groupVideoViewSender)
+                       .setOnClickListener(new View.OnClickListener() {
+                           @Override
+                           public void onClick(View v) {
+                               Utility.displayImage(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                           }
+                        });
+
+               view.findViewById(R.id.groupVideoViewSender)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Utility.playVideo(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                            }
+                        });
+
+               view.findViewById(R.id.groupVideoViewReceiver)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Utility.playVideo(GroupChatActivity.this, groupMessageList.get(position).getMessage());
+                            }
+                        });
+
+               view.findViewById(R.id.group_reciever_message_like_button)
+                       .setOnClickListener(new View.OnClickListener() {
+                           @Override
+                           public void onClick(View v) {
+                               final DatabaseReference databaseReference = FirebasePaths.firebaseMessageLikeDbRef()
+                                       .child(groupId)
+                                       .child(groupMessageList.get(position).getMessageId())
+                                       .child(FirebaseAuthProvider.getCurrentUserId());
+
+                               databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                   @Override
+                                   public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                       Long likes = 0L;
+
+                                       try
+                                       {
+                                           if(groupMessageList.get(position).getLikes() != null)
+                                           {
+                                               likes = groupMessageList.get(position).getLikes();
+                                           }
+
+                                           if (likes == null) {
+                                               likes = 0L;
+                                           }
+
+                                           if (dataSnapshot.exists() )
+                                           {
+                                               databaseReference.removeValue();
+                                               likes--;
+                                           }
+                                           else
+                                           {
+                                               databaseReference.setValue("liked");
+                                               likes++;
+                                           }
+                                           if (likes != null)
+                                               groupMessageList.get(position).setLikes(likes);
+
+                                           groupMessageList.set(position, groupMessageList.get(position));
+                                           recyclerView.getAdapter().notifyItemChanged(position);
+                                           Toast.makeText(GroupChatActivity.this, "Position is " + groupMessageList.get(position).getMessage() + " - " + position, Toast.LENGTH_LONG).show();
+
+                                       }
+                                       catch (Exception ex)
+                                       {
+                                           Toast.makeText(GroupChatActivity.this, "Could not register likes!", Toast.LENGTH_SHORT).show();
+                                       }
+                                   }
+
+                                   @Override
+                                   public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                   }
+                               });
+
+                           }
+                       });
+
+               view.findViewById(R.id.group_sender_message_notification_icon)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final DatabaseReference databaseReference = FirebasePaths.firebaseUsersNotificationTimeDbRef()
+                                        .child(FirebaseAuthProvider.getCurrentUserId())
+                                        .child(groupMessageList.get(position).getGroupId());
+
+                                databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+                                {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                    {
+                                        Date date = new Date();
+                                        //This method returns the time in millis
+                                        long timeMilli = date.getTime();
+
+                                        if(dataSnapshot.exists())
+                                        {
+                                            Long timestamp = null;
+                                            try
+                                            {
+                                                timestamp = Long.parseLong(dataSnapshot.getValue().toString());
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+
+                                            if(timestamp != null && timeMilli - timestamp < 16 * 60 * 1000)
+                                            {
+                                                Toast.makeText(GroupChatActivity.this, "You can't send notification \nwithin 15 minutes in the same group.",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                            else
+                                            {
+                                                databaseReference.setValue(timeMilli);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            databaseReference.setValue(timeMilli);
+                                        }
+                                    }
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError)
+                                    {
+
+                                    }
+                                });
+
+                                final DatabaseReference userMessageKeyRef =
+                                        FirebasePaths
+                                                .firebaseDbRawRef()
+                                                .child("Notification")
+                                                .child(groupId)
+                                                .child(groupMessageList.get(position).getGroupId())
+                                                .push();
+
+                                final String messagePushID = userMessageKeyRef.getKey();
+                                final Map messageBodyDetails = new HashMap();
+                                messageBodyDetails.put(messagePushID, groupMessageList.get(position));
+
+                                FirebasePaths.firebaseDbRawRef().child("Notification").child(groupId).updateChildren(messageBodyDetails);
+                            }
+                        });
+
             }
 
             @Override
@@ -220,7 +375,6 @@ public class GroupChatActivity extends AppCompatActivity {
         }));
 
         initScrollListener();
-        /// GroupMessageAdapter Ends
 
 
         loadingBar = new ProgressDialog(GroupChatActivity.this);

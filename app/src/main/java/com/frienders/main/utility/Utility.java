@@ -1,5 +1,7 @@
 package com.frienders.main.utility;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -8,6 +10,9 @@ import android.media.ExifInterface;
 
 import androidx.annotation.NonNull;
 
+import com.frienders.main.SplashActivity;
+import com.frienders.main.activity.ImageViwer;
+import com.frienders.main.activity.group.GroupChatActivity;
 import com.frienders.main.config.GroupFirebaseFields;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
@@ -43,6 +48,20 @@ public class Utility
         }
 
         return groupDisplayNameMayContainRootName;
+    }
+
+    public static void displayImage(Context context, String imageLink)
+    {
+        Intent imageDisplayIntent = new Intent(context, ImageViwer.class);
+        imageDisplayIntent.putExtra(UsersFirebaseFields.imagelink, imageLink);
+        context.startActivity(imageDisplayIntent);
+    }
+
+    public static void playVideo(Context context, String imageLink)
+    {
+        Intent playMusi = new Intent(context, SplashActivity.class);
+        playMusi.putExtra("videoLink", imageLink != null ? imageLink : "");
+        context.startActivity(playMusi);
     }
 
     public static Bitmap decodeFile(String filePath) {

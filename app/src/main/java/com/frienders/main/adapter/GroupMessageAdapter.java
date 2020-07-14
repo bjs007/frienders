@@ -129,71 +129,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     if(message.getFrom().equals(currentUserId))
                     {
                         groupMessageViewHolder.groupMessageSenderNotificationIcon.setVisibility(View.VISIBLE);
-                        groupMessageViewHolder.groupMessageSenderNotificationIcon.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                final DatabaseReference databaseReference = FirebasePaths.firebaseUsersNotificationTimeDbRef()
-                                        .child(currentUserId)
-                                        .child(message.getGroupId());
-
-                                databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
-                                {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                                    {
-                                        Date date = new Date();
-                                        //This method returns the time in millis
-                                        long timeMilli = date.getTime();
-
-                                        if(dataSnapshot.exists())
-                                        {
-                                            Long timestamp = null;
-                                            try
-                                            {
-                                                timestamp = Long.parseLong(dataSnapshot.getValue().toString());
-                                            }
-                                            catch (Exception ex)
-                                            {
-
-                                            }
-
-                                            if(timestamp != null && timeMilli - timestamp < 16 * 60 * 1000)
-                                            {
-                                                Toast.makeText(context, "You can't send notification \nwithin 15 minutes in the same group.",
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                            else
-                                            {
-                                                databaseReference.setValue(timeMilli);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            databaseReference.setValue(timeMilli);
-                                        }
-                                    }
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError)
-                                    {
-
-                                    }
-                                });
-
-                                final DatabaseReference userMessageKeyRef =
-                                        FirebasePaths
-                                                .firebaseDbRawRef()
-                                                .child("Notification")
-                                                .child(groupId)
-                                                .child(message.getGroupId())
-                                                .push();
-
-                                final String messagePushID = userMessageKeyRef.getKey();
-                                final Map messageBodyDetails = new HashMap();
-                                messageBodyDetails.put(messagePushID, message);
-
-                                FirebasePaths.firebaseDbRawRef().child("Notification").child(groupId).updateChildren(messageBodyDetails);
-                            }
-                        });
                     }
                     else
                     {
@@ -204,63 +139,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             groupMessageViewHolder.messageLikes.setText(String.valueOf(message.getLikes()));
                         }
                         groupMessageViewHolder.group_reciever_message_like_button.setVisibility(View.VISIBLE);
-                        groupMessageViewHolder.group_reciever_message_like_button.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v)
-                            {
-
-                                final DatabaseReference databaseReference = FirebasePaths.firebaseMessageLikeDbRef()
-                                        .child(groupId)
-                                        .child(message.getMessageId())
-                                        .child(currentUserId);
-
-                                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        Long likes = 0L;
-
-                                        try
-                                        {
-                                            if(message.getLikes() != null)
-                                            {
-                                                likes = message.getLikes();
-                                            }
-
-                                            if (likes == null) {
-                                                likes = 0L;
-                                            }
-
-                                            if (dataSnapshot.exists() )
-                                            {
-                                                databaseReference.removeValue();
-                                                likes--;
-                                            }
-                                            else
-                                            {
-                                                databaseReference.setValue("liked");
-                                                likes++;
-                                            }
-                                            if (likes != null)
-                                                message.setLikes(likes);
-
-                                            groupMessageList.set(position, message);
-                                            recyclerView.getAdapter().notifyItemChanged(position);
-                                            Toast.makeText(context, "Position is " + groupMessageList.get(position).getMessage() + " - " + position, Toast.LENGTH_LONG).show();
-
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Toast.makeText(context, "Could not register likes!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                    }
-                                });
-                            }
-                        });
                     }
 
                 }
@@ -316,16 +194,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                 .into(
                                         groupMessageViewHolder.imageSentBySender
                                 );
-
-                        groupMessageViewHolder.imageSentBySender.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent videoDisplayIntent = new Intent(context, ImageViwer.class);
-                                    videoDisplayIntent.putExtra(UsersFirebaseFields.imagelink, message.getMessage());
-                                    context.startActivity(videoDisplayIntent);
-                                }
-                        });
-
                     }
                     else
                     {
@@ -338,15 +206,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                 .into(
                                         groupMessageViewHolder.imageSentByReceiver
                                 );
-
-                        groupMessageViewHolder.imageSentByReceiver.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent videoDisplayIntent = new Intent(context, ImageViwer.class);
-                                videoDisplayIntent.putExtra(UsersFirebaseFields.imagelink, message.getMessage());
-                                context.startActivity(videoDisplayIntent);
-                            }
-                        });
                     }
                 }
                 else if (message.getType().equals(MsgType.VIDEO.getMsgTypeId()))
@@ -359,22 +218,9 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
                             Glide.with(context)
                                     .asBitmap()
-//                                .placeholder(R.drawable.video_preview_icon)
                                     .load(message.getMessage() != null ? message.getMessage() : "") // or URI/path
                                     .into(groupMessageViewHolder.groupVideoSender); //imageview to set thumbnail to
                             groupMessageViewHolder.playIconSender.setVisibility(View.VISIBLE);
-
-                            groupMessageViewHolder.groupVideoSender.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v)
-                                {
-                                    Intent playMusi = new Intent(context, SplashActivity.class);
-                                    playMusi.putExtra("videoLink", message.getMessage() != null ? message.getMessage() : "");
-                                    context.startActivity(playMusi);
-                                }
-                            });
-
-
                         }
                         else
                         {
@@ -382,19 +228,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             groupMessageViewHolder.playIconReceiver.setVisibility(View.VISIBLE);
                             Glide.with(context)
                                     .asBitmap()
-//                                .placeholder(R.drawable.video_preview_icon)
                                     .load(message.getMessage() != null ? message.getMessage() : "") // or URI/path
                                     .into(groupMessageViewHolder.groupVideoReceiver); //imageview to set thumbnail to
-
-                            groupMessageViewHolder.groupVideoReceiver.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent playMusi = new Intent(context, SplashActivity.class);
-                                    playMusi.putExtra("videoLink", message.getMessage() != null ? message.getMessage() : "");
-                                    context.startActivity(playMusi);
-                                }
-                            });
-
                         }
                     }
                     catch (Exception ex)
@@ -425,9 +260,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         @Override
                         public void onClick(View v)
                         {
-
-                            //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(groupMessageList.get(position).getMessage()));
-                            //groupMessageViewHolder.itemView.getContext().startActivity(intent);
                             try
                             {
                                 DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -522,7 +354,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         @Override
         public void onClick(View v)
         {
-//            Toast.makeText(context, String.valueOf(v.getId()),Toast.LENGTH_SHORT).show();
+
         }
     }
 
@@ -536,53 +368,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             progressBar = itemView.findViewById(R.id.progressBar1);
         }
     }
-
-//    private void loadPaginated()
-//    {
-//        moreMessages.clear();
-//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
-//        {
-//            @Override
-//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState)
-//            {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                progressBar.setVisibility(View.GONE);
-//                isLoading = true;
-////                    if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
-////                    {
-////                        progressBar.setVisibility(View.GONE);
-////                        isLoading = true;
-////                    }
-//            }
-//
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-//            {
-//
-//                currentCount = linearLayoutManager.getChildCount();
-//                totalCount = linearLayoutManager.getItemCount();
-//                scrolledCount = (linearLayoutManager.findFirstCompletelyVisibleItemPosition());
-//                progressBar.setVisibility(View.GONE);
-//
-//                if(isLoading && (currentCount + scrolledCount == totalCount))
-//                {
-//                    isLoading = false;
-//                    if(dy > 0)
-//                    {
-//                        if(!reachedEnd)
-//                        {
-//                            getMessages(getLastItemId(), progressBar);
-//
-//                        }else
-//                        {
-//                            Toast.makeText(context, "Nore more scrolled item", Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                    }
-//                }
-//            }
-//        });
-//    }
 
     public String getLastItemId()
     {
