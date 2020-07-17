@@ -31,6 +31,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Locale;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SubscribedGroupsFragment extends Fragment
@@ -39,7 +41,7 @@ public class SubscribedGroupsFragment extends Fragment
     private View groupChatView;
     private ProgressDialog progressDialog;
     private RecyclerView userSubscribedGroupsList;
-    private String language = "eng";
+    private String language = "en";
 
     public SubscribedGroupsFragment()
     {
@@ -59,6 +61,7 @@ public class SubscribedGroupsFragment extends Fragment
         groupChatView = inflater.inflate(R.layout.fragment_ginfox_groups, container,false);
         userSubscribedGroupsList = groupChatView.findViewById(R.id.groups_list);
         userSubscribedGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        language = Utility.getDeviceLanguage();
 
         return groupChatView;
     }
@@ -67,28 +70,7 @@ public class SubscribedGroupsFragment extends Fragment
     public void onStart()
     {
         super.onStart();
-
-        final String currentUserId  = FirebaseAuthProvider.getCurrentUserId();
-        FirebasePaths.firebaseUserRef(currentUserId)
-                .child(UsersFirebaseFields.language)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
-                {
-                    language = dataSnapshot.getValue().toString();
-                }
-
-                createGroupList();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
-
-            }
-        });
+        createGroupList();
     }
 
     private void createGroupList()
@@ -112,16 +94,15 @@ public class SubscribedGroupsFragment extends Fragment
                             String groupDisplayName = null;
                             String groupDesc = null;
 
-                            if(language.equals("eng"))
-                            {
-                                groupDisplayName = model.getEngName();
-                                groupDesc = model.getEngDesc();
-                            }
-                            else
+                            if(language.equals("hi"))
                             {
                                 groupDisplayName = model.getHinName();
                                 groupDesc = model.getHinDesc();
-
+                            }
+                            else
+                            {
+                                groupDisplayName = model.getEngName();
+                                groupDesc = model.getEngDesc();
                             }
 
                             if(groupDisplayName != null && groupDesc != null)

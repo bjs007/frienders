@@ -1,8 +1,17 @@
 package com.frienders.main.config;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Configuration
 {
     public static String firebaseappname = "Frienders";
+    public static String APP_DEFAULT_LANGUAGE = "en";
+    public static Set<String> languageSupported = new HashSet<>();
+    static {
+        languageSupported.add("en");
+        languageSupported.add("hi");
+    }
 
     //Firebase DB Names
     public static String firebasegroupdb = "Groups";

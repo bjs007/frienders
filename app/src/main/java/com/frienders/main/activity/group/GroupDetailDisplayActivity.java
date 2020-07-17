@@ -11,6 +11,7 @@ import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.db.model.Group;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
+import com.frienders.main.utility.Utility;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,7 +25,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     private TextView groupDescription;
     private TextView groupDetail;
     private String groupId;
-    private String language = "eng";
+    private String language = Utility.getDeviceLanguage();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,102 +45,66 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     private void populateFields()
     {
 
-        DatabaseReference userLangugae = FirebasePaths.firebaseUsersDbRef().child(FirebaseAuthProvider.getCurrentUserId()).child("lang");
-
-        userLangugae.addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebasePaths.firebaseGroupDbRef().child("leafs").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
                 if(dataSnapshot.exists())
                 {
-                    language = dataSnapshot.getValue().toString();
-                }
+                    Group group =  dataSnapshot.getValue(Group.class);
+                    groupName.setText(group.getEngName());
+                    groupDescription.setText(group.getEngDesc());
 
-                FirebasePaths.firebaseGroupDbRef().child("leafs").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                    String groupDisplayName = null;
+                    String groupDesc = null;
+
+                    if(language.equals("hi"))
                     {
-                        if(dataSnapshot.exists())
-                        {
-                            Group group =  dataSnapshot.getValue(Group.class);
-                            groupName.setText(group.getEngName());
-                            groupDescription.setText(group.getEngDesc());
-
-//                            if(group != null)
-//                            {
-//                                if(language.equals("eng"))
-//                                {
-//                                    groupName.setText(group.getEngName());
-//                                    groupDescription.setText(group.getEngDesc());
-//                                }
-//                                else
-//                                {
-//                                    groupName.setText(group.getHinName());
-//                                    groupDescription.setText(group.getHinDesc());
-//                                }
-//                            }
-
-                            String groupDisplayName = null;
-                            String groupDesc = null;
-
-                            if(language.equals("eng"))
-                            {
-                                groupDisplayName = group.getEngName();
-                                groupDesc = group.getEngDesc();
-                            }
-                            else
-                            {
-                                groupDisplayName = group.getHinName();
-                                groupDesc = group.getHinDesc();
-
-                            }
+                        groupDisplayName = group.getHinName();
+                        groupDesc = group.getHinDesc();
+                    }
+                    else
+                    {
+                        groupDisplayName = group.getEngName();
+                        groupDesc = group.getEngDesc();
+                    }
 
 
-                            if(groupDisplayName != null && groupDesc != null) {
-                                String[] groupWithParentNameWithoutAsterisk = null;
-                                if (groupDisplayName.indexOf('*') != -1) {
-                                    groupWithParentNameWithoutAsterisk = group.getEngName().split("\\*");
-                                }
-
-                                String groupDisplayNameMayContainRootName = null;
-                                if (groupWithParentNameWithoutAsterisk.length == 2) {
-                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
-                                } else {
-                                    groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
-                                }
-                                groupName.setText(groupDisplayNameMayContainRootName);
-                               groupDescription.setText(groupDesc);
-                            }
-
-
-
-                                FirebasePaths.firebaseGroupDbRef().child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                                {
-                                    if(dataSnapshot.exists())
-                                    {
-                                        String detail = dataSnapshot.getValue().toString();
-                                        groupDetail.setText(detail);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError)
-                                {
-
-                                }
-                            });
+                    if(groupDisplayName != null && groupDesc != null) {
+                        String[] groupWithParentNameWithoutAsterisk = null;
+                        if (groupDisplayName.indexOf('*') != -1) {
+                            groupWithParentNameWithoutAsterisk = group.getEngName().split("\\*");
                         }
+
+                        String groupDisplayNameMayContainRootName = null;
+                        if (groupWithParentNameWithoutAsterisk.length == 2) {
+                            groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+                        } else {
+                            groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
+                        }
+                        groupName.setText(groupDisplayNameMayContainRootName);
+                        groupDescription.setText(groupDesc);
                     }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError)
-                    {
 
-                    }
-                });
+                    FirebasePaths.firebaseGroupDbRef().child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                        {
+                            if(dataSnapshot.exists())
+                            {
+                                String detail = dataSnapshot.getValue().toString();
+                                groupDetail.setText(detail);
+                            }
+                        }
 
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError)
+                        {
+
+                        }
+                    });
+                }
             }
 
             @Override
@@ -148,6 +113,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     private void initializeUi()

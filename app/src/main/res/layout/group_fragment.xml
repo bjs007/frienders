@@ -24,7 +24,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:focusable="false"
-                app:queryHint="railway, salman etc."
+                app:queryHint="@string/search"
                 app:iconifiedByDefault="false"
                 android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintBottom_toBottomOf="parent"

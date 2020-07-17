@@ -203,59 +203,59 @@
                         android:textCursorDrawable="@color/colorBlack"
                         android:hint="Available"/>
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_marginTop="25dp"
-                    android:orientation="horizontal"
-                    android:paddingLeft="25dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/ic_language_black_24dp"
+<!--                <LinearLayout-->
+<!--                    android:layout_marginTop="25dp"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:paddingLeft="25dp"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content">-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="36dp"-->
+<!--                        android:layout_height="36dp"-->
+<!--                        android:src="@drawable/ic_language_black_24dp"-->
 
-                        />
-                    <TextView
-                        android:layout_gravity="center_vertical"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="20dp"
-                        android:text="Language"/>
+<!--                        />-->
+<!--                    <TextView-->
+<!--                        android:layout_gravity="center_vertical"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:paddingLeft="20dp"-->
+<!--                        android:text="Language"/>-->
 
-                    <RadioGroup
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingLeft="20dp"
-                        android:id="@+id/radioGroup_new"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/languagebar"
-                        >
+<!--                    <RadioGroup-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:paddingLeft="20dp"-->
+<!--                        android:id="@+id/radioGroup_new"-->
+<!--                        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/languagebar"-->
+<!--                        >-->
 
-                        <RadioButton
-                            android:id="@+id/english"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:text="English"
-                            android:paddingRight="10dp"
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/english"-->
+<!--                            android:layout_width="fill_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="English"-->
+<!--                            android:paddingRight="10dp"-->
 
-                            android:checked="false"
-                            android:buttonTint="@color/colorBlack"
-                            />
+<!--                            android:checked="false"-->
+<!--                            android:buttonTint="@color/colorBlack"-->
+<!--                            />-->
 
-                        <RadioButton
-                            android:id="@+id/hindi"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Hindi"
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/hindi"-->
+<!--                            android:layout_width="fill_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="Hindi"-->
 
-                            android:checked="false"
-                            android:buttonTint="@color/colorBlack"
+<!--                            android:checked="false"-->
+<!--                            android:buttonTint="@color/colorBlack"-->
 
 
-                            />
-                    </RadioGroup>
-                </LinearLayout>
+<!--                            />-->
+<!--                    </RadioGroup>-->
+<!--                </LinearLayout>-->
 
                 <LinearLayout
 

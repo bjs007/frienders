@@ -4,53 +4,38 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frienders.main.SplashActivity;
-import com.frienders.main.activity.ImageViwer;
 import com.frienders.main.activity.MainActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.MsgType;
-import com.frienders.main.db.model.Messages;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.model.Group;
@@ -82,10 +67,8 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,12 +82,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import droidninja.filepicker.FilePickerBuilder;
 import droidninja.filepicker.FilePickerConst;
 import id.zelory.compressor.Compressor;
-//import nl.bravobit.ffmpeg.FFmpeg;
-//import nl.bravobit.ffmpeg.FFmpeg;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static android.media.tv.TvTrackInfo.TYPE_VIDEO;
 import static com.frienders.main.config.Configuration.RequestCodeForDocPick;
 import static com.frienders.main.config.Configuration.RequestCodeForImagePick;
 import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
@@ -162,6 +142,7 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
     private void initializeUi() {
+
         groupMessageProgressBar = findViewById(R.id.groupMessageProgressBar);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
         groupChatToolBar = findViewById(R.id.group_chat_toolbar);
@@ -175,6 +156,7 @@ public class GroupChatActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
+//        Toast.makeText(this, Locale.getDefault().getLanguage(), Toast.LENGTH_SHORT).show();
         LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionBarView = layoutInflater.inflate(R.layout.custom_group_chat_bar, null);
         actionBar.setCustomView(actionBarView);
@@ -280,7 +262,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
                                            groupMessageList.set(position, groupMessageList.get(position));
                                            recyclerView.getAdapter().notifyItemChanged(position);
-                                           Toast.makeText(GroupChatActivity.this, "Position is " + groupMessageList.get(position).getMessage() + " - " + position, Toast.LENGTH_LONG).show();
+//                                           Toast.makeText(GroupChatActivity.this, "Position is " + groupMessageList.get(position).getMessage() + " - " + position, Toast.LENGTH_LONG).show();
 
                                        }
                                        catch (Exception ex)
@@ -380,8 +362,6 @@ public class GroupChatActivity extends AppCompatActivity {
                                Utility.downloadDoc(GroupChatActivity.this, groupMessageList.get(position).getMessage());
                            }
                        });
-
-
             }
 
             @Override

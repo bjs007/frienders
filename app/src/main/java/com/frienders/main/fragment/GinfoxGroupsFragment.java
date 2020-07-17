@@ -31,6 +31,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Locale;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
@@ -41,7 +43,7 @@ public class GinfoxGroupsFragment extends Fragment
 {
     private View groupChatView;
     private RecyclerView userSubscribedGroupsList;
-    private String language = "eng";
+    private String language = "en";
 
     public GinfoxGroupsFragment()
     {
@@ -54,6 +56,11 @@ public class GinfoxGroupsFragment extends Fragment
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         initializeUi(inflater, container);
+        if(Locale.getDefault().getLanguage() != null && (Locale.getDefault().getLanguage().equals("en")
+                || Locale.getDefault().getLanguage().equals("hi")))
+        {
+            language = Locale.getDefault().getLanguage();
+        }
 
         return groupChatView;
     }
@@ -70,28 +77,13 @@ public class GinfoxGroupsFragment extends Fragment
     {
         super.onStart();
 
-        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                .child(UsersFirebaseFields.language)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
-                {
-                    language = dataSnapshot.getValue().toString();
-                }
+        if(Locale.getDefault().getLanguage() != null && (Locale.getDefault().getLanguage().equals("en")
+                || Locale.getDefault().getLanguage().equals("hi")))
+        {
+            language = Locale.getDefault().getLanguage();
+        }
 
-                createGroupList();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
-                createGroupList();
-            }
-        });
-
-//        createGroupList();
+        createGroupList();
     }
 
     private void createGroupList()
@@ -112,15 +104,16 @@ public class GinfoxGroupsFragment extends Fragment
                         {
                             final String groupName = getRef(position).getKey();
 
-                            if(language.equals("eng"))
-                            {
-                                holder.groupName.setText(model.getEngName());
-                                holder.groupDescription.setText(model.getEngDesc());
-                            }
-                            else
+                            if(language.equals("hi"))
                             {
                                 holder.groupName.setText(model.getHinName());
                                 holder.groupDescription.setText(model.getHinDesc());
+
+                            }
+                            else
+                            {
+                                holder.groupName.setText(model.getEngName());
+                                holder.groupDescription.setText(model.getEngDesc());
                             }
 
 //                            holder.groupViewImage.setVisibility(View.GONE);
@@ -176,7 +169,6 @@ public class GinfoxGroupsFragment extends Fragment
         public GroupViewHolder(@NonNull View itemView)
         {
             super(itemView);
-//            groupViewImage = itemView.findViewById(R.id.group_profile_image);
             groupName = itemView.findViewById(R.id.group_name);
             groupDescription = itemView.findViewById(R.id.group_description);
             subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);

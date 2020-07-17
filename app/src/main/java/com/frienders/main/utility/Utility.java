@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 
 import com.frienders.main.SplashActivity;
 import com.frienders.main.activity.ImageViwer;
-import com.frienders.main.activity.group.GroupChatActivity;
+import com.frienders.main.config.Configuration;
 import com.frienders.main.config.GroupFirebaseFields;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
@@ -32,6 +32,7 @@ import com.google.firebase.iid.InstanceIdResult;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 
 public class Utility
@@ -66,6 +67,17 @@ public class Utility
         Intent playMusi = new Intent(context, SplashActivity.class);
         playMusi.putExtra("videoLink", imageLink != null ? imageLink : "");
         context.startActivity(playMusi);
+    }
+
+    public static String getDeviceLanguage()
+    {
+        String deviceLanguage = Locale.getDefault().getLanguage();
+        if(Configuration.languageSupported.contains(deviceLanguage))
+        {
+            return deviceLanguage;
+        }
+
+        return Configuration.APP_DEFAULT_LANGUAGE;
     }
 
     public static void downloadDoc(Context context, String docLink)

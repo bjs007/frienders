@@ -3,7 +3,6 @@
     <string name="app_name_cap">FRIENDERS</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -58,5 +57,12 @@
     <string name="subscribed_group_removed">A Group has been removed</string>
     <string name="subscribed_group_added">A new group has been added!</string>
     <string name="india_isd_code">+91</string>
+    <string name="logout">Logout</string>
+    <string name="settings">Settings</string>
+    <string name="updating_settings">Updating profile...</string>
+    <string name="search_hint">railway, salman etc.</string>
+    <string name="loading">Loading...</string>
+    <string name="group_description">Group Description</string>
+    <string name="group_detail">Group Detail</string>
 
 </resources>

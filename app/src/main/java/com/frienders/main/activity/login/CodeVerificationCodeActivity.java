@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.UsersFirebaseFields;
@@ -191,7 +192,7 @@ public class CodeVerificationCodeActivity extends AppCompatActivity {
 
     private void sendUserToSettingActivity()
     {
-        Intent settingIntent = new Intent(CodeVerificationCodeActivity.this, SettingActivity.class);
+        Intent settingIntent = new Intent(CodeVerificationCodeActivity.this, NewSetting.class);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);

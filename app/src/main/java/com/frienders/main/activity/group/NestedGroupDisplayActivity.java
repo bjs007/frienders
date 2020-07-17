@@ -43,7 +43,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
     private RecyclerView groupList;
     private int level;
     private String parentId = Firebasedatabasefields.rootParent;
-    private String language = "eng";
+    private String language = Utility.getDeviceLanguage();
 
 
     @Override
@@ -78,25 +78,27 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
         final String currentUserId  = FirebaseAuthProvider.getCurrentUserId();
 
-        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.language)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
-                {
-                    language = dataSnapshot.getValue().toString();
-                }
+//        FirebasePaths.firebaseUserRef(currentUserId).child(UsersFirebaseFields.language)
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+//            {
+//                if(dataSnapshot.exists())
+//                {
+//                    language = dataSnapshot.getValue().toString();
+//                }
+//
+//                createGroupList();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError)
+//            {
+//
+//            }
+//        });
 
-                createGroupList();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
-
-            }
-        });
+        createGroupList();
 
     }
 
@@ -131,15 +133,15 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                 String groupDisplayName = null;
                                 String groupDesc = null;
 
-                                if(language.equals("eng"))
-                                {
-                                    groupDisplayName = model.getEngName();
-                                    groupDesc = model.getEngDesc();
-                                }
-                                else
+                                if(language.equals("hi"))
                                 {
                                     groupDisplayName = model.getHinName();
                                     groupDesc = model.getHinDesc();
+                                }
+                                else
+                                {
+                                    groupDisplayName = model.getEngName();
+                                    groupDesc = model.getEngDesc();
 
                                 }
 

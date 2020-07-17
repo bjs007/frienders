@@ -1,17 +1,11 @@
 package com.frienders.main.activity.profile;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,9 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -35,15 +27,13 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
-import com.frienders.main.activity.group.GroupChatActivity;
-import com.frienders.main.activity.group.NestedGroupDisplayActivity;
 import com.frienders.main.config.Configuration;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.db.refs.FirestorePath;
-import com.frienders.main.fragment.GinfoxGroupsFragment;
 import com.frienders.main.utility.FileUtil;
+import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,19 +41,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
-import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
@@ -79,7 +64,7 @@ public class NewSetting extends AppCompatActivity {
     private androidx.appcompat.widget.Toolbar settingsToolBar;
     RadioButton languageRadioButton, engLanguageRadioButton, hinLanuguageRadioButton;
     RadioGroup languaeRadioGroup;
-    private String userLanguage = "eng";
+    private String deviceLanguage = Utility.getDeviceLanguage();
     private TextView deleteProfileImage;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
@@ -100,9 +85,9 @@ public class NewSetting extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         userStatus = findViewById(R.id.set_profile_status_new);
         userProfileImage = findViewById(R.id.set_profile_image_new);
-        languaeRadioGroup = findViewById(R.id.radioGroup_new);
-        engLanguageRadioButton = findViewById(R.id.english);
-        hinLanuguageRadioButton = findViewById(R.id.hindi);
+//        languaeRadioGroup = findViewById(R.id.radioGroup_new);
+//        engLanguageRadioButton = findViewById(R.id.english);
+//        hinLanuguageRadioButton = findViewById(R.id.hindi);
         deleteProfileImage = findViewById(R.id.delete_profile_image_new);
         userName.setVisibility(View.VISIBLE);
         groupsSubscribed = findViewById(R.id.numberOfgroupsSubscribed);
@@ -165,47 +150,6 @@ public class NewSetting extends AppCompatActivity {
             }
         });
 
-        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
-                .addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                    {
-                        if(dataSnapshot.exists())
-                        {
-                            if(dataSnapshot.hasChild(UsersFirebaseFields.language))
-                            {
-                                userLanguage = dataSnapshot.child(UsersFirebaseFields.language).getValue().toString();
-                            }
-
-                            if(userLanguage.equals("eng"))
-                            {
-                                int id = engLanguageRadioButton.getId();
-                                languaeRadioGroup.check(id);
-                            }
-                            else
-                            {
-                                int id = hinLanuguageRadioButton.getId();
-                                languaeRadioGroup.check(id);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError)
-                    {
-
-                    }
-                });
-
-//        settingsToolBar.setNavigationOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                SendUserToMainActivity();
-//            }
-//        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -408,10 +352,10 @@ public class NewSetting extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.writeastatus) , Toast.LENGTH_SHORT).show();
         }
 
-        else if(languaeRadioGroup.getCheckedRadioButtonId() == -1)
-        {
-            Toast.makeText(this, getString(R.string.selectpreferredlanguage), Toast.LENGTH_SHORT).show();
-        }
+//        else if(languaeRadioGroup.getCheckedRadioButtonId() == -1)
+//        {
+//            Toast.makeText(this, getString(R.string.selectpreferredlanguage), Toast.LENGTH_SHORT).show();
+//        }
 
         else
         {
@@ -419,24 +363,24 @@ public class NewSetting extends AppCompatActivity {
             progressDialog.setMessage("Updating profile...");
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
-            int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
+//            int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
+//
+//            languageRadioButton = (RadioButton) findViewById(languageKey);
 
-            languageRadioButton = (RadioButton) findViewById(languageKey);
-
-            String language = "hin";
-
-            String inputLang = languageRadioButton.getText().toString().trim().toLowerCase();
-
-            if(inputLang.equals("english"))
-            {
-                language = "eng";
-            }
+//            String language = "hin";
+//
+//            String inputLang = languageRadioButton.getText().toString().trim().toLowerCase();
+//
+//            if(inputLang.equals("english"))
+//            {
+//                language = "eng";
+//            }
 
             HashMap<String, Object> profileMap = new HashMap<>();
             profileMap.put(UsersFirebaseFields.uid, FirebaseAuthProvider.getCurrentUserId());
             profileMap.put(UsersFirebaseFields.name, setUserName);
             profileMap.put(UsersFirebaseFields.status, setUserStatus);
-            profileMap.put(UsersFirebaseFields.language, language);
+            profileMap.put(UsersFirebaseFields.language, Configuration.APP_DEFAULT_LANGUAGE);
 
             final String userId = FirebaseAuthProvider.getCurrentUserId();
 
