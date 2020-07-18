@@ -1,7 +1,6 @@
 
 <resources>
 
-    Translate word in black to hindi and write same line in a new word document.
 
     <string name="app_name">फ़्रेंडर्स</string>
     <string name="app_name_cap">फ़्रेंडर्स</string>
@@ -12,63 +11,70 @@
     <string name="prompt_password">पासवर्ड</string>
     <string name="action_sign_in">हस्ताक्षर और रजिस्टर </string>
     <string name="action_sign_in_short"> साइन इन करें</string>
-    <string name="welcome">" स्वागत हे!"</string>
-    <string name="invalid_username"> वैध नहीं है यूजरनाम </string>
-    <string name="invalid_password"> पासवर्ड होना चाहिए 5 characters</string>
-    <string name="login_failed">" लॉगिन विफल "</string>
-    <string name="subscribe"> मेरे में जोड़ें ग्रूप  </string>
-    <string name="unsubscribe">
-मेरे ग्रूप्स से निकालें </string>
+    <string name="welcome">" स्वागत!"</string>
+    <string name="invalid_username"> इनवेलीड यूजरनाम </string>
+    <string name="invalid_password"> पासवर्ड होना चाहिए 5 कैरेक्टर्स </string>
+    <string name="login_failed">" लॉगिन फेल "</string>
+    <string name="subscribe"> मेरे ग्रूप्स में जोड़ें  </string>
+    <string name="unsubscribe">मेरे ग्रूप्स से निकालें </string>
     <string name="hometabs">hometabs</string>
     <string name="please_wait"> कृपया प्रतीक्षा करें </string>
-    <string name="enter_email_message"> कृपया ईमेल दर्ज करें...</string>
-    <string name="enter_password_message"> कृप्या पास्वर्ड भरो...</string>
-    <string name="login_success"> लॉगिन की सफलता </string>
-    <string name="login_error"> लॉग इन फेयैल्ड </string>
+    <string name="enter_email_message"> कृपया ईमेल डाले...</string>
+    <string name="enter_password_message"> कृप्या पास्वर्ड डाले...</string>
+    <string name="login_success"> लॉगिन सफल रहा</string>
+    <string name="login_error"> लॉग इन फेल्ड </string>
     <string name="verification_code_popop_title"> वेरिफिकेशन कोड </string>
     <string name="verification_code_please_wait_message"> कृपया प्रतीक्षा करें, जबकि हम कोड का वेरिफिकेशन कर रहे हैं </string>
-    <string name="write_verification_code_here">
-कृपया वेरिफिकेशन कोड पहले लिखें </string>
+    <string name="write_verification_code_here">कृपया वेरिफिकेशन कोड पहले लिखें </string>
     <string name="code_verified"> कोड वेरिफाइड किया गया!</string>
     <string name="wrong_code"> गलत कोड! पुनः प्रयास करें</string>
     <string name="phonenumberrequired"> फोन नंबर आवश्यक है </string>
-    <string name="pleaseenterphonenumber"> कृपया 10 अंकों का भारतीय मोबाइल नंबर दर्ज करें 987654321</string>
-    <string name="sendingverificationcode"> हम वेरिफिकेशन कोड भेज रहे हैं। कृपया प्रतीक्षा करें!</string>
-    <string name="entervalidphonenumber"> इन्वलिड फ़ोन नंबर, कृपया 10 अंकों का भारतीय मोबाइल नंबर दर्ज करें उदा। 9876543210
- </string>
-    <string name="writeyourname"> कृपया अपना ऊज़रनाम नाम पहले लिखें..</string>
-    <string name="writeastatus">कृपया अपनी स्टेटस लिखें .. </string>
-    <string name="selectpreferredlanguage">कृपया पसंदीदा भाषा सेलेक्ट करें..</string>
+    <string name="pleaseenterphonenumber"> कृपया 10 अंकों का मोबाइल नंबर डालें</string>
+    <string name="send_verification_code_button">वेरिफिकेशन कोड भेजे</string>
+    <string name="sendingverificationcode_wait_message"> हम वेरिफिकेशन कोड भेज रहे हैं। कृपया प्रतीक्षा करें!</string>
+    <string name="entervalidphonenumber"> इन्वलिड फ़ोन नंबर, कृपया 10 अंकों का भारतीय मोबाइल नंबर दर्ज करें उदा। 9876543210</string>
+    <string name="writeyourname"> कृपया अपना नाम पिखें...</string>
+    <string name="writeastatus">कृपया अपना स्टेटस लिखें... </string>
     <string name="codesent"> वेरिफिकेशन कोड भेजा!</string>
     <string name="loadingmessage"> कृपया प्रतीक्षा करें! लोड हो रहा है...</string>
     <string name="writefirstmessage"> पहले अपना मेसेज लिखें...</string>
     <string name="video"> वीडियो </string>
-    <string name="Docs">MSDOCX</string>
+    <string name="Docs">DOCs</string>
     <string name="image"> इमेज / कैमरा</string>
     <string name="PDF"> पीडीएफ</string>
-    <string name="selectfiletype"> सेलेक्ट फाइल टाइप</string>
+    <string name="selectfiletype"> फाइल</string>
     <string name="mygrouptab"> मेरे ग्रूप्स </string>
     <string name="allgrouptab"> सभी ग्रूप्स </string>
-    <string name="search"> खोज</string>
+    <string name="search"> खोजे</string>
     <string name="rationale_photo_picker">android.permission.WRITE_EXTERNAL_STORAGE</string>
     <string name="groupchatdisplaymessage"> कृपया चैट करने के लिए सबस्क्राइब करे </string>
     <string name="subscribedtoChat"> कृपया चैट करने के लिए सबस्क्राइब करे </string>
     <string name="filesizeerrormessage"> फ़ाइल का साइज़ 16 एमबी से कम होना चाहिए </string>
-    <string name="filemorethan10MB"> 10MB से अधिक फ़ाइल साइज़  ~ 15 सेकंड लेता है </string>
+    <string name="filemorethan10MB"> 10MB से अधिक फ़ाइल साइज़ ~15 सेकंड लेता है </string>
     <string name="default_notification_channelid">app_channel_id</string>
-    <string name="questions"> प्रशन</string>
-    <string name="groups"> ग्रूप्स </string>
-    <string name="ans"> जवाब </string>
+    <string name="questions">प्रश्न</string>
+    <string name="groups">ग्रूप्स</string>
+    <string name="ans">उत्तर</string>
     <string name="user_national_ranking"> रॅंकिंग श्रेणी </string>
-    <string name="view_group"> व्यू/राय </string>
+    <string name="view_group"> देखे </string>
     <string name="subscribed_group_removed"> एक ग्रूप को हटा दिया गया है</string>
     <string name="subscribed_group_added"> एक नया ग्रूप जोड़ा गया है!</string>
     <string name="india_isd_code">+91</string>
     <string name="logout">लॉग आउट</string>
     <string name="settings">सेटिंग्स</string>
-    <string name="updating_settings">प्रोफ़ाइल अपडेट हो रहा है..</string>
-    <string name="search_hint">रेलवे, सलमान आदि..</string>
+    <string name="updating_settings">प्रोफ़ाइल अपडेट हो रहा है...</string>
+    <string name="search_hint">रेलवे, सलमान आदि...</string>
     <string name="loading">लोडिंग...</string>
     <string name="group_description">ग्रूप विवरण</string>
     <string name="group_detail">ग्रूप विस्तार</string>
+    <string name="enter_your_phone_numer">अपना फोन नंबर डाले</string>
+    <string name="enter_code_here">अपना कोड यहा डाले</string>
+    <string name="verify_code">वेरिफाइ कोड</string>
+    <string name="can_not_send_notification_within_15minutes">आप एक ही ग्रूप में 15 मिनट के भीतर नोटिफिकेशन नहीं भेज सकते।.</string>
+    <string name="be_first_one_to_chat">चैट करने वाले पहले व्यक्ति बनेंt</string>
+    <string name="error_occurred">Error हुई</string>
+    <string name="new_message_notification">नया मेसेज</string>
+    <string name="upload_failed">अपलोड फेल्ड</string>
+    <string name="could_not_send_last_message">अंतिम मेसेज नहीं भेज सके</string>
+    <string name="updating_profile">प्रोफ़ाइल अपडेट हो रहा है...</string>
 </resources>

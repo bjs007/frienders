@@ -477,10 +477,10 @@ public class SettingActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.writeastatus) , Toast.LENGTH_SHORT).show();
         }
 
-        else if(languaeRadioGroup.getCheckedRadioButtonId() == -1)
-        {
-            Toast.makeText(this, getString(R.string.selectpreferredlanguage), Toast.LENGTH_SHORT).show();
-        }
+//        else if(languaeRadioGroup.getCheckedRadioButtonId() == -1)
+//        {
+//            Toast.makeText(this, getString(R.string.selectpreferredlanguage), Toast.LENGTH_SHORT).show();
+//        }
 
         else
         {

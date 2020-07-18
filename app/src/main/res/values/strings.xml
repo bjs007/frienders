@@ -26,17 +26,17 @@
     <string name="code_verified">Code verified!</string>
     <string name="wrong_code">Wrong code! Try again</string>
     <string name="phonenumberrequired">Phone number is required</string>
-    <string name="pleaseenterphonenumber">Please enter 10 digits indian mobile number e.g. 987654321</string>
-    <string name="sendingverificationcode">We are sending verification code. Please wait!</string>
+    <string name="pleaseenterphonenumber">Please enter 10 digits mobiles number</string>
+    <string name="send_verification_code_button">Send verification code</string>
+    <string name="sendingverificationcode_wait_message">We are sending verification code. Please wait!</string>
     <string name="entervalidphonenumber">Invalid Phone number, please enter 10 digits indian mobile number e.g. 9876543210</string>
     <string name="writeyourname">Please write your user name first..</string>
-    <string name="writeastatus">"Please write your status.."</string>
-    <string name="selectpreferredlanguage">"Please select preferred language..</string>
+    <string name="writeastatus">"Please write your status..."</string>
     <string name="codesent">Verification code sent!</string>
     <string name="loadingmessage">Please wait! Loading...</string>
     <string name="writefirstmessage">first write your message...</string>
     <string name="video">Video</string>
-    <string name="Docs">MSDOCX</string>
+    <string name="Docs">DOCs</string>
     <string name="image">Image/Camera</string>
     <string name="PDF">PDF</string>
     <string name="selectfiletype">Select file type</string>
@@ -64,5 +64,14 @@
     <string name="loading">Loading...</string>
     <string name="group_description">Group Description</string>
     <string name="group_detail">Group Detail</string>
-
+    <string name="enter_your_phone_numer">Enter your phone number </string>
+    <string name="enter_code_here">Enter your code here</string>
+    <string name="verify_code">Verify code</string>
+    <string name="can_not_send_notification_within_15minutes">You can\'t send notification within 15 minutes in the same group.</string>
+    <string name="be_first_one_to_chat">Be the first one to chat</string>
+    <string name="error_occurred">Error occured</string>
+    <string name="new_message_notification">New messages</string>
+    <string name="upload_failed">Upload failed</string>
+    <string name="could_not_send_last_message">Could not send the last message</string>
+    <string name="updating_profile">Updating profile...</string>
 </resources>

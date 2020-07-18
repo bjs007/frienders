@@ -23,7 +23,7 @@
             android:background="#FFFFFF"
             
             android:padding="8dp"
-            android:hint="Enter code here"
+            android:hint="@string/enter_code_here"
             android:textAllCaps="false"
             android:textSize="20sp"
             android:textAlignment="center"
@@ -33,7 +33,7 @@
             android:id="@+id/verification_code_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Verify"
+            android:text="@string/verify_code"
             android:layout_below="@+id/verification_code"
             android:textAllCaps="false"
             android:layout_marginStart="17dp"

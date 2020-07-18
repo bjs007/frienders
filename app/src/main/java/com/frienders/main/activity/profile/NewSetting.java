@@ -360,7 +360,7 @@ public class NewSetting extends AppCompatActivity {
         else
         {
             progressDialog = new ProgressDialog(NewSetting.this);
-            progressDialog.setMessage("Updating profile...");
+            progressDialog.setMessage(getString(R.string.updating_profile));
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
 //            int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
