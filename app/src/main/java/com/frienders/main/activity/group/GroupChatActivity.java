@@ -108,7 +108,7 @@ public class GroupChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private String groupId;
     private ProgressDialog loadingBar;
-    private String language = "eng";
+    private String language = "en";
     private String checker = "", myUrl = "";
     private UploadTask uploadTask;
     private String currentUserDisplayName = "Unknown";
@@ -371,7 +371,7 @@ public class GroupChatActivity extends AppCompatActivity {
             }
         }));
 
-        initScrollListener();
+         initScrollListener();
 
 
         loadingBar = new ProgressDialog(GroupChatActivity.this);
