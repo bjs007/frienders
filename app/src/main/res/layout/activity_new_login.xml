@@ -42,7 +42,7 @@
                     android:textSize="20sp"
                     android:paddingStart="25dp"
                     android:textAlignment="textStart"
-                    android:hint="Enter you phone number"
+                    android:hint="@string/pleaseenterphonenumber"
                     />
             </LinearLayout>
 
@@ -51,7 +51,7 @@
                 android:id="@+id/send_verification_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Send verification code"
+                android:text="@string/send_verification_code_button"
                 android:layout_below="@+id/phone_number_input_view"
                 android:textAllCaps="false"
                 android:layout_marginStart="17dp"

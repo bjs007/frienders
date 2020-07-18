@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.frienders.main.R;
 import com.frienders.main.activity.MainActivity;
+import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.UsersFirebaseFields;
@@ -69,7 +70,7 @@ public class NewLoginActivity extends AppCompatActivity {
                 else
                 {
                     phoneNumber = "+91" + phoneNumber;
-                    progressDialog.setMessage(getString(R.string.sendingverificationcode));
+                    progressDialog.setMessage(getString(R.string.sendingverificationcode_wait_message));
                     progressDialog.setCanceledOnTouchOutside(false);
                     progressDialog.show();
                     PhoneAuthProvider.getInstance().verifyPhoneNumber(
@@ -234,7 +235,7 @@ public class NewLoginActivity extends AppCompatActivity {
 
     private void sendUserToSettingActivity()
     {
-        Intent settingIntent = new Intent(NewLoginActivity.this, SettingActivity.class);
+        Intent settingIntent = new Intent(NewLoginActivity.this, NewSetting.class);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);

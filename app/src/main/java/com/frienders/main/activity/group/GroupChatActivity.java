@@ -267,7 +267,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                        }
                                        catch (Exception ex)
                                        {
-                                           Toast.makeText(GroupChatActivity.this, "Could not register likes!", Toast.LENGTH_SHORT).show();
+                                           Toast.makeText(GroupChatActivity.this, getString(R.string.error_occurred), Toast.LENGTH_SHORT).show();
                                        }
                                    }
 
@@ -311,7 +311,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
                                             if(timestamp != null && timeMilli - timestamp < 16 * 60 * 1000)
                                             {
-                                                Toast.makeText(GroupChatActivity.this, "You can't send notification \nwithin 15 minutes in the same group.",
+                                                Toast.makeText(GroupChatActivity.this, getString(R.string.can_not_send_notification_within_15minutes),
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                             else
@@ -440,7 +440,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                     {
                                         notvisiblenewmessagecount[0]++;
                                         newmessagenotification.setVisibility(View.VISIBLE);
-                                        newmessagenotification.setText("New messages : " + String.valueOf(notvisiblenewmessagecount[0]));
+                                        newmessagenotification.setText(getString(R.string.new_message_notification)+" : " + String.valueOf(notvisiblenewmessagecount[0]));
                                     }
                                     else
                                     {
@@ -553,7 +553,7 @@ public class GroupChatActivity extends AppCompatActivity {
                         groupMessageList.remove(0);
                         groupMessageAdapter.notifyItemRemoved(0);
                     }
-                    Toast.makeText(GroupChatActivity.this, "Be the first one to chat", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GroupChatActivity.this, getString(R.string.be_first_one_to_chat), Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -585,7 +585,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(GroupChatActivity.this, "Error occured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GroupChatActivity.this, getString(R.string.error_occurred), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -795,10 +795,10 @@ public class GroupChatActivity extends AppCompatActivity {
                         {
                                 getString(R.string.image),
                                 getString(R.string.video) + " 16MB MAX",
-                                "DOCS",
+                                getString(R.string.Docs),
                         };
                 AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
-                builder.setTitle(getString(R.string.selectfiletype));
+//                builder.setTitle(getString(R.string.selectfiletype));
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -811,26 +811,6 @@ public class GroupChatActivity extends AppCompatActivity {
 
                             if (true) {
                                 pickVideoClicked();
-
-//                                Intent takeVideoIntent = new Intent(Intent.ACTION_PICK);
-//                                takeVideoIntent.setType("video/*");
-////                                if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
-//                                    try {
-//
-//                                        takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 10);
-//                                        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-//                                        takeVideoIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                                        Uri capturedUri =
-////                                                Uri.fromFile(createMediaFile(TYPE_VIDEO));
-//                                        FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider" , createMediaFile(TYPE_VIDEO));
-//                                        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, capturedUri);
-//
-//                                        startActivityForResult(takeVideoIntent, RequestCodeForVideoPick);
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//
-////                                }
                             } else {
                                 Intent intent = new Intent(Intent.ACTION_PICK);
                                 intent.setType("video/*");
@@ -1059,7 +1039,7 @@ public class GroupChatActivity extends AppCompatActivity {
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                loadingBar.setMessage("Upload failed");
+                                loadingBar.setMessage(getString(R.string.upload_failed));
                                 loadingBar.dismiss();
                             }
                         });
@@ -1206,7 +1186,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
                                     if (!task.isSuccessful()) {
-                                        Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(GroupChatActivity.this, getString(R.string.error_occurred), Toast.LENGTH_SHORT).show();
                                     } else {
 //                                        groupMessageList.add(messages);
 //                                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
@@ -1223,7 +1203,7 @@ public class GroupChatActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(GroupChatActivity.this, "Upload failed", Toast.LENGTH_LONG).show();
+                        Toast.makeText(GroupChatActivity.this, getString(R.string.upload_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -1297,7 +1277,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
                                     if (!task.isSuccessful()) {
-                                        Toast.makeText(GroupChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(GroupChatActivity.this, getString(R.string.error_occurred), Toast.LENGTH_SHORT).show();
                                     } else {
 //                                        groupMessageList.add(messages);
 //                                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
@@ -1315,7 +1295,7 @@ public class GroupChatActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(GroupChatActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GroupChatActivity.this, getString(R.string.upload_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -1479,7 +1459,7 @@ public class GroupChatActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if (!task.isSuccessful()) {
-                        Toast.makeText(GroupChatActivity.this, "Could not send the last message", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GroupChatActivity.this, getString(R.string.could_not_send_last_message), Toast.LENGTH_SHORT).show();
                     } else {
 //                        groupMessageList.add(messages);
 //                        groupMessageAdapter.notifyItemInserted(groupMessageList.size() - 1);
