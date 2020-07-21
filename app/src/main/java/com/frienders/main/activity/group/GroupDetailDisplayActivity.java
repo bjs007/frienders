@@ -23,7 +23,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
 
     private TextView groupName;
     private TextView groupDescription;
-    private TextView groupDetail;
+    private TextView groupDetails;
     private String groupId;
     private String language = Utility.getDeviceLanguage();
 
@@ -57,16 +57,19 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
 
                     String groupDisplayName = null;
                     String groupDesc = null;
+                    String groupDetail = null;
 
                     if(language.equals("hi"))
                     {
                         groupDisplayName = group.getHinName();
                         groupDesc = group.getHinDesc();
+                        groupDetail = group.getHinDetail();
                     }
                     else
                     {
                         groupDisplayName = group.getEngName();
                         groupDesc = group.getEngDesc();
+                        groupDetail = group.getEngDetail();
                     }
 
 
@@ -84,26 +87,28 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                         }
                         groupName.setText(groupDisplayNameMayContainRootName);
                         groupDescription.setText(groupDesc);
+                        groupDetails.setText(groupDetail);
+
                     }
 
 
-                    FirebasePaths.firebaseGroupDbRef().child("details").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-                        {
-                            if(dataSnapshot.exists())
-                            {
-                                String detail = dataSnapshot.getValue().toString();
-                                groupDetail.setText(detail);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError)
-                        {
-
-                        }
-                    });
+//                    FirebasePaths.firebaseGroupDbRef().child("leafs").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+//                        {
+//                            if(dataSnapshot.exists())
+//                            {
+//                                String detail = dataSnapshot.getValue().toString();
+//                                groupDetails.setText(detail);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(@NonNull DatabaseError databaseError)
+//                        {
+//
+//                        }
+//                    });
                 }
             }
 
@@ -120,6 +125,6 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     {
         groupName = findViewById(R.id.groupName_groupDetail_layout);
         groupDescription = findViewById(R.id.groupDescription_groupDetail_layout);
-        groupDetail = findViewById(R.id.groupName_groupDetail_layout);
+        groupDetails = findViewById(R.id.groupDetail_groupDetail_layout);
     }
 }

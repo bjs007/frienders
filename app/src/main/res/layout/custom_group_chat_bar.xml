@@ -24,8 +24,7 @@
                 android:id="@+id/custom_group_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Loading..."
-
+                android:text="@string/loading"
                 android:textColor="@android:color/background_light"
                 android:textSize="20sp"
                 />
@@ -36,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Loading..."
+                android:text="@string/loading"
                 android:textColor="@android:color/background_light"
                 android:textSize="14sp"
             />
@@ -50,10 +49,6 @@
             android:layout_weight="1"
             android:src="@drawable/group"
             android:cropToPadding="true" />
-
-
-
-
     </LinearLayout>
 <!--    Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>-->
 

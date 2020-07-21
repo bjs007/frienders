@@ -79,7 +79,7 @@
                     android:textAllCaps="false"
                     android:hint="@string/group_detail"
                     android:textColor="@color/colorBlack"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     />
 
             </LinearLayout>

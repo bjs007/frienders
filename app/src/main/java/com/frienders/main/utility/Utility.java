@@ -55,6 +55,20 @@ public class Utility
         return groupDisplayNameMayContainRootName;
     }
 
+
+    public static String getGroupDisplayFirstNameFromDbGroupName(String groupNameFromDb) {
+        final String[] groupWithParentNameWithoutAsterisk =  groupNameFromDb.split("\\*");
+        String groupDisplayNameMayContainRootName = null;
+
+        if (groupWithParentNameWithoutAsterisk != null && groupWithParentNameWithoutAsterisk.length == 2)
+        {
+            return groupWithParentNameWithoutAsterisk[0];
+        }
+
+
+        return groupNameFromDb;
+    }
+
     public static void displayImage(Context context, String imageLink)
     {
         Intent imageDisplayIntent = new Intent(context, ImageViwer.class);

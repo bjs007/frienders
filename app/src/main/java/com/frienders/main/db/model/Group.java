@@ -9,6 +9,8 @@ public class Group implements Serializable
     private String hinName;
     private String engDesc;
     private String hinDesc;
+    private String engDetail;
+    private String hinDetail;
     private String id;
     private String createdBy;
     private String date;
@@ -19,6 +21,21 @@ public class Group implements Serializable
     private String rootId;
     private List<String> childrenIds;
 
+    public String getEngDetail() {
+        return engDetail;
+    }
+
+    public void setEngDetail(String engDetail) {
+        this.engDetail = engDetail;
+    }
+
+    public String getHinDetail() {
+        return hinDetail;
+    }
+
+    public void setHinDetail(String hinDetail) {
+        this.hinDetail = hinDetail;
+    }
 
     public Group()
     {

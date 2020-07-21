@@ -8,5 +8,7 @@
     <color name="colorBlue">#1976D2</color>
     <color name="startBlue">#09c6df</color>
     <color name="endBlue">#0bcce6</color>
+    <color name="lightBlue">#7EE4EF</color>
+
     <color name="colorGreen">#02F3D7</color>
 </resources>
