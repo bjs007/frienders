@@ -90,7 +90,6 @@ public class SubscribedGroupsFragment extends Fragment
                         {
                             holder.groupViewImage.setVisibility(View.VISIBLE);
 
-
                             String groupDisplayName = null;
                             String groupDesc = null;
 

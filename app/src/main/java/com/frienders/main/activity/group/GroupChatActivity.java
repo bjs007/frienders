@@ -108,7 +108,7 @@ public class GroupChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private String groupId;
     private ProgressDialog loadingBar;
-    private String language = "en";
+    private String language =  Utility.getDeviceLanguage();;
     private String checker = "", myUrl = "";
     private UploadTask uploadTask;
     private String currentUserDisplayName = "Unknown";
@@ -1393,12 +1393,13 @@ public class GroupChatActivity extends AppCompatActivity {
         String groupDisplayNameString = null;
         String groupDescString = null;
 
-        if (language.equals("eng")) {
-            groupDisplayNameString = grp.getEngName();
-            groupDescString = grp.getEngDesc();
-        } else {
+        if (language.equals("hi")) {
             groupDisplayNameString = grp.getHinName();
             groupDescString = grp.getHinDesc();
+
+        } else {
+            groupDisplayNameString = grp.getEngName();
+            groupDescString = grp.getEngDesc();
         }
 
         if (groupDisplayNameString != null && groupDescString != null) {

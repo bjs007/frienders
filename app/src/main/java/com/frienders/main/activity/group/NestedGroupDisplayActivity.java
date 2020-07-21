@@ -133,6 +133,8 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                                 String groupDisplayName = null;
                                 String groupDesc = null;
 
+
+
                                 if(language.equals("hi"))
                                 {
                                     groupDisplayName = model.getHinName();
@@ -145,8 +147,10 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
                                 }
 
+
                                 if(groupDisplayName != null && groupDesc != null) {
-                                    String groupDisplayNameMayContainRootName = Utility.getGroupDisplayNameFromDbGroupName(groupDisplayName);
+
+                                    String groupDisplayNameMayContainRootName = Utility.getGroupDisplayFirstNameFromDbGroupName(groupDisplayName);
                                     holder.groupName.setText(groupDisplayNameMayContainRootName);
                                     holder.groupDescription.setText(groupDesc);
                                 }
@@ -154,7 +158,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
                                 if(model.isLeaf())
                                 {
-                                    holder.enterIntoButton.setVisibility(View.VISIBLE);
+//                                    holder.enterIntoButton.setVisibility(View.VISIBLE);
                                     holder.subScribeButton.setVisibility(View.VISIBLE);
                                     setInitialStatusForEachButton(holder, model.getId());
                                     holder.subScribeButton.setOnClickListener(new View.OnClickListener()

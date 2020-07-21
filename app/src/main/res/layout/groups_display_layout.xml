@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
     android:background="#FFFFFF"
     >
     <LinearLayout
@@ -17,13 +18,15 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/group_profile_image"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/group"
-            android:visibility="gone"/>
+
+            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
             android:orientation="vertical"
             >
 
@@ -51,7 +54,7 @@
                 android:text="Description"
                 android:textAlignment="textStart"
                 android:textSize="12sp"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 android:textColor="#828687"
                 android:gravity="start"
 
@@ -59,7 +62,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dp"
+                android:gravity="right"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -90,14 +94,16 @@
 
                     />
             </LinearLayout>
-
             <View
                 android:layout_width="fill_parent"
                 android:layout_marginTop="10dp"
                 android:layout_height="1dp"
+                android:layout_marginBottom="5dp"
                 android:background="@color/colorGray" />
 
+
         </LinearLayout>
+
 
     </LinearLayout>
 

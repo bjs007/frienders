@@ -12,8 +12,8 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="subscribe"> Add in my groups</string>
-    <string name="unsubscribe"> Remove from my groups</string>
+    <string name="subscribe">Add</string>
+    <string name="unsubscribe">Remove</string>
     <string name="hometabs">hometabs</string>
     <string name="please_wait">Please wait</string>
     <string name="enter_email_message">Please enter email...</string>
@@ -74,4 +74,5 @@
     <string name="upload_failed">Upload failed</string>
     <string name="could_not_send_last_message">Could not send the last message</string>
     <string name="updating_profile">Updating profile...</string>
+    <string name="delete">Delete</string>
 </resources>
