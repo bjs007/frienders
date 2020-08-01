@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FFFFFF"
     >
 
     <LinearLayout
@@ -42,7 +43,7 @@
                     android:text="Group"
                     android:textColor="@color/colorBlack"
                     android:textAlignment="textStart"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:gravity="start"
                     />
 
@@ -69,6 +70,11 @@
                     android:id="@+id/nested_subscribe_group_button"
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
+<<<<<<< HEAD
+=======
+                    android:layout_weight="3"
+                    android:background="@color/transparent_black"
+>>>>>>> a3d40ee740ce164811e3bd0097d5c7b9643c080c
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlue"
                     android:textSize="10sp"
@@ -80,6 +86,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
                     android:layout_marginStart="15dp"
+                    android:layout_weight="1"
+                    android:background="@color/transparent_black"
                     android:text="@string/view_group"
                     android:visibility="gone"
                     android:textAllCaps="false"
