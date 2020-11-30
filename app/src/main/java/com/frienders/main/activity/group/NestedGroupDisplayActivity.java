@@ -14,6 +14,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.module.AppGlideModule;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
@@ -37,6 +40,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NestedGroupDisplayActivity extends AppCompatActivity
 {
@@ -106,14 +111,16 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
     {
         final String currentUserId  = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        FirebaseRecyclerOptions<Group> options =
+        FirebaseRecyclerOptions<Group> options = null;
+        options =
                 new FirebaseRecyclerOptions.Builder<Group>()
                         .setQuery(FirebasePaths.firebaseGroupsAtLevelDBRef(level).child(parentId), Group.class)
                         .build();
 
         try
         {
-            FirebaseRecyclerAdapter<Group, GroupViewHolder> adapter =
+            FirebaseRecyclerAdapter<Group, GroupViewHolder> adapter = null;
+            adapter =
                     new FirebaseRecyclerAdapter<Group, GroupViewHolder>(options)
                     {
                         @Override
@@ -122,7 +129,15 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
                             holder.enterIntoButton.setVisibility(View.GONE);
                             holder.subScribeButton.setVisibility(View.GONE);
                             holder.groupName.setVisibility(View.GONE);
+                            holder.groupImage.setVisibility(View.VISIBLE);
                             holder.groupDescription.setVisibility(View.GONE);
+
+                            RequestOptions requestOptions = new RequestOptions();
+                            requestOptions.placeholder(R.drawable.group);
+                            Glide.with(getApplicationContext())
+                                    .setDefaultRequestOptions(requestOptions)
+                                    .load(FirebasePaths.firestorageGroupImageReference(model.getId())) // or URI/path
+                                    .into(holder.groupImage); //imageview to set thumbnail to
 
                             if(model.getParentId().equals(parentId))
                             {
@@ -301,8 +316,9 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 
     public static class GroupViewHolder extends RecyclerView.ViewHolder
     {
-        TextView groupName, groupDescription;
-        Button subScribeButton, enterIntoButton;
+        private TextView groupName, groupDescription;
+        private Button subScribeButton, enterIntoButton;
+        private CircleImageView groupImage;
 
         public GroupViewHolder(@NonNull View itemView)
         {
@@ -311,6 +327,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
             groupDescription = itemView.findViewById(R.id.nested_group_description);
             subScribeButton =  itemView.findViewById(R.id.nested_subscribe_group_button);
             enterIntoButton = itemView.findViewById(R.id.nested_enter_into_group_button);
+            groupImage = itemView.findViewById(R.id.group_profile_image);
         }
     }
     

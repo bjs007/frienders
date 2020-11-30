@@ -19,6 +19,7 @@ import com.frienders.main.activity.login.LoginActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
+import com.frienders.main.db.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
@@ -34,6 +35,9 @@ import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,21 +73,20 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         final FirebaseUser currentUser = FirebaseAuthProvider.getCurrentUser();
 
-       createChannel();
+        createChannel();
 
         if(currentUser == null)
         {
-
             sendUserToLoginActivity();
         }
         else
         {
-            verifyUserExistence();
+            fetchUserDetails();
         }
     }
 
 
-    void createChannel(){
+    private void createChannel(){
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void verifyUserExistence()
+    private void fetchUserDetails()
     {
         final String currentUserId = FirebaseAuthProvider.getCurrentUserId();
 
@@ -112,6 +115,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
+                if(dataSnapshot.exists())
+                {
+                    String key = dataSnapshot.getKey();
+                    Object user = dataSnapshot.getValue(Object.class);
+                    List list = new ArrayList();
+                }
+
                 if(!dataSnapshot.child(UsersFirebaseFields.name).exists())
                 {
                     FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -253,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendUserToLoginActivity()
     {
-        Intent loginIntent = new Intent(MainActivity.this, NewLoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(loginIntent);

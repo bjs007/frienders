@@ -1,47 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bcg"
-    tools:context=".activity.login.LoginActivity">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-          >
+    tools:context=".activity.login.LoginActivity"
+    android:orientation="vertical"
+    android:theme="@style/Theme.MaterialComponents.Light"
+    >
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:layout_marginTop="180dp"
-                android:weightSum="12"
+                android:layout_gravity="center"
                 android:id="@+id/phone_number_input_view">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="#FFFF"
-                    android:layout_marginStart="17dp"
-                    android:text="@string/india_isd_code"
-                    android:textSize="20sp"
-                    android:textAlignment="center"
-                    android:gravity="center"
-                    android:layout_weight="1">
 
-                </TextView>
                 <EditText
                     android:id="@+id/phone_number_input_new_login"
-                    android:layout_height="60dp"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="11"
+                    android:layout_height="50dp"
+                    android:layout_width="match_parent"
                     android:layout_marginEnd="17dp"
                     android:background="#FFFFFF"
                     android:textAllCaps="false"
-                    android:textSize="20sp"
-                    android:paddingStart="25dp"
-                    android:textAlignment="textStart"
+                    android:layout_marginStart="17dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/colorBlack"
+                    android:gravity="center"
                     android:hint="@string/pleaseenterphonenumber"
                     />
             </LinearLayout>
@@ -50,20 +36,33 @@
             <Button
                 android:id="@+id/send_verification_code"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/send_verification_code_button"
+                android:layout_height="50dp"
                 android:layout_below="@+id/phone_number_input_view"
+                android:text="@string/send_verification_code_button"
                 android:textAllCaps="false"
                 android:layout_marginStart="17dp"
                 android:layout_marginEnd="17dp"
                 android:layout_marginTop="4dp"
-                android:background="@drawable/buttons"
-                android:textColor="@android:color/background_light"
+                android:backgroundTint="@color/endBlue"
                 >
 
             </Button>
 
-        </RelativeLayout>
+            <TextView
+                android:id="@+id/verification_code_wait_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textAllCaps="false"
+                android:layout_marginStart="17dp"
+                android:layout_marginEnd="17dp"
+                android:layout_marginTop="4dp"
+                android:backgroundTint="@color/colorBlue"
+                android:layout_gravity="center"
+                android:textColor="@android:color/background_light"
+                >
+
+            </TextView>
 
 
 </RelativeLayout>

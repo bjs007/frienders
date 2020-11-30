@@ -43,4 +43,11 @@ public class Configuration
 
     public static long maxVideoFileUploadableSizeInBytes = 17000000;
     public static long longVideoFileUploadableSizeInBytes = 10000000;
+
+    //Storage DB Name
+    public static String DEFAULT_BUCKET = "gs://frienders-46611.appspot.com/";
+    public static String GROUP_IMAGE = "Groups_image";
+    public static String DEFAULT_GROUP_IMAGE_EXT = ".jpeg";
+
+    public static String INDIA_ISD_CODE = "+91";
 }

@@ -1,6 +1,7 @@
 package com.frienders.main.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,10 +13,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
@@ -42,10 +46,19 @@ public class SubscribedGroupsFragment extends Fragment
     private ProgressDialog progressDialog;
     private RecyclerView userSubscribedGroupsList;
     private String language = "en";
+    Context context = null;
 
     public SubscribedGroupsFragment()
     {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        context = getActivity().getApplicationContext();
+//        createGroupList();
+
     }
 
     @Override
@@ -89,6 +102,14 @@ public class SubscribedGroupsFragment extends Fragment
                         protected void onBindViewHolder(@NonNull final SubscribedGroupsFragment.GroupViewHolder holder, int position, @NonNull final Group model)
                         {
                             holder.groupViewImage.setVisibility(View.VISIBLE);
+                            RequestOptions requestOptions = new RequestOptions();
+                            requestOptions.placeholder(R.drawable.group);
+                            Glide.with(SubscribedGroupsFragment.this)
+//                                    .asBitmap()
+                                    .setDefaultRequestOptions(requestOptions)
+                                    .load(FirebasePaths.firestorageGroupImageReference(model.getId())) // or URI/path
+                                    .into(holder.groupViewImage); //imageview to set thumbnail to
+
 
                             String groupDisplayName = null;
                             String groupDesc = null;
@@ -127,6 +148,7 @@ public class SubscribedGroupsFragment extends Fragment
                             }
                         }
 
+
                         @NonNull
                         @Override
                         public SubscribedGroupsFragment.GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
@@ -158,6 +180,7 @@ public class SubscribedGroupsFragment extends Fragment
             groupViewImage = itemView.findViewById(R.id.group_profile_image);
             groupName = itemView.findViewById(R.id.group_name);
             groupDescription = itemView.findViewById(R.id.group_description);
+            groupViewImage = itemView.findViewById(R.id.group_profile);
         }
     }
 }

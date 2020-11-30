@@ -22,14 +22,14 @@
     <string name="enter_email_message"> कृपया ईमेल डाले...</string>
     <string name="enter_password_message"> कृप्या पास्वर्ड डाले...</string>
     <string name="login_success"> लॉगिन सफल रहा</string>
-    <string name="login_error"> लॉग इन फेल्ड </string>
+    <string name="login_error"> लॉग इन फेल्ड! पुनः प्रयास करें </string>
     <string name="verification_code_popop_title"> वेरिफिकेशन कोड </string>
     <string name="verification_code_please_wait_message"> कृपया प्रतीक्षा करें, जबकि हम कोड का वेरिफिकेशन कर रहे हैं </string>
     <string name="write_verification_code_here">कृपया वेरिफिकेशन कोड पहले लिखें </string>
     <string name="code_verified"> कोड वेरिफाइड किया गया!</string>
     <string name="wrong_code"> गलत कोड! पुनः प्रयास करें</string>
     <string name="phonenumberrequired"> फोन नंबर आवश्यक है </string>
-    <string name="pleaseenterphonenumber"> कृपया 10 अंकों का मोबाइल नंबर डालें</string>
+    <string name="pleaseenterphonenumber">मोबाइल नंबर डालें</string>
     <string name="send_verification_code_button">वेरिफिकेशन कोड भेजे</string>
     <string name="sendingverificationcode_wait_message"> हम वेरिफिकेशन कोड भेज रहे हैं। कृपया प्रतीक्षा करें!</string>
     <string name="entervalidphonenumber"> इन्वलिड फ़ोन नंबर, कृपया 10 अंकों का भारतीय मोबाइल नंबर दर्ज करें उदा। 9876543210</string>

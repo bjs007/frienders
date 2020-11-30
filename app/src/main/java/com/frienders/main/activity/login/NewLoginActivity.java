@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frienders.main.R;
@@ -17,6 +18,7 @@ import com.frienders.main.activity.MainActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
+import com.frienders.main.config.Configuration;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
@@ -43,6 +45,7 @@ public class NewLoginActivity extends AppCompatActivity {
 
     private String verificationId;
     private ProgressDialog progressDialog;
+    private TextView waitCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -54,25 +57,24 @@ public class NewLoginActivity extends AppCompatActivity {
         sendVerificationCodeButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
-            {
-                String phoneNumber = inputPhoneNumber.getText().toString().trim();
+            public void onClick(View v) {
 
-                if (TextUtils.isEmpty(phoneNumber))
+                if (inputPhoneNumber == null || TextUtils.isEmpty(inputPhoneNumber.getText().toString()))
                 {
                     Toast.makeText(NewLoginActivity.this, getString(R.string.phonenumberrequired), Toast.LENGTH_SHORT).show();
                 }
-
-                else if(inputPhoneNumber.length() != 10)
+                else if (inputPhoneNumber.getText().toString().trim().length() != 10)
                 {
                     Toast.makeText(NewLoginActivity.this, getString(R.string.pleaseenterphonenumber), Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    phoneNumber = "+91" + phoneNumber;
+                    final String phoneNumber = Configuration.INDIA_ISD_CODE + inputPhoneNumber.getText().toString().trim();
                     progressDialog.setMessage(getString(R.string.sendingverificationcode_wait_message));
                     progressDialog.setCanceledOnTouchOutside(false);
+                    sendVerificationCodeButton.setVisibility(View.GONE);
                     progressDialog.show();
+
                     PhoneAuthProvider.getInstance().verifyPhoneNumber(
                             phoneNumber,        // Phone number to verify
                             60,                 // Timeout duration
@@ -110,7 +112,6 @@ public class NewLoginActivity extends AppCompatActivity {
 
                 NewLoginActivity.this.verificationId = verificationId;
                 progressDialog.dismiss();
-
                 Toast.makeText(NewLoginActivity.this, getString(R.string.codesent), Toast.LENGTH_SHORT).show();
                 Intent codeVerificationIntent = new Intent(NewLoginActivity.this, CodeVerificationCodeActivity.class);
                 codeVerificationIntent.putExtra(ActivityParameters.verificationcode, NewLoginActivity.this.verificationId);
@@ -207,7 +208,7 @@ public class NewLoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError)
                                 {
-
+                                    Toast.makeText(NewLoginActivity.this, getString(R.string.login_error), Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -230,7 +231,7 @@ public class NewLoginActivity extends AppCompatActivity {
         inputPhoneNumber = findViewById(R.id.phone_number_input_new_login);
         sendVerificationCodeButton.setVisibility(View.VISIBLE);
         progressDialog = new ProgressDialog(this);
-
+        waitCounter = findViewById(R.id.verification_code_wait_time);
     }
 
     private void sendUserToSettingActivity()

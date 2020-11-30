@@ -31,6 +31,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.frienders.main.activity.MainActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.Configuration;
@@ -74,7 +76,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -163,7 +164,17 @@ public class GroupChatActivity extends AppCompatActivity {
 
         groupDisplayName = findViewById(R.id.custom_group_name);
         groupDescription = findViewById(R.id.custom_group_desc);
+        groupDescription.setVisibility(View.GONE);
         groupProfileImage = findViewById(R.id.custom_group_profile_image);
+
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.placeholder(R.drawable.group);
+
+        Glide.with(this)
+        .setDefaultRequestOptions(requestOptions)
+        .load(FirebasePaths.firestorageGroupImageReference(groupId)) // or URI/path
+        .into(groupProfileImage); //imageview to set thumbnail to
+
 
         groupSendMessageButton = findViewById(R.id.group_send_message_btn);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
@@ -1403,7 +1414,7 @@ public class GroupChatActivity extends AppCompatActivity {
         }
 
         if (groupDisplayNameString != null && groupDescString != null) {
-            String groupDisplayNameMayContainRootName = Utility.getGroupDisplayNameFromDbGroupName(groupDisplayNameString);
+            String groupDisplayNameMayContainRootName = Utility.getGroupDisplayFirstNameFromDbGroupName(groupDisplayNameString);
             groupDisplayName.setText(groupDisplayNameMayContainRootName);
             groupDescription.setText(groupDescString);
         }
@@ -1526,7 +1537,7 @@ public class GroupChatActivity extends AppCompatActivity {
      ****/
 
 
-//    class VideoCompressAsyncTask extends AsyncTask<String, String, String> {
+//    class VideoCompressAsyncTaMesk extends AsyncTask<String, String, String> {
 //
 //        Context mContext;
 //

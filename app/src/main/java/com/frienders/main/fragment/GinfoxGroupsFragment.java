@@ -1,9 +1,12 @@
 package com.frienders.main.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +18,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
@@ -24,12 +29,16 @@ import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.model.Group;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Locale;
 
@@ -44,6 +53,7 @@ public class GinfoxGroupsFragment extends Fragment
     private View groupChatView;
     private RecyclerView userSubscribedGroupsList;
     private String language = "en";
+    Context context = null;
 
     public GinfoxGroupsFragment()
     {
@@ -86,6 +96,14 @@ public class GinfoxGroupsFragment extends Fragment
         createGroupList();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        context = getActivity().getApplicationContext();
+
+
+    }
+
     private void createGroupList()
     {
 
@@ -103,6 +121,18 @@ public class GinfoxGroupsFragment extends Fragment
                         protected void onBindViewHolder(@NonNull final GroupViewHolder holder, int position, @NonNull final Group model)
                         {
                             final String groupName = getRef(position).getKey();
+                            StorageReference storageReference =
+                                    FirebasePaths.firestorageGroupImageReference(model.getId());
+                            RequestOptions requestOptions = new RequestOptions();
+                            requestOptions.placeholder(R.drawable.group);
+
+                            Glide.with(context)
+                                    .setDefaultRequestOptions(requestOptions)
+                                    .load(storageReference)
+                                    .into(holder.groupViewImage);
+
+                            if(storageReference.getMetadata() != null)
+
 
                             if(language.equals("hi"))
                             {
@@ -173,6 +203,7 @@ public class GinfoxGroupsFragment extends Fragment
             groupDescription = itemView.findViewById(R.id.group_description);
             subScribeButton =  itemView.findViewById(R.id.subscribe_group_button);
             enterIntoButton = itemView.findViewById(R.id.enter_into_group_button);
+            groupViewImage = itemView.findViewById(R.id.group_profile);
         }
     }
 }

@@ -4,20 +4,21 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.frienders.main.R;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.db.model.Group;
-import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
 import com.frienders.main.utility.Utility;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class GroupDetailDisplayActivity extends AppCompatActivity {
 
@@ -26,6 +27,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     private TextView groupDetails;
     private String groupId;
     private String language = Utility.getDeviceLanguage();
+    private CircleImageView group_detail_profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,7 +55,23 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                 {
                     Group group =  dataSnapshot.getValue(Group.class);
                     groupName.setText(group.getEngName());
-                    groupDescription.setText(group.getEngDesc());
+//                    groupDescription.setText(group.getEngDesc());
+
+
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions.placeholder(R.drawable.group);
+                    Glide.with(getApplicationContext())
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(FirebasePaths.firestorageGroupImageReference(groupId)) // or URI/path
+                            .into(group_detail_profile); //imageview to set thumbnail to
+
+                    group_detail_profile
+                            .setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Utility.displayImageByGroupId(GroupDetailDisplayActivity.this, groupId);
+                                }
+                            });
 
                     String groupDisplayName = null;
                     String groupDesc = null;
@@ -62,18 +80,18 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                     if(language.equals("hi"))
                     {
                         groupDisplayName = group.getHinName();
-                        groupDesc = group.getHinDesc();
+//                        groupDesc = group.getHinDesc();
                         groupDetail = group.getHinDetail();
                     }
                     else
                     {
                         groupDisplayName = group.getEngName();
-                        groupDesc = group.getEngDesc();
+//                        groupDesc = group.getEngDesc();
                         groupDetail = group.getEngDetail();
                     }
 
 
-                    if(groupDisplayName != null && groupDesc != null) {
+                    if(groupDisplayName != null) {
                         String[] groupWithParentNameWithoutAsterisk = null;
                         if (groupDisplayName.indexOf('*') != -1) {
                             groupWithParentNameWithoutAsterisk = group.getEngName().split("\\*");
@@ -81,12 +99,12 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
 
                         String groupDisplayNameMayContainRootName = null;
                         if (groupWithParentNameWithoutAsterisk.length == 2) {
-                            groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0] + " - " + groupWithParentNameWithoutAsterisk[1];
+                            groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
                         } else {
                             groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
                         }
                         groupName.setText(groupDisplayNameMayContainRootName);
-                        groupDescription.setText(groupDesc);
+//                        groupDescription.setText(groupDesc);
                         groupDetails.setText(groupDetail);
 
                     }
@@ -124,7 +142,8 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     private void initializeUi()
     {
         groupName = findViewById(R.id.groupName_groupDetail_layout);
-        groupDescription = findViewById(R.id.groupDescription_groupDetail_layout);
+//        groupDescription = findViewById(R.id.groupDescription_groupDetail_layout);
         groupDetails = findViewById(R.id.groupDetail_groupDetail_layout);
+        group_detail_profile = findViewById(R.id.group_detail_profile);
     }
 }

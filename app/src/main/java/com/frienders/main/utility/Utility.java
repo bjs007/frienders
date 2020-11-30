@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.widget.Toast;
 
 
@@ -28,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -73,6 +75,13 @@ public class Utility
     {
         Intent imageDisplayIntent = new Intent(context, ImageViwer.class);
         imageDisplayIntent.putExtra(UsersFirebaseFields.imagelink, imageLink);
+        context.startActivity(imageDisplayIntent);
+    }
+
+    public static void displayImageByGroupId(Context context, String groupId)
+    {
+        Intent imageDisplayIntent = new Intent(context, ImageViwer.class);
+        imageDisplayIntent.putExtra(GroupFirebaseFields.groupId, groupId);
         context.startActivity(imageDisplayIntent);
     }
 

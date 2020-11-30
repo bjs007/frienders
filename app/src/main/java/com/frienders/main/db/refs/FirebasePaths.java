@@ -1,7 +1,11 @@
 package com.frienders.main.db.refs;
 
+import com.frienders.main.config.Configuration;
+import com.frienders.main.config.GroupFirebaseFields;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class FirebasePaths
 {
@@ -78,7 +82,15 @@ public class FirebasePaths
         return firebaseDbRawRef().child(userMessageLikesCount);
     }
 
-
+    public static StorageReference firestoragebaseRef()
+    {
+        return FirebaseStorage.getInstance().getReference();
+    }
+    public static StorageReference firestorageGroupImageReference(String groupId)
+    {
+        StorageReference str = FirebaseStorage.getInstance().getReferenceFromUrl(Configuration.DEFAULT_BUCKET + Configuration.GROUP_IMAGE + "/" + groupId + Configuration.DEFAULT_GROUP_IMAGE_EXT);
+        return str;
+    }
     public static String messagePath()
     {
         return MessagesPath + "/";

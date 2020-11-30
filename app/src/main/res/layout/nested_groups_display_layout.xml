@@ -19,8 +19,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/group_profile_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/group"
 
             />
@@ -70,11 +70,7 @@
                     android:id="@+id/nested_subscribe_group_button"
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
-<<<<<<< HEAD
-=======
-                    android:layout_weight="3"
                     android:background="@color/transparent_black"
->>>>>>> a3d40ee740ce164811e3bd0097d5c7b9643c080c
                     android:textAllCaps="false"
                     android:textColor="@color/colorBlue"
                     android:textSize="10sp"
@@ -86,7 +82,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
                     android:layout_marginStart="15dp"
-                    android:layout_weight="1"
                     android:background="@color/transparent_black"
                     android:text="@string/view_group"
                     android:visibility="gone"
