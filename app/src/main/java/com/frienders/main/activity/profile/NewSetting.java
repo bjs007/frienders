@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -65,7 +66,7 @@ public class NewSetting extends AppCompatActivity {
     RadioButton languageRadioButton, engLanguageRadioButton, hinLanuguageRadioButton;
     RadioGroup languaeRadioGroup;
     private String deviceLanguage = Utility.getDeviceLanguage();
-    private TextView deleteProfileImage;
+    private TextView deleteProfileImage, userPhoneNumber;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
     private TextView groupsSubscribed, queriesAsked, answers;
@@ -93,6 +94,8 @@ public class NewSetting extends AppCompatActivity {
         groupsSubscribed = findViewById(R.id.numberOfgroupsSubscribed);
         queriesAsked = findViewById(R.id.numberOfQuestionsAsked);
         answers = findViewById(R.id.numberOfAnswers);
+        userPhoneNumber = findViewById(R.id.user_phone_number);
+        userPhoneNumber.setText(FirebaseAuthProvider.getCurrentUser().getPhoneNumber());
 
         updateAccountSettings.setOnClickListener(new View.OnClickListener()
         {
@@ -359,10 +362,11 @@ public class NewSetting extends AppCompatActivity {
 
         else
         {
-            progressDialog = new ProgressDialog(NewSetting.this);
-            progressDialog.setMessage(getString(R.string.updating_profile));
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.show();
+            Toast.makeText(this, "Profile updated" , Toast.LENGTH_SHORT).show();
+//            progressDialog = new ProgressDialog(NewSetting.this);
+//            progressDialog.setMessage(getString(R.string.updating_profile));
+//            progressDialog.setCanceledOnTouchOutside(false);
+//            progressDialog.show();
 //            int languageKey = languaeRadioGroup.getCheckedRadioButtonId();
 //
 //            languageRadioButton = (RadioButton) findViewById(languageKey);
@@ -386,15 +390,16 @@ public class NewSetting extends AppCompatActivity {
 
             try
             {
-                FirebasePaths.firebaseUserRef(userId)
+
+                FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                         .updateChildren(profileMap)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful())
                                 {
-                                    progressDialog.setMessage("Profile updated...");
-                                    progressDialog.dismiss();
+//                                    progressDialog.setMessage("Profile updated...");
+//                                    progressDialog.dismiss();
                                     FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                                             .child(UsersFirebaseFields.subscribed)
                                             .addListenerForSingleValueEvent(new ValueEventListener() {

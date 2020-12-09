@@ -18,6 +18,10 @@ public class FirebasePaths
     public static final String messageLike = "MessageLikes";
     public static final String userMessageLikesCount  = "UserMessageLikesCount";
 
+    static
+    {
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+    }
 
     public static DatabaseReference firebaseDbRawRef()
     {
@@ -46,7 +50,7 @@ public class FirebasePaths
 
     public static DatabaseReference firebaseUsersDbRef()
     {
-        return FirebaseDatabase.getInstance().getReference(UsersPath);
+        return firebaseDbRawRef().child(UsersPath);
     }
 
     public static DatabaseReference firebaseGroupsLeafsRef()
@@ -57,6 +61,7 @@ public class FirebasePaths
     public static DatabaseReference firebaseUserRef(String userId)
     {
         return firebaseUsersDbRef().child(userId);
+//        return FirebaseDatabase.getInstance().getReference("Users").child(userId);
     }
 
     public static DatabaseReference firebaseMessageRef()

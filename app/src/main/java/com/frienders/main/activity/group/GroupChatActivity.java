@@ -91,6 +91,7 @@ import static com.frienders.main.config.Configuration.RequestCodeForImagePick;
 import static com.frienders.main.config.Configuration.RequestCodeForVideoPick;
 import static com.frienders.main.config.Configuration.imageMaxHeight;
 import static com.frienders.main.config.Configuration.imageMaxWidth;
+import static com.frienders.main.config.FirebaseRootDatabasefields.NOTIFICATION;
 
 
 public class GroupChatActivity extends AppCompatActivity {
@@ -345,7 +346,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                 final DatabaseReference userMessageKeyRef =
                                         FirebasePaths
                                                 .firebaseDbRawRef()
-                                                .child("Notification")
+                                                .child(NOTIFICATION)
                                                 .child(groupId)
                                                 .child(groupMessageList.get(position).getGroupId())
                                                 .push();
@@ -354,7 +355,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                 final Map messageBodyDetails = new HashMap();
                                 messageBodyDetails.put(messagePushID, groupMessageList.get(position));
 
-                                FirebasePaths.firebaseDbRawRef().child("Notification").child(groupId).updateChildren(messageBodyDetails);
+                                FirebasePaths.firebaseDbRawRef().child(NOTIFICATION).child(groupId).updateChildren(messageBodyDetails);
                             }
                         });
 

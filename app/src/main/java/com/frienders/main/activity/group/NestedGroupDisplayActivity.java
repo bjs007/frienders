@@ -1,7 +1,6 @@
 package com.frienders.main.activity.group;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,20 +14,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.frienders.main.R;
-import com.frienders.main.activity.MainActivity;
-import com.frienders.main.activity.profile.SettingActivity;
 import com.frienders.main.config.ActivityParameters;
-import com.frienders.main.config.Firebasedatabasefields;
+import com.frienders.main.config.FirebaseRootDatabasefields;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.model.Group;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
 import com.frienders.main.db.refs.FirebasePaths;
-import com.frienders.main.db.refs.FirestorePath;
 import com.frienders.main.utility.Utility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,10 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,7 +39,7 @@ public class NestedGroupDisplayActivity extends AppCompatActivity
 {
     private RecyclerView groupList;
     private int level;
-    private String parentId = Firebasedatabasefields.rootParent;
+    private String parentId = FirebaseRootDatabasefields.rootParent;
     private String language = Utility.getDeviceLanguage();
 
 
