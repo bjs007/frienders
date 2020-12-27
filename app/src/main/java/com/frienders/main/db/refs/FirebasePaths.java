@@ -18,6 +18,7 @@ public class FirebasePaths
     public static final String userMessageLikesCount  = "UserMessageLikesCount";
     public static final String ALGOLIA_CREDENTIAL_PATH = "Algolia_credential";
     public static final String REPORTING_MESSAGE_PATH = "reporting";
+    public static String GROUP_SUGGESTION = "suggestion_group";
 
 
     public static DatabaseReference firebaseDbRawRef()
@@ -104,5 +105,9 @@ public class FirebasePaths
 
     public static DatabaseReference firebaseReportingMessageDbRef(){
         return firebaseDbRawRef().child(REPORTING_MESSAGE_PATH);
+    }
+
+    public static DatabaseReference firebaseGroupSuggestionDbRef(){
+        return firebaseDbRawRef().child(GROUP_SUGGESTION);
     }
 }

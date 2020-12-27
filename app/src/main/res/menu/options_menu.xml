@@ -18,4 +18,11 @@
         >
     </item>
 
+    <item
+        android:title="@string/request_group"
+        android:id="@+id/main_request_group"
+        app:showAsAction="never"
+        >
+    </item>
+
 </menu>

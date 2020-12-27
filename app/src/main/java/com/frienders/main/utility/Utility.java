@@ -243,6 +243,24 @@ public class Utility
         return currentTime.format(calendar.getTime());
     }
 
+    public static boolean isEmpty(String str){
+        if(str == null) return true;
+        else {
+            String trimmed = str.trim();
+            if(trimmed.length() == 0) return true;
+            else return false;
+        }
+    }
+
+    public static int getNumberOfWords(String str){
+        if(str == null) return 0;
+        else {
+            String [] arr = str.split("\\s+");
+            return arr.length;
+        }
+    }
+
+
     public static void createDeviceToken()
     {
         final String currentUserId =  FirebaseAuthProvider.getCurrentUserId();

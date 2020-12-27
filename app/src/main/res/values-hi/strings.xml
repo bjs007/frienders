@@ -84,4 +84,14 @@
     <string name="no_pic_present">कोई प्रोफ़ाइल तस्वीर नहीं!!</string>
     <string name="message_reported">मेसेज रिपोर्ट किया गया</string>
     <string name="message_reporting_failed">मेसेज रिपोर्टिंग फेल</string>
+    <string name="request_group">ग्रूप अनुरोध करें</string>
+    <string name="new_group">नए ग्रूप</string>
+    <string name="write_something_about_new_group">अपने ग्रूप के बारे में कुछ लिखें</string>
+    <string name="new_group_request_registered">आपका अनुरोध स्वीकार कर लिया गया है!</string>
+    <string name="new_group_request_registered_failed">नए समूह के लिए आपका अनुरोध विफल हो गया है!</string>
+    <string name="write_something_about_new_group_message">कृपया अपने ग्रूप के बारे में कुछ लिखें</string>
+    <string name="write_at_least_5_words">कृपया कम से कम 5 शब्द लिखें!</string>
+
+
+
 </resources>

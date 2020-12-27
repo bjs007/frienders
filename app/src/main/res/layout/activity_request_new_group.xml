@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.frienders.main.activity.profile.NewSetting"
+    android:orientation="vertical"
+    >
+
+
+
+   <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:orientation="vertical"
+    android:layout_marginTop="100dp"
+    >
+
+       <TextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="@string/new_group"
+           android:background="@color/bg_gray"
+           android:padding="10dp"
+           >
+
+       </TextView>
+
+
+    <EditText
+        android:id="@+id/new_group_description"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:textSize="16sp"
+        android:textColor="@color/colorBlack"
+        android:background="@drawable/boarder"
+        android:cursorVisible="true"
+        android:textCursorDrawable = "@null"
+        android:hint="Write something about your group"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal"
+        >
+
+        <ImageButton
+            android:id="@+id/request_new_group"
+            android:textColor="#fff"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/ic_done_black_24dp"
+            android:text="Save"/>
+
+        <ImageButton
+            android:id="@+id/cancel_request_new_group"
+            android:textColor="#fff"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/ic_close_black_24dp"
+
+            android:text="Save"/>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
+
+
+
+
+</LinearLayout>

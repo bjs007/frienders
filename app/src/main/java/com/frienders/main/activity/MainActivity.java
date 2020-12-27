@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.frienders.main.activity.group.RequestNewGroup;
 import com.frienders.main.activity.login.LoginActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
@@ -316,12 +317,26 @@ public class MainActivity extends AppCompatActivity {
             sendUserToSettingActivity();
         }
 
+        if(item.getItemId() == R.id.main_request_group)
+        {
+            sendUserToRequestNewGroupActivity();
+        }
+
         return true;
     }
 
     private void sendUserToSettingActivity()
     {
         Intent settingIntent = new Intent(MainActivity.this, NewSetting.class);
+        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(settingIntent);
+        finish();
+    }
+
+    private void sendUserToRequestNewGroupActivity()
+    {
+        Intent settingIntent = new Intent(MainActivity.this, RequestNewGroup.class);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);

@@ -474,7 +474,6 @@ public class NewSetting extends AppCompatActivity {
 
             try
             {
-
                 FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                         .updateChildren(profileMap)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {

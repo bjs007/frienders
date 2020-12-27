@@ -161,7 +161,7 @@ public class GroupChatActivity extends AppCompatActivity {
         groupMessageProgressBar = findViewById(R.id.groupMessageProgressBar);
         groupSendFileButton = findViewById(R.id.group_send_file_btn);
         groupChatToolBar = findViewById(R.id.group_chat_toolbar);
-        groupChatSubscribeButton = findViewById(R.id.group_display_message);
+        groupChatSubscribeButton = findViewById(R.id.subscribe_group_to_chat);
         progressBar = findViewById(R.id.progressbar_group_chat);
         newmessagenotification = findViewById(R.id.new_message_notification);
         newmessagenotification.setVisibility(View.GONE);
