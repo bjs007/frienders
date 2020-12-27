@@ -1,12 +1,7 @@
 package com.frienders.main.adapter;
 
-import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.Environment;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,33 +11,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.frienders.main.SplashActivity;
-import com.frienders.main.activity.ImageViwer;
 import com.frienders.main.config.Configuration;
-import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.MsgType;
 import com.frienders.main.db.model.GroupMessage;
 import com.frienders.main.R;
-import com.frienders.main.db.refs.FirebasePaths;
-import com.frienders.main.explayer.ExoplayerActivity;
+import com.frienders.main.utility.Utility;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
@@ -118,6 +101,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             groupMessageViewHolder.messageLikes.setVisibility(View.GONE);
             groupMessageViewHolder.group_reciever_message_like_button.setVisibility(View.GONE);
             groupMessageViewHolder.groupMessageLikeHolder.setVisibility(View.GONE);
+            groupMessageViewHolder.senderReplyToMessageHolder.setVisibility(View.GONE);
+            groupMessageViewHolder.receiverReplyToMessageHolder.setVisibility(View.GONE);
 
 
             if (message != null && message.getMessage() != null)
@@ -155,17 +140,33 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 {
                     groupMessageViewHolder.receiverProfileDisplayName.setVisibility(View.VISIBLE);
                     groupMessageViewHolder.senderProfileDisplayName.setVisibility(View.GONE);
-                    groupMessageViewHolder.receiverProfileDisplayName.setText(message.getSenderDisplayName() +" @" +timestamptoken[0]);
+                    groupMessageViewHolder.receiverProfileDisplayName.setText(Utility.getTrimmedUserName(message.getSenderDisplayName() ) +" @" +timestamptoken[0]);
                 }
 
 
                 if (message.getType().equals(MsgType.TEXT.getMsgTypeId()))
                 {
                     if (message.getFrom().equals(currentUserId)) {
+
                         groupMessageViewHolder.senderMessageTextInGroup.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.senderMessageTextInGroup.setBackgroundResource(R.drawable.sender_message_layout);
                         groupMessageViewHolder.senderMessageTextInGroup.setTextColor(Color.BLACK);
-                        groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage(): "");
+//                        groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage(): "");
+
+                        if(message.getReplyMessageText() != null && !message.getReplyMessageText().toString().equals(""))  {
+                            groupMessageViewHolder.senderReplyToMessageHolder.setVisibility(View.VISIBLE);
+                            if(message.getReplyMessageSenderId().equals(currentUserId)) {
+                                groupMessageViewHolder.senderReplyToMessageHolder.setText("From" + "\n"+ "me"+ ":"
+                                        + "\n"+ message.getReplyMessageText());
+                            }else {
+                                groupMessageViewHolder.senderReplyToMessageHolder.setText("From" + "\n"+ message.getReplyMessageSenderName()+ ":"
+                                        + "\n"+ message.getReplyMessageText());
+                            }
+
+                            groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage(): "");
+                        }else {
+                            groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage(): "");
+                        }
                         groupMessageViewHolder.senderMessageTextInGroup.setMovementMethod(BetterLinkMovementMethod.getInstance());
                         Linkify.addLinks(groupMessageViewHolder.senderMessageTextInGroup, Linkify.ALL);
 
@@ -175,7 +176,21 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         groupMessageViewHolder.reciverMessageTextInGroup.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.reciverMessageTextInGroup.setBackgroundResource(R.drawable.receiver_messages_layout);
                         groupMessageViewHolder.reciverMessageTextInGroup.setTextColor(Color.BLACK);
-                        groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage() : "");
+
+                        if(message.getReplyMessageText() != null && !message.getReplyMessageText().toString().equals("")){
+                            groupMessageViewHolder.receiverReplyToMessageHolder.setVisibility(View.VISIBLE);
+                            if(message.getReplyMessageSenderId().equals(currentUserId)) {
+                                groupMessageViewHolder.receiverReplyToMessageHolder.setText("From" + "\n"+ "me"+ ":"
+                                        + "\n"+ message.getReplyMessageText());
+                            }else {
+                                groupMessageViewHolder.receiverReplyToMessageHolder.setText("From" + "\n"+message.getReplyMessageSenderName() + ":"
+                                        + "\n"+ message.getReplyMessageText());
+                            }
+                            groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage() : "");
+                        }else {
+                            groupMessageViewHolder.reciverMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage() : "");
+                        }
+
                         groupMessageViewHolder.reciverMessageTextInGroup.setMovementMethod(BetterLinkMovementMethod.getInstance());
                         Linkify.addLinks(groupMessageViewHolder.reciverMessageTextInGroup, Linkify.ALL);
                     }
@@ -289,6 +304,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             public ImageButton groupMessageSenderNotificationIcon, group_reciever_message_like_button;
             public TextView messageLikes;
             public LinearLayout groupMessageLikeHolder;
+            public TextView senderReplyToMessageHolder;
+            public TextView receiverReplyToMessageHolder;
 //            public ImageButton groupMessageRecieverTimeStamp;
 
 
@@ -298,8 +315,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 senderMessageTextInGroup = itemView.findViewById(R.id.group_sender_message_text);
                 reciverMessageTextInGroup = itemView.findViewById(R.id.group_receiver_message_text);
 
-                receiverProfileDisplayName = itemView.findViewById(R.id.group_message_receiver_profile_image);
-                senderProfileDisplayName = itemView.findViewById(R.id.group_sender_message_profile_image);
+                receiverProfileDisplayName = itemView.findViewById(R.id.group_message_receiver_profile_name);
+                senderProfileDisplayName = itemView.findViewById(R.id.group_sender_message_profile_name);
                 imageSentBySender = itemView.findViewById(R.id.group_message_sender_image_view);
                 imageSentByReceiver = itemView.findViewById(R.id.group_message_receiver_image_view);
                 groupVideoSender = itemView.findViewById(R.id.groupVideoViewSender);
@@ -310,10 +327,13 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 playIconReceiver = itemView.findViewById(R.id.groupvideomessageplayiconReceiver);
                 recieverDocumentName = itemView.findViewById(R.id.group_message_receiver_doc_name);
                 senderDocumentName = itemView.findViewById(R.id.group_message_sender_doc_name);
-                groupMessageSenderNotificationIcon = itemView.findViewById(R.id.group_sender_message_notification_icon);
+                groupMessageSenderNotificationIcon = itemView.findViewById(R.id.group_message_sender_notification_icon);
                 messageLikes = itemView.findViewById(R.id.group_message_likes);
                 group_reciever_message_like_button = itemView.findViewById(R.id.group_reciever_message_like_button);
                 groupMessageLikeHolder = itemView.findViewById(R.id.group_message_like_holder);
+                senderReplyToMessageHolder = itemView.findViewById(R.id.group_sender_message_text_in_reply);
+                receiverReplyToMessageHolder = itemView.findViewById(R.id.group_reiever_message_text_in_reply);
+
 //                groupMessageRecieverTimeStamp = itemView.findViewById(R.id.group_reciever_message_like_button);
 
             }
@@ -341,5 +361,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     {
         return groupMessageList.get(groupMessageList.size() - 1).getGroupId();
     }
+
+
 
 }

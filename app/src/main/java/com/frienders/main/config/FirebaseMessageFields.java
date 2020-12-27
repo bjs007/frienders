@@ -10,5 +10,6 @@ public class FirebaseMessageFields
     public static String type = "type";
     public static String message = "message";
     public static String likes = "likes";
+    public static String messageId = "messageId";
 
 }

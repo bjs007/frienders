@@ -55,7 +55,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                 {
                     Group group =  dataSnapshot.getValue(Group.class);
                     groupName.setText(group.getEngName());
-//                    groupDescription.setText(group.getEngDesc());
+                    groupDescription.setText(group.getEngDesc());
 
 
                     RequestOptions requestOptions = new RequestOptions();
@@ -80,13 +80,13 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                     if(language.equals("hi"))
                     {
                         groupDisplayName = group.getHinName();
-//                        groupDesc = group.getHinDesc();
+                        groupDesc = group.getHinDesc();
                         groupDetail = group.getHinDetail();
                     }
                     else
                     {
                         groupDisplayName = group.getEngName();
-//                        groupDesc = group.getEngDesc();
+                        groupDesc = group.getEngDesc();
                         groupDetail = group.getEngDetail();
                     }
 
@@ -104,7 +104,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
                             groupDisplayNameMayContainRootName = groupWithParentNameWithoutAsterisk[0];
                         }
                         groupName.setText(groupDisplayNameMayContainRootName);
-//                        groupDescription.setText(groupDesc);
+                        groupDescription.setText(groupDesc);
                         groupDetails.setText(groupDetail);
 
                     }
@@ -142,7 +142,7 @@ public class GroupDetailDisplayActivity extends AppCompatActivity {
     private void initializeUi()
     {
         groupName = findViewById(R.id.groupName_groupDetail_layout);
-//        groupDescription = findViewById(R.id.groupDescription_groupDetail_layout);
+        groupDescription = findViewById(R.id.groupDetail_groupDetail_layout);
         groupDetails = findViewById(R.id.groupDetail_groupDetail_layout);
         group_detail_profile = findViewById(R.id.group_detail_profile);
     }

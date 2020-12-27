@@ -1,7 +1,6 @@
 package com.frienders.main.db.refs;
 
 import com.frienders.main.config.Configuration;
-import com.frienders.main.config.GroupFirebaseFields;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -17,11 +16,9 @@ public class FirebasePaths
     public static final String lastNotificationTime = "UsersNotification";
     public static final String messageLike = "MessageLikes";
     public static final String userMessageLikesCount  = "UserMessageLikesCount";
+    public static final String ALGOLIA_CREDENTIAL_PATH = "Algolia_credential";
+    public static final String REPORTING_MESSAGE_PATH = "reporting";
 
-    static
-    {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-    }
 
     public static DatabaseReference firebaseDbRawRef()
     {
@@ -101,4 +98,11 @@ public class FirebasePaths
         return MessagesPath + "/";
     }
 
+    public static DatabaseReference firebaseAlgoliaCredentialDbRef(){
+        return firebaseDbRawRef().child(ALGOLIA_CREDENTIAL_PATH);
+    }
+
+    public static DatabaseReference firebaseReportingMessageDbRef(){
+        return firebaseDbRawRef().child(REPORTING_MESSAGE_PATH);
+    }
 }

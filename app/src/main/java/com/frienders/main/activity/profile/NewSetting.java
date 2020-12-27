@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -47,28 +48,34 @@ import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import droidninja.filepicker.FilePickerBuilder;
+import droidninja.filepicker.FilePickerConst;
 import id.zelory.compressor.Compressor;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
+import static com.frienders.main.config.Configuration.RequestCodeForImagePick;
 import static com.frienders.main.config.Configuration.imageMaxHeight;
 import static com.frienders.main.config.Configuration.imageMaxWidth;
 
 public class NewSetting extends AppCompatActivity {
 
-    private ImageButton updateAccountSettings;
+    private ImageButton updateAccountSettings, cancelAccountSettings;
     private EditText userName, userStatus;
     private CircleImageView userProfileImage;
     private androidx.appcompat.widget.Toolbar settingsToolBar;
-    RadioButton languageRadioButton, engLanguageRadioButton, hinLanuguageRadioButton;
-    RadioGroup languaeRadioGroup;
     private String deviceLanguage = Utility.getDeviceLanguage();
-    private TextView deleteProfileImage, userPhoneNumber;
+    private TextView deleteProfileImage, userPhoneNumber, remove_profile_image_new;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
+    private static final int RC_PHOTO_PICKER_PERM = 555;
     private TextView groupsSubscribed, queriesAsked, answers;
 
     @Override
@@ -81,6 +88,8 @@ public class NewSetting extends AppCompatActivity {
     private void initializeUi() {
 
         updateAccountSettings = findViewById(R.id.update_settings_button_new);
+        cancelAccountSettings = findViewById(R.id.cancel_settings_button_new);
+        remove_profile_image_new = findViewById(R.id.remove_profile_image_new);
         userName = findViewById(R.id.set_user_name_new);
         progressBar = findViewById(R.id.progressbar_profile_setting);
         progressBar.setVisibility(View.VISIBLE);
@@ -108,15 +117,58 @@ public class NewSetting extends AppCompatActivity {
 
         retrieveUserInfo();
 
+        cancelAccountSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).child(UsersFirebaseFields.name)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.exists()) {
+                                    SendUserToMainActivity();
+                                } else {
+                                    Toast.makeText(NewSetting.this, getString(R.string.update_your_name), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+        });
+
         userProfileImage.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view)
                     {
-                        Intent galleryIntent = new Intent();
-                        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                        galleryIntent.setType("image/*");
-                        startActivityForResult(galleryIntent, Configuration.RequestCodeForImagePick);
+//                        Intent galleryIntent = new Intent();
+//                        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+//                        galleryIntent.setType("image/*");
+//                        startActivityForResult(galleryIntent, Configuration.RequestCodeForImagePick);
+                        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
+                                .child(UsersFirebaseFields.profileImageLink).addListenerForSingleValueEvent(
+                                new ValueEventListener()
+                                {
+                                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                    {
+                                        if(dataSnapshot.exists())
+                                        {
+                                            Utility.displayImage(NewSetting.this, dataSnapshot.getValue().toString());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError)
+                                    {
+
+                                    }
+                                }
+                        );
                     }
                 });
 
@@ -125,6 +177,17 @@ public class NewSetting extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, Configuration.RequestCodeForImagePick);
+
+            }
+        });
+
+        remove_profile_image_new.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                         .child(UsersFirebaseFields.profileImageLink).addListenerForSingleValueEvent(
                         new ValueEventListener()
@@ -138,8 +201,11 @@ public class NewSetting extends AppCompatActivity {
                                     userProfileImage.setImageDrawable(getDrawable(R.drawable.profile_image));
                                     FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId())
                                             .child(UsersFirebaseFields.profileImageLink).removeValue();
-                                    deleteProfileImage.setText(null);
+////                                    deleteProfileImage.setText(null);
+                                } else {
+                                    Toast.makeText(NewSetting.this, "No profile pic!", Toast.LENGTH_SHORT).show();
                                 }
+
                             }
 
                             @Override
@@ -149,7 +215,6 @@ public class NewSetting extends AppCompatActivity {
                             }
                         }
                 );
-
             }
         });
 
@@ -232,7 +297,7 @@ public class NewSetting extends AppCompatActivity {
                                                         progressBar.setVisibility(View.INVISIBLE);
                                                         deleteProfileImage.setVisibility(View.VISIBLE);
                                                         if(compressed != null)
-                                                        Glide.with(NewSetting.this)
+                                                        Glide.with(getApplicationContext())
                                                                 .asBitmap()
                                                                 .load(Uri.fromFile(compressed)) // or URI/path
                                                                 .into(userProfileImage); //imageview to set thumb
@@ -265,7 +330,26 @@ public class NewSetting extends AppCompatActivity {
         }
     }
 
+    @AfterPermissionGranted(RC_PHOTO_PICKER_PERM)
+    public void pickPhotoClicked() {
+        if (EasyPermissions.hasPermissions(this, FilePickerConst.PERMISSIONS_FILE_PICKER)) {
+            FilePickerBuilder.getInstance()
+                    .setActivityTitle("Please select photos")
+                    .enableVideoPicker(false)
+                    .enableCameraSupport(true)
+                    .showGifs(true)
+                    .setMaxCount(1)
+                    .showFolderView(true)
+                    .enableImagePicker(true)
+                    .withOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                    .pickPhoto(this, RequestCodeForImagePick);
 
+        } else {
+            // Ask for one permission
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_photo_picker),
+                    RC_PHOTO_PICKER_PERM, FilePickerConst.PERMISSIONS_FILE_PICKER);
+        }
+    }
     public Bitmap decodeFile(String filePath) {
 
         BitmapFactory.Options o = new BitmapFactory.Options();
@@ -362,7 +446,7 @@ public class NewSetting extends AppCompatActivity {
 
         else
         {
-            Toast.makeText(this, "Profile updated" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.profile_updated) , Toast.LENGTH_SHORT).show();
 //            progressDialog = new ProgressDialog(NewSetting.this);
 //            progressDialog.setMessage(getString(R.string.updating_profile));
 //            progressDialog.setCanceledOnTouchOutside(false);
@@ -473,7 +557,7 @@ public class NewSetting extends AppCompatActivity {
                         userName.setText(retrieveUserName);
                         userStatus.setText(retrieveStatus);
 
-                        Glide.with(NewSetting.this)
+                        Glide.with(getApplicationContext())
                                 .asBitmap()
 //                                .placeholder(R.drawable.video_preview_icon)
                                 .load(retrieveProfileImage) // or URI/path
@@ -487,7 +571,7 @@ public class NewSetting extends AppCompatActivity {
                         String retrieveStatus = dataSnapshot.child(UsersFirebaseFields.status).getValue().toString();
                         userName.setText(retrieveUserName);
                         userStatus.setText(retrieveStatus);
-                        deleteProfileImage.setVisibility(View.INVISIBLE);
+//                        deleteProfileImage.setVisibility(View.INVISIBLE);
 
                     }
                     else
@@ -514,40 +598,7 @@ public class NewSetting extends AppCompatActivity {
                                     {
                                         questionasked[0] = dataSnapshot.getChildrenCount();
                                     }
-
                                     queriesAsked.setText(String.valueOf(questionasked[0] == null ? 0 : questionasked[0]));
-
-                                    FirebasePaths.fireabaseUserMessageLikesCount()
-                                            .child(FirebaseAuthProvider.getCurrentUserId())
-                                            .child("likesCount")
-                                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                    if(dataSnapshot.exists())
-                                                    {
-                                                        String likesCount = dataSnapshot.getValue().toString();
-                                                        if(likesCount != null)
-                                                        {
-                                                            answers.setText(String.valueOf(likesCount));
-                                                        }
-                                                        else
-                                                        {
-                                                            answers.setText(String.valueOf(0));
-                                                        }
-
-                                                    }
-                                                    else
-
-                                                    {
-                                                        answers.setText(String.valueOf(0));
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                }
-                                            });
                                 }
 
                                 @Override
@@ -555,6 +606,40 @@ public class NewSetting extends AppCompatActivity {
 
                                 }
                             });
+
+
+
+                        FirebasePaths.fireabaseUserMessageLikesCount()
+                                .child(FirebaseAuthProvider.getCurrentUserId())
+                                .child("likesCount")
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if(dataSnapshot.exists())
+                                        {
+                                            String likesCount = dataSnapshot.getValue().toString();
+                                            if(likesCount != null)
+                                            {
+                                                answers.setText(String.valueOf(likesCount));
+                                            }
+                                            else
+                                            {
+                                                answers.setText(String.valueOf(0));
+                                            }
+
+                                        }
+                                        else
+
+                                        {
+                                            answers.setText(String.valueOf(0));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
 
                     progressBar.setVisibility(View.GONE);

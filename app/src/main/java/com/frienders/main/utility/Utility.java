@@ -41,6 +41,9 @@ public class Utility
 {
     public static Calendar calendar = Calendar.getInstance();
 
+//save the context recievied via constructor in a local variable
+
+
     public static String getGroupDisplayNameFromDbGroupName(String groupNameFromDb) {
         final String[] groupWithParentNameWithoutAsterisk =  groupNameFromDb.split("\\*");
         String groupDisplayNameMayContainRootName = null;
@@ -55,6 +58,25 @@ public class Utility
         }
 
         return groupDisplayNameMayContainRootName;
+    }
+
+    public static String getTrimmedUserName(String name) {
+        StringBuffer sb = null;
+        if(name != null)
+        {
+            String[] tokens = name.split("\\s+");
+            if(tokens[0].length() > 20 ){
+                sb = new StringBuffer();
+                sb.append(tokens[0].substring(0, 20));
+                sb.append("...");
+            }
+            else
+            {
+                return tokens[0];
+            }
+        }
+
+        return sb == null? null : sb.toString();
     }
 
 
@@ -97,6 +119,7 @@ public class Utility
         String deviceLanguage = Locale.getDefault().getLanguage();
         if(Configuration.languageSupported.contains(deviceLanguage))
         {
+
             return deviceLanguage;
         }
 

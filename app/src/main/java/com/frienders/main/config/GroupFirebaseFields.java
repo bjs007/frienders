@@ -11,4 +11,6 @@ public class GroupFirebaseFields
     public static String groupParentId = "parentId";
     public static String level = "level";
     public static String groupDetails = "details";
+    public static String GROUPID = "groupId";
+    public static String INDEX_ID = "id";
 }

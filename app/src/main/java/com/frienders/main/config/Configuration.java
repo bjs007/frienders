@@ -50,4 +50,7 @@ public class Configuration
     public static String DEFAULT_GROUP_IMAGE_EXT = ".jpeg";
 
     public static String INDIA_ISD_CODE = "+91";
+    public static String PREFERENCE_FILE = "com.frienders.PREFERENCE_FILE_KEY";
+    public static String ApplicationID = "ApplicationID";
+    public static String APIKey = "APIKey";
 }

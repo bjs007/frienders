@@ -46,15 +46,46 @@
                             android:src="@drawable/profile_image"/>
                     </RelativeLayout>
 
-                    <TextView
-                        android:id="@+id/delete_profile_image_new"
-                        android:layout_marginTop="10dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_width="wrap_content"
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/delete"
-                        android:textColor="@color/colorBlue"
-                        android:textSize="18sp"/>
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        >
+                        <TextView
+                            android:id="@+id/delete_profile_image_new"
+                            android:layout_marginTop="10dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/delete"
+                            android:layout_marginRight="5dp"
+                            android:textColor="@color/colorBlue"
+                            android:textSize="18sp"/>
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="|"
+                            android:textColor="@color/colorBlue"
+                            android:textSize="18sp"/>
+
+                        <TextView
+                            android:id="@+id/remove_profile_image_new"
+                            android:layout_marginTop="10dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remove"
+                            android:layout_marginLeft="5dp"
+                            android:textColor="@color/colorBlue"
+                            android:textSize="18sp"/>
+
+                    </LinearLayout>
+
 
 
                 </LinearLayout>
@@ -95,6 +126,7 @@
                                 android:layout_height="wrap_content"
                                 android:textSize="16sp"
                                 android:paddingTop="10dp"
+                                android:text="0"
                                 android:textColor="@color/startBlue"/>
 
                         </LinearLayout>
@@ -116,6 +148,7 @@
                                 android:layout_height="wrap_content"
                                 android:textSize="16sp"
                                 android:paddingTop="10dp"
+                                android:text="0"
                                 android:textColor="@color/startBlue"/>
 
                         </LinearLayout>
@@ -138,6 +171,7 @@
                                 android:layout_height="wrap_content"
                                 android:textSize="16sp"
                                 android:paddingTop="10dp"
+                                android:text="0"
                                 android:textColor="@color/startBlue"/>
 
                         </LinearLayout>
@@ -331,16 +365,38 @@
                 </LinearLayout>
 
 
-                <ImageButton
-                    android:id="@+id/update_settings_button_new"
-                    android:textColor="#fff"
-                    android:layout_gravity="center_horizontal"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_marginTop="50dp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:background="@drawable/ic_done_black_24dp"
+                    android:orientation="horizontal"
+                    >
 
-                    android:text="Save"/>
+                    <ImageButton
+                        android:id="@+id/update_settings_button_new"
+                        android:textColor="#fff"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/ic_done_black_24dp"
+                        android:text="Save"/>
+
+                    <ImageButton
+                        android:id="@+id/cancel_settings_button_new"
+                        android:textColor="#fff"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="10dp"
+                        android:background="@drawable/ic_close_black_24dp"
+
+                        android:text="Save"/>
+
+                    </LinearLayout>
+
+
 
             </LinearLayout>
 

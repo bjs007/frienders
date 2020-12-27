@@ -74,5 +74,11 @@
     <string name="upload_failed">Upload failed</string>
     <string name="could_not_send_last_message">Could not send the last message</string>
     <string name="updating_profile">Updating profile...</string>
-    <string name="delete">Delete</string>
+    <string name="delete">Change</string>
+    <string name="remove">Delete</string>
+    <string name="update_your_name">Please update your name</string>
+    <string name="profile_updated">Profile updated!</string>
+    <string name="no_pic_present">No profile pic!</string>
+    <string name="message_reported">Message Reported</string>
+    <string name="message_reporting_failed">Message reporting failed</string>
 </resources>

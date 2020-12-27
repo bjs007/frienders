@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,6 +25,7 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -36,6 +39,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.frienders.main.activity.MainActivity;
 import com.frienders.main.config.ActivityParameters;
 import com.frienders.main.config.Configuration;
+import com.frienders.main.config.FirebaseMessageFields;
+import com.frienders.main.config.GroupFirebaseFields;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.frienders.main.db.MsgType;
 import com.frienders.main.db.refs.FirebaseAuthProvider;
@@ -99,7 +104,7 @@ public class GroupChatActivity extends AppCompatActivity {
     private CircleImageView groupProfileImage;
     private String messageSenderUserId;
 
-    private ImageButton groupSendMessageButton, groupSendFileButton;
+    private ImageButton groupSendMessageButton, groupSendFileButton, replyCancelButton;
     private EditText groupMessageInputText;
     private Button groupChatSubscribeButton;
     private androidx.appcompat.widget.Toolbar groupChatToolBar;
@@ -126,6 +131,11 @@ public class GroupChatActivity extends AppCompatActivity {
     private TextView newmessagenotification;
     boolean istheLatestMessageTheLastVisibleItem = true;
     final int[] notvisiblenewmessagecount = new int[]{0};
+    ConstraintLayout replyLayout;
+    private TextView txtQuotedMsg;
+    private String replyMessageSenderName;
+    private String replyMessageSenderId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +147,9 @@ public class GroupChatActivity extends AppCompatActivity {
             group = (Group) getIntent().getExtras().get(ActivityParameters.Group);
             groupId = group.getId();
         }
+        replyLayout = findViewById(R.id.reply_layout);
+        replyLayout.setVisibility(View.GONE);
+        txtQuotedMsg = findViewById(R.id.txtQuotedMsg);
 
         initializeUi();
         initializeUiButtons();
@@ -168,6 +181,7 @@ public class GroupChatActivity extends AppCompatActivity {
         groupDescription.setVisibility(View.GONE);
         groupProfileImage = findViewById(R.id.custom_group_profile_image);
 
+
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.group);
 
@@ -189,6 +203,19 @@ public class GroupChatActivity extends AppCompatActivity {
         groupMessageAdapter = new GroupMessageAdapter(groupMessageList, this, recyclerView, groupId,
                 linearLayoutManager);
         recyclerView.setLayoutManager(linearLayoutManager);
+//        SwipeController swipeController = new SwipeController();
+
+
+        MessageSwipeController messageSwipeController = new MessageSwipeController(this, new SwipeControllerActions() {
+            @Override
+            public void showReplyUI(int position) {
+//                Toast.makeText(GroupChatActivity.this, "Hellow", Toast.LENGTH_SHORT).show();
+                showQuotaMessage(groupMessageList.get(position));
+            }
+
+        });
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(messageSwipeController);
+        itemTouchhelper.attachToRecyclerView(recyclerView);
 
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 recyclerView, new ClickListener() {
@@ -241,7 +268,7 @@ public class GroupChatActivity extends AppCompatActivity {
                                final DatabaseReference databaseReference = FirebasePaths.firebaseMessageLikeDbRef()
                                        .child(groupId)
                                        .child(groupMessageList.get(position).getMessageId())
-                                       .child(FirebaseAuthProvider.getCurrentUserId());
+                                       .child(groupMessageList.get(position).getFrom());
 
                                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                    @Override
@@ -292,7 +319,7 @@ public class GroupChatActivity extends AppCompatActivity {
                            }
                        });
 
-               view.findViewById(R.id.group_sender_message_notification_icon)
+               view.findViewById(R.id.group_message_sender_notification_icon)
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -374,6 +401,37 @@ public class GroupChatActivity extends AppCompatActivity {
                                Utility.downloadDoc(GroupChatActivity.this, groupMessageList.get(position).getMessage());
                            }
                        });
+
+               view.findViewById(R.id.report_message).setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+                       GroupMessage groupMessage = groupMessageList.get(position);
+                       Map<String, Object> reportMessage = new HashMap();
+                       reportMessage.put(GroupFirebaseFields.GROUPID, groupMessage.getGroupId());
+                       reportMessage.put(FirebaseMessageFields.from, groupMessage.getFrom());
+                       reportMessage.put(FirebaseMessageFields.messageId, groupMessage.getMessageId());
+                       reportMessage.put(UsersFirebaseFields.uid, FirebaseAuthProvider.getCurrentUserId());
+                       final Map<String , Object> reportDetail = new HashMap();
+                       reportDetail.put(groupId + "/" + groupMessage.getMessageId()+ "/" + FirebaseAuthProvider.getCurrentUserId(), reportMessage);
+
+                       FirebasePaths.firebaseReportingMessageDbRef().updateChildren(reportDetail)
+                               .addOnCompleteListener(new OnCompleteListener<Void>() {
+                           @Override
+                           public void onComplete(@NonNull Task<Void> task) {
+                               if(task.isSuccessful()) {
+                                   Toast.makeText(GroupChatActivity.this, getString(R.string.message_reported), Toast.LENGTH_SHORT).show();
+                               }else {
+                                   Toast.makeText(GroupChatActivity.this, getString(R.string.message_reporting_failed), Toast.LENGTH_SHORT).show();
+                               }
+                           }
+                       }).addOnFailureListener(new OnFailureListener() {
+                                   @Override
+                                   public void onFailure(@NonNull Exception e) {
+                                       Toast.makeText(GroupChatActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                   }
+                               });
+                   }
+               });
             }
 
             @Override
@@ -382,6 +440,7 @@ public class GroupChatActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
             }
         }));
+
 
          initScrollListener();
 
@@ -492,9 +551,20 @@ public class GroupChatActivity extends AppCompatActivity {
             }
         });
 
+        replyCancelButton = findViewById(R.id.reply_cancelButton);
     }
 
 
+    private void showQuotaMessage(GroupMessage groupMessage) {
+        groupMessageInputText.requestFocus();
+        replyMessageSenderName = groupMessage.getSenderDisplayName();
+        replyMessageSenderId = groupMessage.getFrom();
+        InputMethodManager inputMethodManager  = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.showSoftInput(groupMessageInputText,InputMethodManager.SHOW_IMPLICIT );
+        txtQuotedMsg.setText(groupMessage.getMessage());
+        replyLayout.setVisibility(View.VISIBLE);
+
+    }
     public void getMessages(final String nodeId) {
         Query query;
         moreMessages.clear();
@@ -605,7 +675,6 @@ public class GroupChatActivity extends AppCompatActivity {
     private void initScrollListener() {
 
         getMessages(null);
-
         recyclerView.setAdapter(groupMessageAdapter);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -806,8 +875,7 @@ public class GroupChatActivity extends AppCompatActivity {
                 final CharSequence options[] = new CharSequence[]
                         {
                                 getString(R.string.image),
-                                getString(R.string.video) + " 16MB MAX",
-                                getString(R.string.Docs),
+                                getString(R.string.Docs)
                         };
                 AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
 //                builder.setTitle(getString(R.string.selectfiletype));
@@ -819,6 +887,11 @@ public class GroupChatActivity extends AppCompatActivity {
                             pickPhotoClicked();
                         }
                         if (which == 1) {
+                            checker = Configuration.DOCFILE;
+                            pickDoc();
+                        }
+
+                        if (which == 2) {
                             checker = Configuration.VIDEOFILE;
 
                             if (true) {
@@ -829,10 +902,6 @@ public class GroupChatActivity extends AppCompatActivity {
                                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
                                 startActivityForResult(Intent.createChooser(intent, "select video"), RequestCodeForVideoPick);
                             }
-                        }
-                        if (which == 2) {
-                            checker = Configuration.DOCFILE;
-                            pickDoc();
                         }
 
                     }
@@ -848,6 +917,16 @@ public class GroupChatActivity extends AppCompatActivity {
                 groupDetailDisplayActivity.putExtra(ActivityParameters.groupId, groupId);
                 groupDetailDisplayActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(groupDetailDisplayActivity);
+            }
+        });
+
+        replyCancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(txtQuotedMsg != null && txtQuotedMsg.getText() != null){
+                    txtQuotedMsg.setText(null);
+                    replyLayout.setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -1463,9 +1542,16 @@ public class GroupChatActivity extends AppCompatActivity {
                     groupId,
                     currentUserDisplayName,
                     null);
-
+            if(txtQuotedMsg != null && txtQuotedMsg.getText() != null) {
+                messages.setReplyMessageSenderId(replyMessageSenderId);
+                messages.setReplyMessageSenderName(replyMessageSenderName);
+                messages.setReplyMessageText(txtQuotedMsg.getText().toString());
+                txtQuotedMsg.setText(null);
+                replyLayout.setVisibility(View.GONE);
+            }
 
             final Map messageBodyDetails = new HashMap();
+
             messageBodyDetails.put(groupId + "/" + messagePushID, messages);
 
             FirebasePaths.firebaseMessageRef().updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {

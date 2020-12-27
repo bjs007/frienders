@@ -30,9 +30,6 @@ public class GroupSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val viewModel = ViewModelProviders.of(requireActivity())[MyViewModel::class.java]
 
-        // Hits
-        // ...
-
         val groupProduct = GroupAdapter(getContext())
         viewModel.groups.observe(viewLifecycleOwner, Observer { hits -> groupProduct.submitList(hits) })
         groupList.let {
@@ -50,10 +47,19 @@ public class GroupSearchFragment : Fragment() {
         connection += viewModel.stats.connectView(statsView, StatsPresenterImpl())
     }
 
+    override fun onResume() {
+        super.onResume()
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         connection.clear()
     }
-
 
 }

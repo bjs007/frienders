@@ -1,5 +1,8 @@
 package com.frienders.main.Search
 
+import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
@@ -13,13 +16,11 @@ import com.algolia.search.client.ClientSearch
 import com.algolia.search.model.APIKey
 import com.algolia.search.model.ApplicationID
 import com.algolia.search.model.IndexName
-import com.frienders.main.config.UsersFirebaseFields
-import com.frienders.main.db.refs.FirebaseAuthProvider
-import com.frienders.main.db.refs.FirebasePaths
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
+import com.frienders.main.config.Configuration
+import com.frienders.main.config.GroupFirebaseFields
+import com.frienders.main.utility.Utility
 import io.ktor.client.features.logging.LogLevel
+
 
 class MyViewModel : ViewModel() {
 
@@ -29,39 +30,48 @@ class MyViewModel : ViewModel() {
     var lang : String = "eng"
     var langName: String = "engName"
     var langDesc : String = "engDesc"
+
     init {
-        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).child(UsersFirebaseFields.language)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError)
-                    {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                    }
+//        FirebasePaths.firebaseUserRef(FirebaseAuthProvider.getCurrentUserId()).child(UsersFirebaseFields.language)
+//                .addListenerForSingleValueEvent(object : ValueEventListener {
+//                    override fun onCancelled(p0: DatabaseError)
+//                    {
+//                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//                    }
+//
+//                    override fun onDataChange(dataSnapshot : DataSnapshot)
+//                    {
+//                        if(dataSnapshot.exists())
+//                        {
+//
+//                        }
+//                    }
+//
+//                });
 
-                    override fun onDataChange(dataSnapshot : DataSnapshot)
-                    {
-                        if(dataSnapshot.exists())
-                        {
-                            lang = dataSnapshot.value.toString();
-                            langName =  lang + "Name"
-                            langDesc = lang + "Desc";
-                        }
-                    }
-
-                });
+        lang = Utility.getDeviceLanguage();
+        if(lang.equals("en"))
+        {
+            lang = "eng";
+        }
+        else
+        {
+            lang = "hin";
+        }
+        langName =  lang + "Name"
+        langDesc = lang + "Desc";
     }
-
 
 
     val dataSourceFactory = SearcherSingleIndexDataSource.Factory(searcher) { hit ->
         GroupModel(
                 hit.json.getPrimitive(langName).content,
                 hit.json.getPrimitive(langDesc).content,
-                hit.json.getPrimitive("id").content
+                hit.json.getPrimitive(GroupFirebaseFields.INDEX_ID).content
         )
     }
 
-
-    val pagedListConfig = PagedList.Config.Builder().setPageSize(50).build()
+    val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(50).build()
     val groups: LiveData<PagedList<GroupModel>> = LivePagedListBuilder(dataSourceFactory, pagedListConfig).build()
 
     val searchBox = SearchBoxConnectorPagedList(searcher, listOf(groups))

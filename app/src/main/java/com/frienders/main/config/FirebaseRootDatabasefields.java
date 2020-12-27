@@ -7,5 +7,5 @@ public class FirebaseRootDatabasefields
     public static String level = "level";
     public static String NOTIFICATION = "Notification";
     public static String SUBSCRIBED = "subscribed";
-
+    public static String REPORTING = "reporting";
 }

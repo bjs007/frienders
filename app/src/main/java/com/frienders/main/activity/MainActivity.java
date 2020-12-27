@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -19,7 +21,6 @@ import com.frienders.main.activity.login.LoginActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
-import com.frienders.main.db.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
@@ -38,7 +39,9 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -112,17 +115,33 @@ public class MainActivity extends AppCompatActivity {
     {
         final String currentUserId = FirebaseAuthProvider.getCurrentUserId();
 
+        FirebasePaths.firebaseAlgoliaCredentialDbRef().addListenerForSingleValueEvent((new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.exists()) {
+                    Map<String, String> credentials = (HashMap) dataSnapshot.getValue();
+                    Context context = getApplicationContext();
+                    SharedPreferences sharedPref = context.getSharedPreferences(Configuration.PREFERENCE_FILE,
+                            Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(Configuration.APIKey, credentials.get(Configuration.APIKey));
+                    editor.putString(Configuration.ApplicationID, credentials.get(Configuration.ApplicationID));
+                    editor.apply();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        }));
+
         FirebasePaths.firebaseUserRef(currentUserId).addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
-                if(dataSnapshot.exists())
-                {
-                    String key = dataSnapshot.getKey();
-                    Object user = dataSnapshot.getValue(Object.class);
-                    List list = new ArrayList();
-                }
 
                 if(!dataSnapshot.child(UsersFirebaseFields.name).exists())
                 {
@@ -265,7 +284,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendUserToLoginActivity()
     {
-        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this,
+                NewLoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(loginIntent);

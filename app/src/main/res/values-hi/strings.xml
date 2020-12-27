@@ -77,5 +77,11 @@
     <string name="upload_failed">अपलोड फेल्ड</string>
     <string name="could_not_send_last_message">अंतिम मेसेज नहीं भेज सके</string>
     <string name="updating_profile">प्रोफ़ाइल अपडेट हो रहा है...</string>
-    <string name="delete">हटाएं</string>
+    <string name="delete">चेंज</string>
+    <string name="remove">हटाएं</string>
+    <string name="update_your_name">कृपया अपना नाम अपडेट करें</string>
+    <string name="profile_updated">प्रोफ़ाइल अपडेट!</string>
+    <string name="no_pic_present">कोई प्रोफ़ाइल तस्वीर नहीं!!</string>
+    <string name="message_reported">मेसेज रिपोर्ट किया गया</string>
+    <string name="message_reporting_failed">मेसेज रिपोर्टिंग फेल</string>
 </resources>

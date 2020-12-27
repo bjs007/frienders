@@ -4,13 +4,16 @@ public class GroupMessage
 {
     private String from, message, type, messageId, time, date, fileName, groupId, senderDisplayName;
     private Long likes;
+    private String replyMessageSenderId, replyMessageText;
+    private String replyMessageSenderName;
 
     public GroupMessage()
     {
 
     }
 
-    public GroupMessage(String from, String senderDisplayName, String message, String type, String messageId, String time, String date, String fileName, String groupId) {
+    public GroupMessage(String from, String senderDisplayName, String message, String type, String messageId, String time, String date, String fileName, String groupId, String replyMessageSenderId,
+                        String replyMessageText, String replyMessageSenderName) {
         this.from = from;
         this.senderDisplayName = senderDisplayName;
         this.message = message;
@@ -20,6 +23,9 @@ public class GroupMessage
         this.date = date;
         this.fileName = fileName;
         this.groupId = groupId;
+        this.replyMessageSenderId = replyMessageSenderId;
+        this.replyMessageText = replyMessageText;
+        this.replyMessageSenderName = replyMessageSenderName;
     }
 
     public GroupMessage(String messageId, String time, String date, String fileName) {
@@ -105,7 +111,32 @@ public class GroupMessage
         return likes;
     }
 
-    public void setLikes(long likes) {
+    public void setLikes(Long likes) {
         this.likes = likes;
+    }
+
+
+    public String getReplyMessageText() {
+        return replyMessageText;
+    }
+
+    public void setReplyMessageText(String replyMessageText) {
+        this.replyMessageText = replyMessageText;
+    }
+
+    public String getReplyMessageSenderId() {
+        return replyMessageSenderId;
+    }
+
+    public void setReplyMessageSenderId(String replyMessageSenderId) {
+        this.replyMessageSenderId = replyMessageSenderId;
+    }
+
+    public String getReplyMessageSenderName() {
+        return replyMessageSenderName;
+    }
+
+    public void setReplyMessageSenderName(String replyMessageSenderName) {
+        this.replyMessageSenderName = replyMessageSenderName;
     }
 }

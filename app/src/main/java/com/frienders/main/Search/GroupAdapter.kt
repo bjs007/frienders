@@ -34,7 +34,7 @@ class GroupAdapter(context: Context?) : PagedListAdapter<GroupModel, GroupViewHo
             holder.itemView.setOnClickListener(View.OnClickListener {
                 val groupId = groupModel.id;
                 val intent = Intent(contexc, GroupChatActivity::class.java);
-                intent.putExtra("groupId", groupId);
+                intent.putExtra(GroupFirebaseFields.GROUPID, groupId);
                 if (contexc != null) {
                     contexc.startActivity(intent)
                 };
