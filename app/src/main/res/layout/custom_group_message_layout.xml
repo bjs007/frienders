@@ -3,54 +3,149 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-
-    <TextView
-        android:id="@+id/group_message_receiver_profile_name"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/sender_name_time_holder"
+        android:layout_width="match_parent"
+        android:paddingTop="5dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:paddingLeft="4dp"
-        android:textColor="@color/colorBlue"
-        android:layout_marginTop="5dp"
-        android:src="@drawable/profile_image"
-        />
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/group_message_receiver_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="10dp"
+            android:paddingLeft="4dp"
+            android:textSize="12sp"
+            android:textColor="@color/colorBlue"
+            />
 
+        <TextView
+            android:id="@+id/group_message_receiver_Time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="time"
+            android:textSize="10sp"
+            android:paddingRight="10dp"
+            android:textColor="@color/colorLightBlack"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
     <LinearLayout
         android:id="@+id/receiver_message_text_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:paddingRight="10dp"
         android:layout_marginEnd="120dp"
         android:paddingLeft="10dp"
-        android:layout_below="@+id/group_message_receiver_profile_name"
-        android:orientation="vertical">
+        android:layout_below="@+id/sender_name_time_holder"
+
         <TextView
-            android:id="@+id/group_reiever_message_text_in_reply"
+            android:id="@+id/group_message_receiver_profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/sender_messages_to_reply_layout"
+            android:paddingTop="5dp"
+            android:text="Bijay"
+            android:textColor="@color/colorBlue"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/profile_image"
+            />
+
+
+        <TextView
+            android:id="@+id/group_reiever_message_text_in_reply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorDarkGray"
             android:textColorLink="@color/colorBlue"
+            android:layout_marginLeft="10dp"
             android:text="in reply text"
             android:textSize="12sp"
-            android:padding="10dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="5dp"
-            android:paddingTop="5dp"
-            android:scaleType="centerCrop"
+            android:layout_marginTop="5dp"
             />
         <TextView
             android:id="@+id/group_receiver_message_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/receiver_messages_layout"
-            android:paddingLeft="10dp"
-            android:scaleType="centerCrop"
-            android:paddingRight="10dp"
             android:text="receiver message here"
+            android:background="@color/colorAccent"
+            android:layout_marginLeft="10dp"
             android:textColorLink="@color/colorBlue"
-            android:textSize="16sp" />
+<<<<<<< Updated upstream
+            android:textSize="14sp" />
+=======
+            android:textSize="16sp"
+            android:layout_marginTop="5dp"
+            />
+git rgit res
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="3dp"
+            android:orientation="vertical"
+            >
+            <View style="@style/Divider.Horizontal"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="3dp"
+            android:paddingBottom="5dp">
+
+            <LinearLayout
+                android:id="@+id/group_message_like_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+
+                <ImageButton
+                    android:id="@+id/group_reciever_message_like_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:background="@color/colorAccent"
+                    android:src="@drawable/ic_thumb_up_black_24dp" />
+
+                <TextView
+                    android:id="@+id/group_message_likes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    />
+
+                <ImageButton
+                    android:id="@+id/report_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:background="@color/colorAccent"
+                    android:text="Report"
+                    android:src="@drawable/ic_report_black_24dp"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentEnd="true"
+                >
+                <TextView
+                    android:id="@+id/sender_message_timestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="time"
+                    />
+            </LinearLayout>
+
+
+        </RelativeLayout>
+>>>>>>> Stashed changes
     </LinearLayout>
 
 
@@ -62,69 +157,96 @@
         android:layout_marginEnd="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
-        android:layout_below="@+id/group_message_receiver_profile_name"
         android:padding="10dp"
         android:scaleType="centerCrop"
         android:visibility="gone"
+        android:background="@color/bg_gray"
         android:src="@drawable/ic_notifications_none_black_24dp"
 
         />
 
-    <TextView
-        android:id="@+id/group_sender_message_profile_name"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:id="@+id/group_message_sender_view_holder"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/group_sender_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:paddingLeft="10dp"
+            android:textSize="10sp"
+            android:textColor="@color/colorLightBlack"
+            android:src="@drawable/profile_image"
+            />
+
+        <TextView
+            android:id="@+id/group_sender_message_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:text="Me"
+            android:textColor="@color/colorBlue"
+            android:paddingRight="4dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/profile_image"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="10dp"
-        android:textColor="@color/colorBlue"
-        android:paddingRight="4dp"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/profile_image"
-        />
+        android:layout_below="@+id/group_message_sender_view_holder"
+        android:orientation="horizontal"
+        android:gravity="right"
+        >
 
-    <ImageView
-        android:id="@+id/group_message_sender_doc_view"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignParentEnd="true"
+        <ImageView
+            android:id="@+id/group_message_sender_doc_view"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/image_icon"
+            android:visibility="gone"
+            android:scaleType="centerCrop" />
+        <TextView
+            android:id="@+id/group_message_sender_doc_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="2dp"
+            android:text="File name"
+            android:visibility="gone"
+            android:layout_below="@id/group_message_sender_doc_view"
 
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/image_icon"
-        android:visibility="gone"
-        android:layout_below="@id/group_sender_message_profile_name"
-        android:scaleType="centerCrop" />
-    <TextView
-        android:id="@+id/group_message_sender_doc_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="2dp"
-        android:text="File name"
-        android:visibility="gone"
-        android:layout_below="@id/group_message_sender_doc_view"
+            />
 
+        <ImageView
+            android:id="@+id/group_message_sender_image_view"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_alignParentEnd="true"
 
-        />
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/image_icon"
 
-    <ImageView
-        android:id="@+id/group_message_sender_image_view"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_alignParentEnd="true"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:visibility="gone"
+            />
 
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/image_icon"
-        android:layout_below="@id/group_sender_message_profile_name"
+    </LinearLayout>
 
-        android:scaleType="centerInside"
-        android:adjustViewBounds="true"
-        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/group_message_receiver_image_view"
@@ -136,11 +258,10 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         android:background="@drawable/image_icon"
-
-        android:layout_below="@id/group_message_receiver_profile_name"
+        android:visibility="gone"
         android:scaleType="centerInside"
         android:adjustViewBounds="true"
-        android:visibility="gone"/>
+   />
 
     <ImageView
         android:id="@+id/group_message_receiver_doc_view"
@@ -152,7 +273,7 @@
         android:layout_marginBottom="5dp"
         android:background="@drawable/image_icon"
         android:visibility="gone"
-        android:layout_below="@id/group_message_receiver_profile_name"
+
         android:scaleType="centerCrop"
         />
     <TextView
@@ -175,13 +296,11 @@
         android:orientation="vertical"
         android:layout_marginStart="120dp"
         android:layout_marginEnd="10dp"
-        android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:paddingRight="10dp"
         android:paddingLeft="10dp"
-        android:layout_toStartOf="@id/group_message_sender_image_view"
+        android:layout_below="@+id/group_message_sender_view_holder"
         android:layout_alignParentEnd="true"
-        android:layout_below="@id/group_sender_message_profile_name"
         >
         <TextView
             android:id="@+id/group_sender_message_text_in_reply"
@@ -193,6 +312,7 @@
             android:paddingTop="5dp"
             android:textColorLink="@color/colorBlue"
             android:text="in reply text"
+            android:visibility="gone"
             android:textSize="12sp" />
         <TextView
             android:id="@+id/group_sender_message_text"
@@ -201,31 +321,24 @@
             android:layout_gravity="right"
             android:background="@drawable/sender_message_layout"
             android:padding="10dp"
+            android:visibility="gone"
             android:text="sender message here"
             android:textColorLink="@color/colorBlue"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
+<<<<<<< Updated upstream
     <LinearLayout
         android:id="@+id/group_message_like_holder"
-        android:layout_width="130dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="@+id/receiver_message_text_layout"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
-        android:layout_below="@id/group_sender_message_profile_name"
         android:layout_marginBottom="10dp"
-        android:weightSum="5"
+        android:weightSum="2"
         android:paddingBottom="10dp">
 
-        <TextView
-            android:id="@+id/report_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingRight="10dp"
-            android:layout_weight="2"
-            android:paddingLeft="10dp"
-            android:text="Report"/>
 
         <ImageButton
             android:id="@+id/group_reciever_message_like_button"
@@ -240,12 +353,16 @@
             android:id="@+id/group_message_likes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorDarkGray"
             android:paddingTop="10dp"
             android:layout_weight="1"
             />
 
 
     </LinearLayout>
+=======
+
+>>>>>>> Stashed changes
 
 <!--    <ImageButton-->
 <!--        android:id="@+id/group_reciever_message_like_grayed_button"-->
@@ -279,7 +396,7 @@
         android:background="@drawable/image_icon"
 
         android:visibility="gone"
-        android:layout_below="@id/group_message_receiver_profile_name"
+
         android:scaleType="centerCrop" />
 
     <ImageView
@@ -302,7 +419,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/play_icon"
-        android:layout_below="@id/group_message_receiver_profile_name"
+
         android:scaleType="centerInside"
         android:visibility="gone"
         android:adjustViewBounds="true" />

@@ -210,6 +210,7 @@ public class GroupChatActivity extends AppCompatActivity {
             @Override
             public void showReplyUI(int position) {
 //                Toast.makeText(GroupChatActivity.this, "Hellow", Toast.LENGTH_SHORT).show();
+                if(groupMessageList.get(position).getType().equals(MsgType.TEXT.getMsgTypeId()))
                 showQuotaMessage(groupMessageList.get(position));
             }
 
@@ -402,36 +403,65 @@ public class GroupChatActivity extends AppCompatActivity {
                            }
                        });
 
-               view.findViewById(R.id.report_message).setOnClickListener(new View.OnClickListener() {
+               view.setOnLongClickListener(new View.OnLongClickListener() {
                    @Override
-                   public void onClick(View v) {
-                       GroupMessage groupMessage = groupMessageList.get(position);
-                       Map<String, Object> reportMessage = new HashMap();
-                       reportMessage.put(GroupFirebaseFields.GROUPID, groupMessage.getGroupId());
-                       reportMessage.put(FirebaseMessageFields.from, groupMessage.getFrom());
-                       reportMessage.put(FirebaseMessageFields.messageId, groupMessage.getMessageId());
-                       reportMessage.put(UsersFirebaseFields.uid, FirebaseAuthProvider.getCurrentUserId());
-                       final Map<String , Object> reportDetail = new HashMap();
-                       reportDetail.put(groupId + "/" + groupMessage.getMessageId()+ "/" + FirebaseAuthProvider.getCurrentUserId(), reportMessage);
+                   public boolean onLongClick(View v) {
+//                       Toast.makeText(GroupChatActivity.this, "Long press on position :"
+//                                       +position,
+//                               Toast.LENGTH_LONG).show();
+                       AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 
-                       FirebasePaths.firebaseReportingMessageDbRef().updateChildren(reportDetail)
-                               .addOnCompleteListener(new OnCompleteListener<Void>() {
+                       builder.setMessage("Are you sure to report the message?");
+                       builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                            @Override
-                           public void onComplete(@NonNull Task<Void> task) {
-                               if(task.isSuccessful()) {
-                                   Toast.makeText(GroupChatActivity.this, getString(R.string.message_reported), Toast.LENGTH_SHORT).show();
-                               }else {
-                                   Toast.makeText(GroupChatActivity.this, getString(R.string.message_reporting_failed), Toast.LENGTH_SHORT).show();
-                               }
-                           }
-                       }).addOnFailureListener(new OnFailureListener() {
+                           public void onClick(DialogInterface dialog, int which) {
+                               GroupMessage groupMessage = groupMessageList.get(position);
+                               Map<String, Object> reportMessage = new HashMap();
+                               reportMessage.put(GroupFirebaseFields.GROUPID, groupMessage.getGroupId());
+                               reportMessage.put(FirebaseMessageFields.from, groupMessage.getFrom());
+                               reportMessage.put(FirebaseMessageFields.messageId, groupMessage.getMessageId());
+                               reportMessage.put(UsersFirebaseFields.uid, FirebaseAuthProvider.getCurrentUserId());
+                               final Map<String , Object> reportDetail = new HashMap();
+                               reportDetail.put(groupId + "/" + groupMessage.getMessageId()+ "/" + FirebaseAuthProvider.getCurrentUserId(), reportMessage);
+
+                               FirebasePaths.firebaseReportingMessageDbRef().updateChildren(reportDetail)
+                                       .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                           @Override
+                                           public void onComplete(@NonNull Task<Void> task) {
+                                               if(task.isSuccessful()) {
+                                                   Toast.makeText(GroupChatActivity.this, getString(R.string.message_reported), Toast.LENGTH_SHORT).show();
+                                               }else {
+                                                   Toast.makeText(GroupChatActivity.this, getString(R.string.message_reporting_failed), Toast.LENGTH_SHORT).show();
+                                               }
+                                           }
+                                       }).addOnFailureListener(new OnFailureListener() {
                                    @Override
                                    public void onFailure(@NonNull Exception e) {
                                        Toast.makeText(GroupChatActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                                    }
                                });
+                           }
+                       });
+                       builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                           @Override
+                           public void onClick(DialogInterface dialog, int which) {
+
+
+
+                           }
+                       });
+
+                       AlertDialog alert = builder.create();
+                       alert.setOnShowListener(arg0 -> {
+                           alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorBlue));
+                           alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorGreen));
+                       });
+                       alert.show();
+                       return true;
                    }
                });
+
+
             }
 
             @Override
@@ -878,7 +908,8 @@ public class GroupChatActivity extends AppCompatActivity {
                                 getString(R.string.Docs)
                         };
                 AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
-//                builder.setTitle(getString(R.string.selectfiletype));
+//                builder.setMessage("Select");
+                builder.setTitle(getString(R.string.selectfiletype));
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

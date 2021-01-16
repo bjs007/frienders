@@ -39,10 +39,10 @@
     <string name="loadingmessage"> कृपया प्रतीक्षा करें! लोड हो रहा है...</string>
     <string name="writefirstmessage"> पहले अपना मेसेज लिखें...</string>
     <string name="video"> वीडियो </string>
-    <string name="Docs">DOCs</string>
+    <string name="Docs">Document</string>
     <string name="image"> इमेज / कैमरा</string>
     <string name="PDF"> पीडीएफ</string>
-    <string name="selectfiletype"> फाइल</string>
+    <string name="selectfiletype">चयन करें</string>
     <string name="mygrouptab"> मेरे ग्रूप्स </string>
     <string name="allgrouptab"> सभी ग्रूप्स </string>
     <string name="search"> खोजे</string>
