@@ -27,7 +27,7 @@
     <string name="wrong_code">Wrong code! Try again</string>
     <string name="phonenumberrequired">Phone number is required</string>
     <string name="pleaseenterphonenumber">mobile number</string>
-    <string name="send_verification_code_button">Request Otp</string>
+    <string name="send_verification_code_button">Request OTP</string>
     <string name="sendingverificationcode_wait_message">We are sending verification code. Please wait!</string>
     <string name="entervalidphonenumber">Invalid Phone number, please enter 10 digits indian mobile number e.g. 9876543210</string>
     <string name="writeyourname">Please write your user name first..</string>

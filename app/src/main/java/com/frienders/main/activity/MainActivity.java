@@ -18,14 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.frienders.main.activity.group.RequestNewGroup;
-import com.frienders.main.activity.login.LoginActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,9 +37,7 @@ import com.frienders.main.db.refs.FirebasePaths;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -83,12 +79,21 @@ public class MainActivity extends AppCompatActivity {
 
         if(currentUser == null)
         {
-            sendUserToLoginActivity();
+            sendUserToHomeScreen();
         }
         else
         {
             fetchUserDetails();
         }
+    }
+
+    private void sendUserToHomeScreen() {
+        Intent loginIntent = new Intent(MainActivity.this,
+                HomeActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(loginIntent);
+        finish();
     }
 
 
