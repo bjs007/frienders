@@ -32,9 +32,12 @@
             android:visibility="gone"
             />
     </RelativeLayout>
+
+
+
     <LinearLayout
         android:id="@+id/receiver_message_text_layout"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
@@ -42,110 +45,32 @@
         android:layout_marginEnd="120dp"
         android:paddingLeft="10dp"
         android:layout_below="@+id/sender_name_time_holder"
-
-        <TextView
-            android:id="@+id/group_message_receiver_profile_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:text="Bijay"
-            android:textColor="@color/colorBlue"
-            android:layout_marginLeft="10dp"
-            android:src="@drawable/profile_image"
-            />
-
-
+        android:orientation="vertical">
         <TextView
             android:id="@+id/group_reiever_message_text_in_reply"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorDarkGray"
+            android:background="@drawable/sender_messages_to_reply_layout"
             android:textColorLink="@color/colorBlue"
-            android:layout_marginLeft="10dp"
             android:text="in reply text"
             android:textSize="12sp"
-            android:layout_marginTop="5dp"
+            android:padding="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:scaleType="centerCrop"
             />
         <TextView
             android:id="@+id/group_receiver_message_text"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/receiver_messages_layout"
+            android:paddingLeft="10dp"
+            android:scaleType="centerCrop"
+            android:paddingRight="10dp"
             android:text="receiver message here"
-            android:background="@color/colorAccent"
-            android:layout_marginLeft="10dp"
             android:textColorLink="@color/colorBlue"
-<<<<<<< Updated upstream
-            android:textSize="14sp" />
-=======
-            android:textSize="16sp"
-            android:layout_marginTop="5dp"
-            />
-git rgit res
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:orientation="vertical"
-            >
-            <View style="@style/Divider.Horizontal"/>
-        </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:paddingBottom="5dp">
-
-            <LinearLayout
-                android:id="@+id/group_message_like_holder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
-
-                <ImageButton
-                    android:id="@+id/group_reciever_message_like_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:background="@color/colorAccent"
-                    android:src="@drawable/ic_thumb_up_black_24dp" />
-
-                <TextView
-                    android:id="@+id/group_message_likes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    />
-
-                <ImageButton
-                    android:id="@+id/report_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:background="@color/colorAccent"
-                    android:text="Report"
-                    android:src="@drawable/ic_report_black_24dp"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentEnd="true"
-                >
-                <TextView
-                    android:id="@+id/sender_message_timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="time"
-                    />
-            </LinearLayout>
-
-
-        </RelativeLayout>
->>>>>>> Stashed changes
+            android:textSize="16sp" />
     </LinearLayout>
 
 
@@ -312,7 +237,6 @@ git rgit res
             android:paddingTop="5dp"
             android:textColorLink="@color/colorBlue"
             android:text="in reply text"
-            android:visibility="gone"
             android:textSize="12sp" />
         <TextView
             android:id="@+id/group_sender_message_text"
@@ -321,13 +245,11 @@ git rgit res
             android:layout_gravity="right"
             android:background="@drawable/sender_message_layout"
             android:padding="10dp"
-            android:visibility="gone"
             android:text="sender message here"
             android:textColorLink="@color/colorBlue"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
     </LinearLayout>
 
-<<<<<<< Updated upstream
     <LinearLayout
         android:id="@+id/group_message_like_holder"
         android:layout_width="80dp"
@@ -360,9 +282,6 @@ git rgit res
 
 
     </LinearLayout>
-=======
-
->>>>>>> Stashed changes
 
 <!--    <ImageButton-->
 <!--        android:id="@+id/group_reciever_message_like_grayed_button"-->
@@ -409,7 +328,6 @@ git rgit res
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/image_icon"
-        android:layout_below="@id/group_sender_message_profile_name"
 
         android:visibility="gone"
         android:scaleType="centerCrop" />
@@ -430,7 +348,6 @@ git rgit res
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/play_icon"
-        android:layout_below="@id/group_sender_message_profile_name"
         android:layout_toStartOf="@id/groupVideoViewSender"
         android:layout_alignParentRight="true"
         android:scaleType="centerInside"

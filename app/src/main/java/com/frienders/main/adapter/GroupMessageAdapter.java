@@ -103,12 +103,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             groupMessageViewHolder.groupMessageLikeHolder.setVisibility(View.GONE);
             groupMessageViewHolder.senderReplyToMessageHolder.setVisibility(View.GONE);
             groupMessageViewHolder.receiverReplyToMessageHolder.setVisibility(View.GONE);
-<<<<<<< Updated upstream
             groupMessageViewHolder.receiverMessageTime.setVisibility(View.GONE);
             groupMessageViewHolder.senderMessageTime.setVisibility(View.GONE);
-=======
-            groupMessageViewHolder.senderMessageTimestamp.setVisibility(View.GONE);
->>>>>>> Stashed changes
 
 
             if (message != null && message.getMessage() != null)
@@ -140,11 +136,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     groupMessageViewHolder.receiverProfileDisplayName.setVisibility(View.GONE);
                     groupMessageViewHolder.senderProfileDisplayName.setVisibility(View.VISIBLE);
                     groupMessageViewHolder.senderProfileDisplayName.setText("Me");
-<<<<<<< Updated upstream
                     groupMessageViewHolder.senderMessageTime.setVisibility(View.VISIBLE);
                     groupMessageViewHolder.senderMessageTime.setText(timestamptoken[0]);
-=======
->>>>>>> Stashed changes
 
                 }
                 else
@@ -152,11 +145,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     groupMessageViewHolder.receiverProfileDisplayName.setVisibility(View.VISIBLE);
                     groupMessageViewHolder.senderProfileDisplayName.setVisibility(View.GONE);
                     groupMessageViewHolder.receiverProfileDisplayName.setText(Utility.getTrimmedUserName(message.getSenderDisplayName() ));
-<<<<<<< Updated upstream
                     groupMessageViewHolder.receiverMessageTime.setVisibility(View.VISIBLE);
                     groupMessageViewHolder.receiverMessageTime.setText(timestamptoken[0]);
-=======
->>>>>>> Stashed changes
                 }
 
 
@@ -167,8 +157,6 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         groupMessageViewHolder.senderMessageTextInGroup.setVisibility(View.VISIBLE);
                         groupMessageViewHolder.senderMessageTextInGroup.setBackgroundResource(R.drawable.sender_message_layout);
                         groupMessageViewHolder.senderMessageTextInGroup.setTextColor(Color.BLACK);
-                        groupMessageViewHolder.senderMessageTimestamp.setVisibility(View.VISIBLE);
-                        groupMessageViewHolder.senderMessageTimestamp.setText(timestamptoken[0]);
 //                        groupMessageViewHolder.senderMessageTextInGroup.setText(message.getMessage() != null ? message.getMessage(): "");
 
                         if(message.getReplyMessageText() != null && !message.getReplyMessageText().toString().equals(""))  {
@@ -300,69 +288,65 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
 
-        @Override
-        public int getItemCount () {
+    @Override
+    public int getItemCount () {
 
-            return groupMessageList == null ? 0 : groupMessageList.size();
-        }
+        return groupMessageList == null ? 0 : groupMessageList.size();
+    }
 
-        @Override
-        public int getItemViewType ( int position){
-            return groupMessageList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
-        }
+    @Override
+    public int getItemViewType ( int position){
+        return groupMessageList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+    }
 
 
     public class GroupMessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
     {
-            public TextView senderMessageTextInGroup, reciverMessageTextInGroup;
-            public TextView receiverProfileDisplayName, senderProfileDisplayName;
-            public TextView recieverDocumentName, senderDocumentName, senderMessageTimestamp;
-            public ImageView imageSentBySender, imageSentByReceiver, docSentBySender, docSentByReciver;
-            public ImageView groupVideoSender, groupVideoReceiver, playIconSender, playIconReceiver;
-            public ImageButton groupMessageSenderNotificationIcon, group_reciever_message_like_button;
-            public TextView messageLikes;
-            public LinearLayout groupMessageLikeHolder;
-            public TextView senderReplyToMessageHolder;
-            public TextView receiverReplyToMessageHolder;
-            public TextView receiverMessageTime;
-            public TextView senderMessageTime;
+        public TextView senderMessageTextInGroup, reciverMessageTextInGroup;
+        public TextView receiverProfileDisplayName, senderProfileDisplayName;
+        public TextView recieverDocumentName, senderDocumentName;
+        public ImageView imageSentBySender, imageSentByReceiver, docSentBySender, docSentByReciver;
+        public ImageView groupVideoSender, groupVideoReceiver, playIconSender, playIconReceiver;
+        public ImageButton groupMessageSenderNotificationIcon, group_reciever_message_like_button;
+        public TextView messageLikes;
+        public LinearLayout groupMessageLikeHolder;
+        public TextView senderReplyToMessageHolder;
+        public TextView receiverReplyToMessageHolder;
+        public TextView receiverMessageTime;
+        public TextView senderMessageTime;
 //            public ImageButton groupMessageRecieverTimeStamp;
 
 
-            public GroupMessageViewHolder(@NonNull View itemView) {
-                super(itemView);
-                itemView.setOnClickListener(this);
-                senderMessageTextInGroup = itemView.findViewById(R.id.group_sender_message_text);
-                reciverMessageTextInGroup = itemView.findViewById(R.id.group_receiver_message_text);
+        public GroupMessageViewHolder(@NonNull View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(this);
+            senderMessageTextInGroup = itemView.findViewById(R.id.group_sender_message_text);
+            reciverMessageTextInGroup = itemView.findViewById(R.id.group_receiver_message_text);
 
-                receiverProfileDisplayName = itemView.findViewById(R.id.group_message_receiver_profile_name);
-                senderProfileDisplayName = itemView.findViewById(R.id.group_sender_message_profile_name);
-                imageSentBySender = itemView.findViewById(R.id.group_message_sender_image_view);
-                imageSentByReceiver = itemView.findViewById(R.id.group_message_receiver_image_view);
-                groupVideoSender = itemView.findViewById(R.id.groupVideoViewSender);
-                groupVideoReceiver = itemView.findViewById(R.id.groupVideoViewReceiver);
-                docSentByReciver = itemView.findViewById(R.id.group_message_receiver_doc_view);
-                docSentBySender = itemView.findViewById(R.id.group_message_sender_doc_view);
-                playIconSender = itemView.findViewById(R.id.groupvideomessageplayiconSender);
-                playIconReceiver = itemView.findViewById(R.id.groupvideomessageplayiconReceiver);
+            receiverProfileDisplayName = itemView.findViewById(R.id.group_message_receiver_profile_name);
+            senderProfileDisplayName = itemView.findViewById(R.id.group_sender_message_profile_name);
+            imageSentBySender = itemView.findViewById(R.id.group_message_sender_image_view);
+            imageSentByReceiver = itemView.findViewById(R.id.group_message_receiver_image_view);
+            groupVideoSender = itemView.findViewById(R.id.groupVideoViewSender);
+            groupVideoReceiver = itemView.findViewById(R.id.groupVideoViewReceiver);
+            docSentByReciver = itemView.findViewById(R.id.group_message_receiver_doc_view);
+            docSentBySender = itemView.findViewById(R.id.group_message_sender_doc_view);
+            playIconSender = itemView.findViewById(R.id.groupvideomessageplayiconSender);
+            playIconReceiver = itemView.findViewById(R.id.groupvideomessageplayiconReceiver);
 //                recieverDocumentName = itemView.findViewById(R.id.group_message_receiver_doc_name);
 //                senderDocumentName = itemView.findViewById(R.id.group_message_sender_doc_name);
-                groupMessageSenderNotificationIcon = itemView.findViewById(R.id.group_message_sender_notification_icon);
-                messageLikes = itemView.findViewById(R.id.group_message_likes);
-                group_reciever_message_like_button = itemView.findViewById(R.id.group_reciever_message_like_button);
-                groupMessageLikeHolder = itemView.findViewById(R.id.group_message_like_holder);
-                senderReplyToMessageHolder = itemView.findViewById(R.id.group_sender_message_text_in_reply);
-                receiverReplyToMessageHolder = itemView.findViewById(R.id.group_reiever_message_text_in_reply);
-<<<<<<< Updated upstream
-                receiverMessageTime = itemView.findViewById(R.id.group_message_receiver_Time);
-                senderMessageTime = itemView.findViewById(R.id.group_sender_message_time);
-=======
-                senderMessageTimestamp = itemView.findViewById(R.id.sender_message_timestamp);
->>>>>>> Stashed changes
+            groupMessageSenderNotificationIcon = itemView.findViewById(R.id.group_message_sender_notification_icon);
+            messageLikes = itemView.findViewById(R.id.group_message_likes);
+            group_reciever_message_like_button = itemView.findViewById(R.id.group_reciever_message_like_button);
+            groupMessageLikeHolder = itemView.findViewById(R.id.group_message_like_holder);
+            senderReplyToMessageHolder = itemView.findViewById(R.id.group_sender_message_text_in_reply);
+            receiverReplyToMessageHolder = itemView.findViewById(R.id.group_reiever_message_text_in_reply);
+            receiverMessageTime = itemView.findViewById(R.id.group_message_receiver_Time);
+            senderMessageTime = itemView.findViewById(R.id.group_sender_message_time);
 
 //                groupMessageRecieverTimeStamp = itemView.findViewById(R.id.group_reciever_message_like_button);
 
-            }
+        }
 
 
         @Override

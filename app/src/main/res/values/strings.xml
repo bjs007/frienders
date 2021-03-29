@@ -36,10 +36,10 @@
     <string name="loadingmessage">Please wait! Loading...</string>
     <string name="writefirstmessage">first write your message...</string>
     <string name="video">Video</string>
-    <string name="Docs">Document</string>
+    <string name="Docs">DOCs</string>
     <string name="image">Image/Camera</string>
     <string name="PDF">PDF</string>
-    <string name="selectfiletype">Select</string>
+    <string name="selectfiletype">Select file type</string>
     <string name="mygrouptab">My groups</string>
     <string name="allgrouptab">All groups</string>
     <string name="search">Search</string>
