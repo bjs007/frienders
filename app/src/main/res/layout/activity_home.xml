@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <Button
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             android:id="@+id/send_to_login_activity"
             android:layout_width="match_parent"
             android:layout_height="60dp"

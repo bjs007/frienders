@@ -44,6 +44,7 @@
         <activity android:name=".activity.group.NestedGroupDisplayActivity" />
         <activity android:name=".activity.login.PhoneLoginActivity" />
         <activity android:name=".activity.group.GroupChatActivity" />
+        <activity android:name=".activity.HomeActivity" />
         <activity
             android:name=".activity.profile.SettingActivity"
             android:parentActivityName=".activity.MainActivity" />
