@@ -15,7 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.group.RequestNewGroup"></activity>
+        <activity android:name=".activity.help.HelpActivity"></activity>
+        <activity android:name=".activity.group.RequestNewGroup" />
         <activity android:name=".activity.ImageViwer" />
 
         <provider

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.frienders.main.R;
+import com.frienders.main.activity.login.LoginActivity;
 import com.frienders.main.activity.login.NewLoginActivity;
 
 public class HomeActivity extends AppCompatActivity {
@@ -23,7 +24,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent loginIntent = new Intent(HomeActivity.this,
-                        NewLoginActivity.class);
+                        LoginActivity.class);
                 loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 loginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(loginIntent);

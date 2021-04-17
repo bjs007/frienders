@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">frienders</string>
-    <string name="app_name_cap">FRIENDERS</string>
+    <string name="app_name">Panpan - It's free!</string>
+    <string name="app_name_cap">PANPAN</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_login">Sign in</string>
@@ -88,4 +88,9 @@
     <string name="new_group_request_registered_failed">Your request for a new group has failed!!</string>
     <string name="write_something_about_new_group_message">Please write something about your group</string>
     <string name="write_at_least_5_words">Please write at least 5 words!</string>
+    <string name="short_app_description">There are many groups in the app and you can subscribe to any or all of them for free. Groups are for common use. Example hospital, marriage, vehicle, job, etc.</string>
+    <string name="there_are_three_tabs_in_the_app">There are three tabs in the app.</string>
+    <string name="mygroup_desc">You can see all the groups you have added. You can chat in any group here.</string>
+    <string name="allgroup_desc">You can find all the groups in this section. You can add them and remove any group from here.</string>
+    <string name="searchgroup_desc">You can search for any group here. such as Gupta marriage, Bihar hospital, etc</string>
 </resources>

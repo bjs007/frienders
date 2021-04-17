@@ -2,8 +2,8 @@
 <resources>
 
 
-    <string name="app_name">फ़्रेंडर्स</string>
-    <string name="app_name_cap">फ़्रेंडर्स</string>
+    <string name="app_name">पैनपैन - यह निःशुल्क है</string>
+    <string name="app_name_cap">पैनपैन</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_login"> साइन इन करें</string>
@@ -91,7 +91,10 @@
     <string name="new_group_request_registered_failed">नए समूह के लिए आपका अनुरोध विफल हो गया है!</string>
     <string name="write_something_about_new_group_message">कृपया अपने ग्रूप के बारे में कुछ लिखें</string>
     <string name="write_at_least_5_words">कृपया कम से कम 5 शब्द लिखें!</string>
-
-
+    <string name="short_app_description">ऐप में कई समूह हैं और आप किसी भी या सभी को मुफ्त में सदस्यता ले सकते हैं। समूह आम उपयोग के लिए हैं। उदाहरण अस्पताल, शादी, वाहन, नौकरी, आदि।</string>
+    <string name="there_are_three_tabs_in_the_app">ऐप में तीन टैब हैं।</string>
+    <string name="mygroup_desc">आप अपने द्वारा जोड़े गए सभी समूहों को देख सकते हैं। आप यहां किसी भी ग्रुप में चैट कर सकते हैं।</string>
+    <string name="allgroup_desc">आप इस अनुभाग में सभी समूह पा सकते हैं। आप उन्हें जोड़ सकते हैं और यहां से किसी भी समूह को हटा सकते हैं।</string>
+    <string name="searchgroup_desc">आप यहां किसी भी समूह को खोज सकते हैं। जैसे गुप्ता विवाह, बिहार अस्पताल, आदि।</string>
 
 </resources>
