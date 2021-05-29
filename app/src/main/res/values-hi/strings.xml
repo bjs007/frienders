@@ -84,7 +84,7 @@
     <string name="no_pic_present">कोई प्रोफ़ाइल तस्वीर नहीं!!</string>
     <string name="message_reported">मेसेज रिपोर्ट किया गया</string>
     <string name="message_reporting_failed">मेसेज रिपोर्टिंग फेल</string>
-    <string name="request_group">ग्रूप अनुरोध करें</string>
+    <string name="request_group">नया समूह/प्रतिक्रिया/सुझाव</string>
     <string name="new_group">नए ग्रूप</string>
     <string name="write_something_about_new_group">अपने ग्रूप के बारे में कुछ लिखें</string>
     <string name="new_group_request_registered">आपका अनुरोध स्वीकार कर लिया गया है!</string>
@@ -96,5 +96,5 @@
     <string name="mygroup_desc">आप अपने द्वारा जोड़े गए सभी समूहों को देख सकते हैं। आप यहां किसी भी ग्रुप में चैट कर सकते हैं।</string>
     <string name="allgroup_desc">आप इस अनुभाग में सभी समूह पा सकते हैं। आप उन्हें जोड़ सकते हैं और यहां से किसी भी समूह को हटा सकते हैं।</string>
     <string name="searchgroup_desc">आप यहां किसी भी समूह को खोज सकते हैं। जैसे गुप्ता विवाह, बिहार अस्पताल, आदि।</string>
-
+    <string name="help_request">सहायता</string>
 </resources>

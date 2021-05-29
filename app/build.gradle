@@ -47,9 +47,8 @@ android {
 
 dependencies {
 
-    def sqlite_version = "2.1.0"
     // Implementation of the AndroidX SQLite interfaces via the Android framework APIs.
-    implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
+//    implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -98,7 +97,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.6'
     implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.10.6'
     implementation 'me.saket:better-link-movement-method:2.2.0'
-    implementation files('libs/YouTubeAndroidPlayerApi.jar')
+//    implementation files('libs/YouTubeAndroidPlayerApi.jar')
 //    implementation 'com.writingminds:FFmpegAndroid:4.3.1.LTS'
 //    implementation 'nl.bravobit:android-ffmpeg:1.1.7'
 //    implementation 'com.arthenica:mobile-ffmpeg-full-gpl:4.3.1.LTS'

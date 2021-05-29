@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.frienders.main.activity.group.RequestNewGroup;
+import com.frienders.main.activity.help.HelpActivity;
 import com.frienders.main.activity.profile.NewSetting;
 import com.frienders.main.activity.login.NewLoginActivity;
 import com.frienders.main.config.UsersFirebaseFields;
@@ -327,7 +328,21 @@ public class MainActivity extends AppCompatActivity {
             sendUserToRequestNewGroupActivity();
         }
 
+        if(item.getItemId() == R.id.main_help_request)
+        {
+            sendUserToHelp();
+        }
+
+
         return true;
+    }
+
+    private void sendUserToHelp() {
+        Intent settingIntent = new Intent(MainActivity.this, HelpActivity.class);
+        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(settingIntent);
+        finish();
     }
 
     private void sendUserToSettingActivity()

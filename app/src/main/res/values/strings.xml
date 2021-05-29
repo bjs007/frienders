@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Panpan - It's free!</string>
+    <string name="app_name">Panpan</string>
     <string name="app_name_cap">PANPAN</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -82,7 +82,7 @@
     <string name="message_reported">Message Reported</string>
     <string name="message_reporting_failed">Message reporting failed</string>
     <string name="request_group">Request group</string>
-    <string name="new_group">New Group</string>
+    <string name="new_group">New Group/feedback/suggestion</string>
     <string name="write_something_about_new_group">Write something about your group</string>
     <string name="new_group_request_registered">Your request has been accepted!</string>
     <string name="new_group_request_registered_failed">Your request for a new group has failed!!</string>
@@ -93,4 +93,5 @@
     <string name="mygroup_desc">You can see all the groups you have added. You can chat in any group here.</string>
     <string name="allgroup_desc">You can find all the groups in this section. You can add them and remove any group from here.</string>
     <string name="searchgroup_desc">You can search for any group here. such as Gupta marriage, Bihar hospital, etc</string>
+    <string name="help_request">Help</string>
 </resources>

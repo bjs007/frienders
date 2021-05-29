@@ -39,7 +39,7 @@
         android:background="@drawable/boarder"
         android:cursorVisible="true"
         android:textCursorDrawable = "@null"
-        android:hint="Write something about your group"/>
+        android:hint="Write here"/>
 
 
     <LinearLayout

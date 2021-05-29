@@ -25,4 +25,11 @@
         >
     </item>
 
+    <item
+        android:title="@string/help_request"
+        android:id="@+id/main_help_request"
+        app:showAsAction="never"
+        >
+    </item>
+
 </menu>
